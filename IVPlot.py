@@ -20,7 +20,7 @@ def PlotIV(filepath: str):
     plt.figure()
     plt.plot(df['Voltage'], df['Current'], marker='o', markersize = 5)
     plt.xlabel('Voltage [V]')
-    plt.ylim(0, 10)
+    plt.ylim(0, 2)
     plt.ylabel('Current [$\mu$A]')
     plt.gca().invert_xaxis()
     plt.title(f'I-V Curve {FileName}')
