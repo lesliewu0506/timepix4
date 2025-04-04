@@ -3,7 +3,7 @@
 // ===============Headers=================
 #include <iostream>
 #include <vector>
-#include<tuple> 
+#include <tuple> 
 #include <list>
 #include <fstream>
 #include <ctime>
@@ -18,30 +18,31 @@
 // ===============Headers=================
 
 // Add filename here without extension
-const char* filename="N116-250403-150114";
+const char* filename="N10-250404-133629";
+const char* filename2="N116-250403-150114";
+const char* N10_Long = "N10-250404-143700";
 
 // Constants
-const int hist1d=3;
-const char* variable[hist1d]={"N hits","ToA","Cluster ToT"};
-const char* x_axis[hist1d]={"Cluster Size","ToA [s]","Cluster ToT [25 ns]"};
+const int HistogramArraySize=3;
+const char* variable[HistogramArraySize]={"N hits","ToA","Cluster ToT"};
+const char* x_axis[HistogramArraySize]={"Cluster Size","ToA [s]","Cluster ToT [25 ns]"};
+const int array_length= 10000;
 
-// Create histograms
-TH1D* hist[hist1d];
-TH1D* histcharge;
-TH1D* tot_plot;
-TH1D* singlepixelplot;
-TH2D* hitmap;
-int N_hits[448][512]={0};
-
-double tosec=1000000000;
-double toa_sec;
+// // Create histograms
+// TH1D* hist[HistogramArraySize];
+// TH1D* histcharge;
+// TH1D* tot_plot;
+// TH1D* singlepixelplot;
+// TH2D* hitmap;
+// int N_hits[448][512]={0};
 
 // ================Function prototypes===============
-void get_file_data(const char* filename);
-void FindPixelWithMostHits (void);
-void makehist4(TH1D* hist[3], TH2D* hitmap);
+std::tuple<TH2D*, std::array<TH1D*, HistogramArraySize>, TH1D*, TH1D*, TH1D*> get_file_data(const char* filename);
+// void FindPixelWithMostHits (void);
+void makehist4(std::array <TH1D*, HistogramArraySize > HistogramArray, TH2D* hitmap);
 void MakeChargeAndToTHistograms(TH1D* histcharge, TH1D* tot_plot);
 void MakeSinglePixelHistogram(TH1D* singlepixelplot);
+void OverlapToTHistograms(TH1D* hist1, TH1D* hist2);
 // ================Function prototypes===============
 
 // Main function
@@ -50,25 +51,38 @@ int standaardanalyse()
     time_t start_time = time(NULL);
 
     // Get Data from ROOT file
-    get_file_data(Form("%s.root",filename));
+    // auto [hitmap1, HistogramArray1, histcharge1, tot_plot1, singlepixelplot1] = get_file_data(Form("%s.root", filename));
+    // auto [hitmap2, HistogramArray2, histcharge2, tot_plot2, singlepixelplot2] = get_file_data(Form("%s.root", filename2));
+    auto [hitmap3, HistogramArray3, histcharge3, tot_plot3, singlepixelplot3] = get_file_data(Form("%s.root", N10_Long));
 
     // Make Histograms
-    // makehist4(hist,hitmap);
-    // MakeChargeAndToTHistograms(histcharge, tot_plot);
-    MakeSinglePixelHistogram(singlepixelplot);
-
+    makehist4(HistogramArray3, hitmap3);
+    MakeChargeAndToTHistograms(histcharge3, tot_plot3);
+    // MakeSinglePixelHistogram(singlepixelplot);
+    // OverlapToTHistograms(tot_plot1, tot_plot2);
     time_t end_time=time(NULL)-start_time;
     return end_time;
 }
 
-void get_file_data(const char* filename){
+std::tuple<TH2D*, std::array<TH1D*, HistogramArraySize>, TH1D*, TH1D*, TH1D*> get_file_data(const char* filename)
+{
+    // Create histograms
+    std::array<TH1D*, HistogramArraySize> HistogramArray;
+    TH1D* histcharge;
+    TH1D* tot_plot;
+    TH1D* singlepixelplot;
+    TH2D* hitmap;
+    int N_hits[448][512]={0};
+
+    double tosec=1000000000;
+    double toa_sec; 
+
     TFile* file = new TFile(filename, "READ");
     TTree* rawtree = (TTree*)file->Get("clusterTree");
     
     // rawtree->Print();
     int length_hits = rawtree->GetEntries();
     // cout<<"number of events "<<length_hits<<endl;
-    int array_length=2000;
 
     // Plots the standard analysis histograms
     hitmap=new TH2D("hitmap",Form("hitmap %s",filename),448,-0.5,447.5,512,-0.5,511.5);
@@ -78,10 +92,10 @@ void get_file_data(const char* filename){
     tot_plot = new TH1D("tot_plot", "ToT", 100, 0 , 300);
     singlepixelplot = new TH1D("singlepixelplot", "Single Pixel Charge Histogram", 100, 0 , 20);
 
-    for(int i=0;i<hist1d;i++){
-        if (i==0){hist[i] = new TH1D(Form("hist[%i]",i), Form("%s ",variable[i]), 20, 0.5, 20.5);}
-        else if (i==1){hist[i] = new TH1D(Form("hist[%i]",i), Form("%s per 1 sec",variable[i]), 1550, 0, 1800);}
-        else if (i==2){hist[i] = new TH1D(Form("hist[%i]",i), Form("%s ",variable[i]), 800, -0.5,799.5);}
+    for(int i=0;i<HistogramArraySize;i++){
+        if (i==0){HistogramArray[i] = new TH1D(Form("HistogramArray[%i]",i), Form("%s ",variable[i]), 20, 0.5, 20.5);}
+        else if (i==1){HistogramArray[i] = new TH1D(Form("HistogramArray[%i]",i), Form("%s per 1 sec",variable[i]), 1550, 0, 3600);}
+        else if (i==2){HistogramArray[i] = new TH1D(Form("HistogramArray[%i]",i), Form("%s ",variable[i]), 800, -0.5,799.5);}
     }
 
     int nhits;
@@ -110,8 +124,8 @@ void get_file_data(const char* filename){
         if (event%1000000==0 and event>0){cout<<event<<endl;}
         
         toa_sec=toa[0]/(tosec)*25/128;
-        hist[0]->Fill(nhits);
-        hist[2]->Fill(clusterTot);
+        HistogramArray[0]->Fill(nhits);
+        HistogramArray[2]->Fill(clusterTot);
 
         histcharge->Fill(charge[0]/1000);
         tot_plot->Fill(tot[0]);
@@ -119,13 +133,13 @@ void get_file_data(const char* filename){
         for(int n=0;n<nhits;n++)
         {
             // Save values of pixel with most hits for further analysis
-            if (col[n] == 85 && row[n] == 510) 
-            {
-                singlepixelplot->Fill(charge[n]/1000);
-            }
+            // if (col[n] == 85 && row[n] == 510) 
+            // {
+            //     singlepixelplot->Fill(charge[n]/1000);
+            // }
 
             toa_sec=toa[n]/(tosec)*25/128;
-            hist[1]->Fill(toa_sec);
+            HistogramArray[1]->Fill(toa_sec);
             N_hits[col[n]][row[n]]+=1;
         }
     }
@@ -148,31 +162,33 @@ void get_file_data(const char* filename){
             }
     }
 
-    FindPixelWithMostHits();
+    // FindPixelWithMostHits();
+
+    return std::make_tuple(hitmap, HistogramArray, histcharge, tot_plot, singlepixelplot);
 }
 
-void FindPixelWithMostHits (void)
+// void FindPixelWithMostHits (void)
+// {
+//     // Find the pixel with the most hits
+//     int max_hits = 0;
+//     int max_row = -1;
+//     int max_col = -1;
+//     for (int i = 0; i < 448; i++) {
+//         for (int j = 0; j < 512; j++)
+//         {
+//             if (N_hits[i][j] > max_hits && N_hits[i][j] < 6000)
+//             {
+//                 max_hits = N_hits[i][j];
+//                 max_col = i;
+//                 max_row = j;
+//             }
+//         }
+//     }
+//     cout<<"Pixel with most hits: (" << max_row << ", " << max_col << ") with " << max_hits << " hits." << endl;
+// }
+
+void makehist4(std::array <TH1D*, HistogramArraySize > HistogramArray, TH2D* hitmap)
 {
-    // Find the pixel with the most hits
-    int max_hits = 0;
-    int max_row = -1;
-    int max_col = -1;
-
-    for (int i = 0; i < 448; i++) {
-        for (int j = 0; j < 512; j++)
-        {
-            if (N_hits[i][j] > max_hits && N_hits[i][j] < 6000)
-            {
-                max_hits = N_hits[i][j];
-                max_col = i;
-                max_row = j;
-            }
-        }
-    }
-    cout<<"Pixel with most hits: (" << max_row << ", " << max_col << ") with " << max_hits << " hits." << endl;
-}
-
-void makehist4(TH1D* hist[3], TH2D* hitmap){
     TCanvas *canv = new TCanvas("c1","c1",1600,1200);
     //gStyle->SetOptStat(0);
     gStyle->SetPadLeftMargin(0.13);
@@ -187,34 +203,34 @@ void makehist4(TH1D* hist[3], TH2D* hitmap){
     hitmap->GetXaxis()->SetTitle("Col");
 
     // Set the limits for the gradient of N hits
-    hitmap->SetMaximum(60);
+    hitmap->SetMaximum(100);
     hitmap->SetMinimum(0);
 
     hitmap->Draw("COLZ");
 
-    for (int i=0;i<3;i++)
+    for (int i = 0; i < HistogramArraySize; i++)
     {
         canv->cd(i+2);
-        hist[i]->SetXTitle(x_axis[i]);
-        hist[i]->SetYTitle("Entries");
-        hist[i]->SetLineWidth(3);   // nice thick line
-        hist[i]->SetFillColor(5);   // yellow fill color
-        hist[i]->Draw();
+        HistogramArray[i]->SetXTitle(x_axis[i]);
+        HistogramArray[i]->SetYTitle("Entries");
+        HistogramArray[i]->SetLineWidth(3);   // nice thick line
+        HistogramArray[i]->SetFillColor(5);   // yellow fill color
+        HistogramArray[i]->Draw();
         if (i == 1) 
         {
-            double mean = hist[1]->GetMean();
-            TLine* meanLine = new TLine(hist[1]->GetXaxis()->GetXmin(), mean,
-                                        hist[1]->GetXaxis()->GetXmax(), mean);
-            meanLine->SetLineColor(kRed);
-            meanLine->SetLineStyle(2); // dashed
-            meanLine->SetLineWidth(2);
-            meanLine->Draw("same");
+            // double mean = HistogramArray[1]->GetMean();
+            // TLine* meanLine = new TLine(HistogramArray[1]->GetXaxis()->GetXmin(), mean,
+            //                             HistogramArray[1]->GetXaxis()->GetXmax(), mean);
+            // meanLine->SetLineColor(kRed);
+            // meanLine->SetLineStyle(2); // dashed
+            // meanLine->SetLineWidth(2);
+            // meanLine->Draw("same");
             gPad->SetLogy(); // Set logarithmic y-axis for the current pad
         }
         canv->cd((i+1)*2);
     }
 
-    canv->SaveAs(Form("%s_standaardanalyse.png",filename));
+    canv->SaveAs(Form("%s_standaardanalyse.png", N10_Long));
     canv->Clear();
     canv->Close();
 }
@@ -241,7 +257,7 @@ void MakeChargeAndToTHistograms(TH1D* histcharge, TH1D* tot_plot)
     tot_plot->Draw();
 
     // Save the combined image
-    ChargeToTCanvas->SaveAs("Charge and ToT Histograms.png");
+    ChargeToTCanvas->SaveAs("N10 Charge and ToT Histograms.png");
 
     // Clear the canvas and close it
     ChargeToTCanvas-> Clear();
@@ -261,8 +277,34 @@ void MakeSinglePixelHistogram(TH1D* singlepixelplot)
     
     // Draw the histogram
     singlepixelplot->Draw();
-    PixelCanvas->SaveAs("Single Pixel Charge Histogram.png");
+    PixelCanvas->SaveAs("N10 Single Pixel Charge Histogram.png");
 
     PixelCanvas-> Clear();
     PixelCanvas-> Close();
+}
+
+void OverlapToTHistograms(TH1D* hist1, TH1D* hist2)
+{
+    TCanvas* OverlapCanvas = new TCanvas("OverlapCanvas", "Overlap ToT Histograms", 1800, 1200);
+    hist1->SetXTitle("ToT");
+    hist1->SetYTitle("Entries");
+    hist1->SetLineWidth(2);
+    hist1->SetFillColor(38);
+    hist1->Draw();
+
+    hist2->SetLineWidth(2);
+    hist2->SetFillColor(48);
+    hist2->Draw("same");
+
+    TLegend* legend = new TLegend(0.7, 0.7, 0.9, 0.9);
+    legend->AddEntry(hist1, "N10 Data", "f");
+    legend->AddEntry(hist2, "N116 Data", "f");
+    legend->Draw();
+
+    // Save the combined image
+    OverlapCanvas->SaveAs("N10 and N116 Overlap ToT Histograms.png");
+
+    // Clear the canvas and close it
+    OverlapCanvas-> Clear();
+    OverlapCanvas-> Close();
 }
