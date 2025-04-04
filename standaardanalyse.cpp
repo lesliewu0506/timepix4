@@ -37,32 +37,36 @@ double tosec=1000000000;
 double toa_sec;
 
 // ================Function prototypes===============
-int get_file_data(const char* filename);
+void get_file_data(const char* filename);
+void FindPixelWithMostHits (void);
 void makehist4(TH1D* hist[3], TH2D* hitmap);
 void MakeChargeAndToTHistograms(TH1D* histcharge, TH1D* tot_plot);
 void MakeSinglePixelHistogram(TH1D* singlepixelplot);
 // ================Function prototypes===============
 
 // Main function
-int standaardanalyse(){
+int standaardanalyse()
+{
     time_t start_time = time(NULL);
+
     // Get Data from ROOT file
     get_file_data(Form("%s.root",filename));
 
     // Make Histograms
     // makehist4(hist,hitmap);
-    MakeChargeAndToTHistograms(histcharge, tot_plot);
-    // MakeSinglePixelHistogram(singlepixelplot);
+    // MakeChargeAndToTHistograms(histcharge, tot_plot);
+    MakeSinglePixelHistogram(singlepixelplot);
+
     time_t end_time=time(NULL)-start_time;
     return end_time;
 }
 
-int get_file_data(const char* filename){
+void get_file_data(const char* filename){
     TFile* file = new TFile(filename, "READ");
     TTree* rawtree = (TTree*)file->Get("clusterTree");
     
     // rawtree->Print();
-    // int length_hits = rawtree->GetEntries();
+    int length_hits = rawtree->GetEntries();
     // cout<<"number of events "<<length_hits<<endl;
     int array_length=2000;
 
@@ -99,8 +103,9 @@ int get_file_data(const char* filename){
     rawtree->SetBranchAddress("cltot",   &clusterTot);
     rawtree->SetBranchAddress("ftoaRise",    &ftoa);
     rawtree->SetBranchAddress("toa",    &toa);
-    
-    for (long event=0;event<length_hits;event++){
+
+    for (long event=0;event<length_hits;event++)
+    {
         rawtree->GetEntry(event);
         if (event%1000000==0 and event>0){cout<<event<<endl;}
         
@@ -114,7 +119,7 @@ int get_file_data(const char* filename){
         for(int n=0;n<nhits;n++)
         {
             // Save values of pixel with most hits for further analysis
-            if (col[n] == 70 && row[n] == 26) 
+            if (col[n] == 85 && row[n] == 510) 
             {
                 singlepixelplot->Fill(charge[n]/1000);
             }
@@ -125,34 +130,46 @@ int get_file_data(const char* filename){
         }
     }
 
+    // Fill hitmap array
     for (int i=0;i<448; i++){
         for (int j=0;j<512;j++)
             if (N_hits[i][j] == 0){
                 hitmap->Fill(i,j,0);
             }
-            else{
+            else
+            {
                 hitmap->Fill(i, j, N_hits[i][j]);
-                if (N_hits[i][j]>6000){
+
+                // Filter noisy pixels
+                if (N_hits[i][j]>6000)
+                {
                     cout<<i<<","<<j<<","<<N_hits[i][j]<<endl;
                 }
             }
     }
 
+    FindPixelWithMostHits();
+}
+
+void FindPixelWithMostHits (void)
+{
     // Find the pixel with the most hits
     int max_hits = 0;
     int max_row = -1;
     int max_col = -1;
+
     for (int i = 0; i < 448; i++) {
-        for (int j = 0; j < 512; j++) {
-            if (N_hits[i][j] > max_hits) {
+        for (int j = 0; j < 512; j++)
+        {
+            if (N_hits[i][j] > max_hits && N_hits[i][j] < 6000)
+            {
                 max_hits = N_hits[i][j];
-                max_row = i;
-                max_col = j;
+                max_col = i;
+                max_row = j;
             }
         }
     }
-    std::cout << "Pixel with most hits: (" << max_col << ", " << max_row << ") with " << max_hits << " hits." << std::endl;
-    return 0;
+    cout<<"Pixel with most hits: (" << max_row << ", " << max_col << ") with " << max_hits << " hits." << endl;
 }
 
 void makehist4(TH1D* hist[3], TH2D* hitmap){
@@ -234,7 +251,7 @@ void MakeChargeAndToTHistograms(TH1D* histcharge, TH1D* tot_plot)
 void MakeSinglePixelHistogram(TH1D* singlepixelplot) 
 {
     // Create single pixel charge histogram
-    TCanvas* PixelCanvas = new TCanvas("pixelCanvas", "Charge at Single Pixel with highest hits", 800, 600);
+    TCanvas* PixelCanvas = new TCanvas("pixelCanvas", "Charge at Single Pixel with highest hits", 1800, 1200);
     
     // Set histogram properties
     singlepixelplot->SetXTitle("Charge [ke]");
@@ -244,7 +261,7 @@ void MakeSinglePixelHistogram(TH1D* singlepixelplot)
     
     // Draw the histogram
     singlepixelplot->Draw();
-    PixelCanvas->SaveAs("singlepixelplot.png");
+    PixelCanvas->SaveAs("Single Pixel Charge Histogram.png");
 
     PixelCanvas-> Clear();
     PixelCanvas-> Close();
