@@ -21,7 +21,7 @@
 const char* filename="N10-250404-133629";
 const char* filename2="N116-250403-150114";
 const char* N10_Long = "N10-250404-143700";
-
+const char* N112 = "N112-250407-153050";
 // Constants
 const int HistogramArraySize=3;
 const char* variable[HistogramArraySize]={"N hits","ToA","Cluster ToT"};
@@ -54,14 +54,16 @@ int standaardanalyse()
     // Get Data from ROOT file
     // auto [hitmap1, HistogramArray1, histcharge1, tot_plot1, singlepixelplot1] = get_file_data(Form("%s.root", filename));
     // auto [hitmap2, HistogramArray2, histcharge2, tot_plot2, singlepixelplot2] = get_file_data(Form("%s.root", filename2));
-    auto [hitmap3, HistogramArray3, histcharge3, tot_plot3, singlepixelplot3] = get_file_data(Form("%s.root", N10_Long));
+    // auto [hitmap3, HistogramArray3, histcharge3, tot_plot3, singlepixelplot3] = get_file_data(Form("%s.root", N10_Long));
+    auto [hitmap4, HistogramArray4, histcharge4, tot_plot4, singlepixelplot4] = get_file_data(Form("%s.root", N112));
 
     // Make Histograms
+    MakeChargeAndToTHistograms(histcharge4, tot_plot4);
     // makehist4(HistogramArray3, hitmap3);
     // MakeChargeAndToTHistograms(histcharge3, tot_plot3);
     // MakeSinglePixelHistogram(singlepixelplot);
     // OverlapToTHistograms(tot_plot1, tot_plot2);
-    MakeChargeHistogramWithFit(histcharge3);
+    // MakeChargeHistogramWithFit(histcharge3);
     time_t end_time=time(NULL)-start_time;
     return end_time;
 }

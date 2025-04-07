@@ -110,13 +110,13 @@ def VisualizeMultipleToTChargeSingle(filepath1, filepath2):
     plt.show()
     # print("Fitted parameters: a=%.6f, b=%.6f, c=%.6f, t=%.6f" % tuple(popt))
 
-def STDHistogram(filepath1, filepath2):
-    plt.figure(figsize=(8, 6))
+def STDHistogram(filepath1, filepath2, filepath3):
+    plt.figure(figsize=(12, 10))
 
-    for filepath, color in zip([filepath1, filepath2], ['blue', 'orange']):
+    for filepath, color in zip([filepath1, filepath2, filepath3], ['blue', 'orange', 'green']):
         df = CreateDataFrame(filepath)
         df["stdvTot"] = df["stdvTot"] / df["meanTot"] * 100
-        plt.hist(df["stdvTot"], bins=100, alpha=0.5, label=f"{filepath}", color=color)
+        plt.hist(df["stdvTot"], bins=100, alpha=0.3, label=f"{filepath}", color=color)
 
     plt.xlabel("std ToT [%]")
     plt.ylabel("Frequency")
@@ -127,5 +127,6 @@ def STDHistogram(filepath1, filepath2):
     plt.show()
 
 if __name__ == "__main__":
-    # STDHistogram("fitData_N10.csv", "fitData_N116.csv")
-    VisualizeMultipleToTChargeSingle("fitData_N10.csv", "fitData_N116.csv")
+    STDHistogram("fitData_N10.csv", "fitData_N116.csv", "fitData_N112.csv")
+    # VisualizeMultipleToTChargeSingle("fitData_N10.csv", "fitData_N116.csv")
+    # PlotTotCharge("fitData_N112.csv")
