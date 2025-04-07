@@ -45,8 +45,8 @@ def PlotTotCharge(filepath):
     plt.xlabel("Charge [ke]")
     plt.ylabel("ToT [25ns]")
     plt.legend()
-    plt.title("ToT vs Charge with Fit N10")
-    plt.savefig("Tot_vs_Charge_N10.png", dpi = 600)
+    plt.title("ToT vs Charge with Fit N112")
+    plt.savefig("Tot_vs_Charge_N112.png", dpi = 600)
     plt.show()
 
     # Print the fitted parameters
@@ -127,6 +127,6 @@ def STDHistogram(filepath1, filepath2, filepath3):
     plt.show()
 
 if __name__ == "__main__":
-    STDHistogram("fitData_N10.csv", "fitData_N116.csv", "fitData_N112.csv")
+    # STDHistogram("fitData_N10.csv", "fitData_N116.csv", "fitData_N112.csv")
     # VisualizeMultipleToTChargeSingle("fitData_N10.csv", "fitData_N116.csv")
-    # PlotTotCharge("fitData_N112.csv")
+    PlotTotCharge("fitData_N112.csv")
