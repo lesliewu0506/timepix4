@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+pre = "Charge Calibrations/"
 def CreateDataframe(filepath):
     df = pd.read_csv(filepath, delim_whitespace=True, header = None, skiprows = 15)
     df.columns = ["Col", "Row", "p0", "p1", "p2", "p3", "p0_err", "p1_err", "p2_err", "p3_err", "red_chi2", "valid"]
@@ -63,4 +64,4 @@ def PlotData(filepath1, filepath2):
     return 
 
 if __name__ == "__main__":
-    PlotData("N10_charge.txt", "N116_charge.txt")
+    PlotData(f"{pre}N10_charge.txt", f"{pre}N116_charge.txt")

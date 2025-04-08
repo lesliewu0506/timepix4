@@ -22,6 +22,8 @@ const char* filename="N10-250404-133629";
 const char* filename2="N116-250403-150114";
 const char* N10_Long = "N10-250404-143700";
 const char* N112 = "N112-250407-162648";
+const char* N113 = "N113-250408-100406";
+
 // Constants
 const int HistogramArraySize=3;
 const char* variable[HistogramArraySize]={"N hits","ToA","Cluster ToT"};
@@ -55,7 +57,7 @@ int standaardanalyse()
     // auto [hitmap1, HistogramArray1, histcharge1, tot_plot1, singlepixelplot1] = get_file_data(Form("%s.root", filename));
     // auto [hitmap2, HistogramArray2, histcharge2, tot_plot2, singlepixelplot2] = get_file_data(Form("%s.root", filename2));
     // auto [hitmap3, HistogramArray3, histcharge3, tot_plot3, singlepixelplot3] = get_file_data(Form("%s.root", N10_Long));
-    auto [hitmap4, HistogramArray4, histcharge4, tot_plot4, singlepixelplot4] = get_file_data(Form("%s.root", N112));
+    auto [hitmap4, HistogramArray4, histcharge4, tot_plot4, singlepixelplot4] = get_file_data(Form("Am-241 Runs/%s.root", N113));
 
     // Make Histograms
     MakeChargeAndToTHistograms(histcharge4, tot_plot4);
@@ -261,7 +263,7 @@ void MakeChargeAndToTHistograms(TH1D* histcharge, TH1D* tot_plot)
     tot_plot->Draw();
 
     // Save the combined image
-    ChargeToTCanvas->SaveAs("N10 Charge and ToT Histograms.png");
+    ChargeToTCanvas->SaveAs("N113 Charge and ToT Histograms.png");
 
     // Clear the canvas and close it
     ChargeToTCanvas-> Clear();

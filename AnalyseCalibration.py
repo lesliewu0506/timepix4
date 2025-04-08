@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
+pre = "Test Pulse Data/"
+
 def CreateDataFrame(filepath):
     df = pd.read_csv(filepath, sep = ",", on_bad_lines="skip", encoding="utf-8")
     df.columns = ["Col", "Row","Charge","meanTot","stdvTot","nhits"]
@@ -129,4 +131,4 @@ def STDHistogram(filepath1, filepath2, filepath3):
 if __name__ == "__main__":
     # STDHistogram("fitData_N10.csv", "fitData_N116.csv", "fitData_N112.csv")
     # VisualizeMultipleToTChargeSingle("fitData_N10.csv", "fitData_N116.csv")
-    PlotTotCharge("fitData_N112.csv")
+    PlotTotCharge(f"{pre}fitData_N113.csv")

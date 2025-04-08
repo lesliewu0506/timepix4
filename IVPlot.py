@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
+pre = "Voltage Scan/"
 def CreateDataframe(filepath):
     # Read the file, no header, space-separated, and each row becomes a row in the DataFrame
     df = pd.read_csv(filepath, sep=' ', header=None)
@@ -30,6 +30,6 @@ def PlotIV(filepath: str):
     plt.show()
 
 if __name__ == "__main__":
-    files = ["N10_voltage_scan.txt", "N116_voltage_scan.txt"]
+    files = [f"{pre}N10_voltage_scan.txt", f"{pre}N116_voltage_scan.txt"]
     for file in files:
         PlotIV(file)
