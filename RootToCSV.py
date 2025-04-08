@@ -29,7 +29,7 @@ def ConvertManualCalibrationData(root_file_path, csv_file_path):
 
     # Convert the TTree data into a Pandas DataFrame
     # The `arrays()` function reads the specified branches; specifying library="pd" returns a DataFrame.
-    df = tree.arrays(["nhits", "col", "row", "tot"], library="pd")
+    df = tree.arrays(["nhits", "col", "row", "tot", "charge"], library="pd")
 
     # # Write the DataFrame to a CSV file
     df.to_csv(csv_file_path, index=False)
@@ -37,6 +37,6 @@ def ConvertManualCalibrationData(root_file_path, csv_file_path):
 if __name__ == "__main__":
     # Specify the ROOT file path
     root_file_path = "Am-241 Runs/N10-250404-143700.root"
-    csv_file_path = "N10-250404-143700.csv"
+    csv_file_path = "N10-250404-143700_normal.csv"
 
     ConvertManualCalibrationData(root_file_path, csv_file_path)

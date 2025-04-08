@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+THRESHOLDTOT = 150
+
 def LoadCSV(filepath):
     df = pd.read_csv(filepath, usecols=["nhits", "col", "row", "tot"])
     df_filtered = df[df["nhits"] == 1].copy()
@@ -24,7 +26,7 @@ def FindHighestToT(df, target_col, target_row):
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
     # Can be higher than 100
-    mask = bin_centers > 100
+    mask = bin_centers > THRESHOLDTOT
     filtered_counts = counts[mask]
     filtered_bins = bin_centers[mask]
 
@@ -64,12 +66,41 @@ def PlotHistogram(df:pd.DataFrame = None, filepath:str = None):
     df.loc[df['charge'] > 25, 'charge'] = np.nan
 
     ax = df.hist(column = "charge", bins = 80, grid = False, figsize = (10, 7), color = "blue", alpha = 0.7)
+
     plt.xlabel("Charge (ke)")
     plt.ylabel("Counts")
     plt.xlim(0, 20)
     plt.title("Charge Distribution")
     plt.grid(False)
     # plt.savefig("charge_histogram.png")
+    plt.show()
+
+def FilterNormalData(filepath):
+    df = pd.read_csv(filepath, usecols = ["nhits", "charge"])
+    df_filtered = df[df["nhits"] == 1].copy()
+
+    df_filtered["charge"] = df_filtered["charge"].str.strip("[]").astype(float) / 1000
+
+    return df_filtered
+
+def PlotTwoToT(filepath1, filepath2):
+    df_auto = FilterNormalData(filepath1)
+    df_manual = pd.read_csv(filepath2)
+    df_manual.loc[df_manual["charge"] > 25, "charge"] = np.nan
+    data_auto = df_auto["charge"].dropna()
+    data_manual = df_manual["charge"].dropna()
+    
+    # Plot beide in één histogram
+    plt.hist(data_auto, bins=1600, alpha=0.6, label="Auto Calibration", color="blue", density=True)
+    plt.hist(data_manual, bins=80, alpha=0.6, label="Manual Calibration", color="orange", density=True)
+
+    plt.xlabel("Charge (ke)")
+    plt.ylabel("Counts")
+    plt.xlim(0, 20)
+    plt.title("Charge Distribution N10")
+    plt.grid(False)
+    plt.legend()
+    plt.savefig("N10_Charge_Distribution_ManualvsAuto.png", dpi = 600)
     plt.show()
 
 def main(filepath):
@@ -82,4 +113,5 @@ if __name__ == "__main__":
     # filepath = "N116-250403-150114-filtered.csv" 
     filepath = "N10-filtered.csv"
     # main(filepath)
-    PlotHistogram(filepath=filepath)
+    # PlotHistogram(filepath=filepath)
+    PlotTwoToT("N10-250404-143700_normal.csv", "N10-filtered.csv")
