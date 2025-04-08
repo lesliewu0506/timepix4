@@ -23,7 +23,7 @@ const char* filename2="N116-250403-150114";
 const char* N10_Long = "N10-250404-143700";
 const char* N112 = "N112-250407-162648";
 const char* N113 = "N113-250408-100406";
-
+const char* N116 = "N116-250408-105332";
 // Constants
 const int HistogramArraySize=3;
 const char* variable[HistogramArraySize]={"N hits","ToA","Cluster ToT"};
@@ -39,11 +39,12 @@ const int array_length= 10000;
 // int N_hits[448][512]={0};
 
 // ================Function prototypes===============
-std::tuple<TH2D*, std::array<TH1D*, HistogramArraySize>, TH1D*, TH1D*, TH1D*> get_file_data(const char* filename);
+std::tuple<TH2D*, std::array<TH1D*, HistogramArraySize>, TH1D*, TH1D*, TH1D*, TH1D*> get_file_data(const char* filename);
 // void FindPixelWithMostHits (void);
 void makehist4(std::array <TH1D*, HistogramArraySize > HistogramArray, TH2D* hitmap);
 void MakeChargeAndToTHistograms(TH1D* histcharge, TH1D* tot_plot);
 void MakeSinglePixelHistogram(TH1D* singlepixelplot);
+void MakeSinglePixelToTHistogram(TH1D* SingleToTPlot);
 void OverlapToTHistograms(TH1D* hist1, TH1D* hist2);
 void MakeChargeHistogramWithFit(TH1D* histcharge);
 // ================Function prototypes===============
@@ -57,10 +58,11 @@ int standaardanalyse()
     // auto [hitmap1, HistogramArray1, histcharge1, tot_plot1, singlepixelplot1] = get_file_data(Form("%s.root", filename));
     // auto [hitmap2, HistogramArray2, histcharge2, tot_plot2, singlepixelplot2] = get_file_data(Form("%s.root", filename2));
     // auto [hitmap3, HistogramArray3, histcharge3, tot_plot3, singlepixelplot3] = get_file_data(Form("%s.root", N10_Long));
-    auto [hitmap4, HistogramArray4, histcharge4, tot_plot4, singlepixelplot4] = get_file_data(Form("Am-241 Runs/%s.root", N113));
+    auto [hitmap4, HistogramArray4, histcharge4, tot_plot4, singlepixelplot4, SingleToTPlot4] = get_file_data(Form("Am-241 Runs/%s.root", filename2));
 
     // Make Histograms
-    MakeChargeAndToTHistograms(histcharge4, tot_plot4);
+    // MakeChargeAndToTHistograms(histcharge4, tot_plot4);
+    MakeSinglePixelToTHistogram(SingleToTPlot4);
     // makehist4(HistogramArray3, hitmap3);
     // MakeChargeAndToTHistograms(histcharge3, tot_plot3);
     // MakeSinglePixelHistogram(singlepixelplot);
@@ -70,13 +72,14 @@ int standaardanalyse()
     return end_time;
 }
 
-std::tuple<TH2D*, std::array<TH1D*, HistogramArraySize>, TH1D*, TH1D*, TH1D*> get_file_data(const char* filename)
+std::tuple<TH2D*, std::array<TH1D*, HistogramArraySize>, TH1D*, TH1D*, TH1D*, TH1D*> get_file_data(const char* filename)
 {
     // Create histograms
     std::array<TH1D*, HistogramArraySize> HistogramArray;
     TH1D* histcharge;
     TH1D* tot_plot;
     TH1D* singlepixelplot;
+    TH1D* SingleToTPlot;
     TH2D* hitmap;
     int N_hits[448][512]={0};
 
@@ -97,6 +100,7 @@ std::tuple<TH2D*, std::array<TH1D*, HistogramArraySize>, TH1D*, TH1D*, TH1D*> ge
     histcharge=new TH1D("histcharge", "Histogram of Charge Americium Source", 200, 0 , 20);
     tot_plot = new TH1D("tot_plot", "ToT", 100, 0 , 300);
     singlepixelplot = new TH1D("singlepixelplot", "Single Pixel Charge Histogram", 100, 0 , 20);
+    SingleToTPlot = new TH1D("SingleToTPlot", "Single Pixel ToT Histogram", 100, 0, 300);
 
     for(int i=0;i<HistogramArraySize;i++){
         if (i==0){HistogramArray[i] = new TH1D(Form("HistogramArray[%i]",i), Form("%s ",variable[i]), 20, 0.5, 20.5);}
@@ -145,6 +149,9 @@ std::tuple<TH2D*, std::array<TH1D*, HistogramArraySize>, TH1D*, TH1D*, TH1D*> ge
             // }
 
             toa_sec=toa[n]/(tosec)*25/128;
+            if (col[n] == 85 && row[n] == 510) {
+                SingleToTPlot->Fill(tot[n]);
+            }
             HistogramArray[1]->Fill(toa_sec);
             N_hits[col[n]][row[n]]+=1;
         }
@@ -170,7 +177,7 @@ std::tuple<TH2D*, std::array<TH1D*, HistogramArraySize>, TH1D*, TH1D*, TH1D*> ge
 
     // FindPixelWithMostHits();
 
-    return std::make_tuple(hitmap, HistogramArray, histcharge, tot_plot, singlepixelplot);
+    return std::make_tuple(hitmap, HistogramArray, histcharge, tot_plot, singlepixelplot, SingleToTPlot);
 }
 
 // void FindPixelWithMostHits (void)
@@ -289,6 +296,19 @@ void MakeSinglePixelHistogram(TH1D* singlepixelplot)
     PixelCanvas-> Close();
 }
 
+void MakeSinglePixelToTHistogram(TH1D* SingleToTPlot)
+{
+    TCanvas* SingleToTCanvas = new TCanvas("SinglePixelToTCanvas", "Single Pixel ToT Histogram", 1800, 1200);
+    SingleToTPlot->SetXTitle("ToT [25 ns]");
+    SingleToTPlot->SetYTitle("Entries");
+    SingleToTPlot->SetLineWidth(2);
+    SingleToTPlot->SetFillColor(46);
+    SingleToTPlot->Draw();
+    SingleToTCanvas->SaveAs("SinglePixelToTHistogram.png");
+    SingleToTCanvas->Clear();
+    SingleToTCanvas->Close();
+}
+
 void OverlapToTHistograms(TH1D* hist1, TH1D* hist2)
 {
     TCanvas* OverlapCanvas = new TCanvas("OverlapCanvas", "Overlap ToT Histograms", 1800, 1200);
@@ -315,48 +335,46 @@ void OverlapToTHistograms(TH1D* hist1, TH1D* hist2)
     OverlapCanvas-> Close();
 }
 
-void MakeChargeHistogramWithFit(TH1D* histcharge)
-{
-    // Create a new histogram with a scaled x-axis (convert from original units to keV)
-    int nbins = histcharge->GetNbinsX();
-    double old_min = histcharge->GetXaxis()->GetXmin();
-    double old_max = histcharge->GetXaxis()->GetXmax();
-    double new_min = old_min * 3.6;
-    double new_max = old_max * 3.6;
-    TH1D* histcharge_scaled = new TH1D("histcharge_scaled", "Histogram of Charge Americium Source", nbins, new_min, new_max);
+// void MakeChargeHistogramWithFit(TH1D* histcharge)
+// {
+//     // Create a new histogram with a scaled x-axis (convert from original units to keV)
+//     int nbins = histcharge->GetNbinsX();
+//     double old_min = histcharge->GetXaxis()->GetXmin();
+//     double old_max = histcharge->GetXaxis()->GetXmax();
+//     double new_min = old_min * 3.6;
+//     double new_max = old_max * 3.6;
+//     TH1D* histcharge_scaled = new TH1D("histcharge_scaled", "Histogram of Charge Americium Source", nbins, new_min, new_max);
+// 
+//     // Copy bin contents and errors from the original histogram into the new scaled histogram
+//     for (int i = 1; i <= nbins; i++)
+//     {
+//         double content = histcharge->GetBinContent(i);
+//         double error = histcharge->GetBinError(i);
+//         histcharge_scaled->SetBinContent(i, content);
+//         histcharge_scaled->SetBinError(i, error);
+//     }
+//     // Update the x-axis title to reflect the new units (keV)
+//     histcharge_scaled->SetXTitle("Charge [keV]");
+//     histcharge_scaled->SetLineWidth(3);
+//     histcharge_scaled->SetFillColor(5);
+//     // Create a canvas for drawing the histogram with fits
+//     TCanvas* fitCanvas = new TCanvas("fitCanvas", "Charge Histogram with Gaussian Fits", 1600, 1200);
+//     histcharge_scaled->Draw();
+//     // Define the peak centers (in keV) for Americium-241 decay and its decay products
+//     double peaks[6] = {8.01, 13.9, 17.7, 20.7, 26.3, 59.5};
+//     // Loop over each peak and perform a Gaussian fit in a narrow window around the peak
+//     for (int i = 0; i < 6; i++) 
+//     {
+//         double peak = peaks[i];
+//         double range_min = peak - 1.0;
+//         double range_max = peak + 1.0;
+//         // The "R+" options restrict the fit to the range and add the fit to the list
+//         histcharge_scaled->Fit("gaus", "R+", "", range_min, range_max);
+//     }
+//     // Save the canvas as an image file
+//     fitCanvas->SaveAs("ChargeHistogramWithFits.png");
+//     // Clean up the canvas
+//     fitCanvas->Clear();
+//     fitCanvas->Close();
+// }
 
-    // Copy bin contents and errors from the original histogram into the new scaled histogram
-    for (int i = 1; i <= nbins; i++)
-    {
-        double content = histcharge->GetBinContent(i);
-        double error = histcharge->GetBinError(i);
-        histcharge_scaled->SetBinContent(i, content);
-        histcharge_scaled->SetBinError(i, error);
-    }
-
-    // Update the x-axis title to reflect the new units (keV)
-    histcharge_scaled->SetXTitle("Charge [keV]");
-    histcharge_scaled->SetLineWidth(3);
-    histcharge_scaled->SetFillColor(5);
-    // Create a canvas for drawing the histogram with fits
-    TCanvas* fitCanvas = new TCanvas("fitCanvas", "Charge Histogram with Gaussian Fits", 1600, 1200);
-    histcharge_scaled->Draw();
-
-    // Define the peak centers (in keV) for Americium-241 decay and its decay products
-    double peaks[6] = {8.01, 13.9, 17.7, 20.7, 26.3, 59.5};
-
-    // Loop over each peak and perform a Gaussian fit in a narrow window around the peak
-    for (int i = 0; i < 6; i++) 
-    {
-        double peak = peaks[i];
-        double range_min = peak - 1.0;
-        double range_max = peak + 1.0;
-        // The "R+" options restrict the fit to the range and add the fit to the list
-        histcharge_scaled->Fit("gaus", "R+", "", range_min, range_max);
-    }
-    // Save the canvas as an image file
-    fitCanvas->SaveAs("ChargeHistogramWithFits.png");
-    // Clean up the canvas
-    fitCanvas->Clear();
-    fitCanvas->Close();
-}
