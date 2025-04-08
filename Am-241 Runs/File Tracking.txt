@@ -1,0 +1,11 @@
+N10-250404-133629.root : 20 min run to test N10 for correct Tot-Charge Graph
+N10-250404-143700: 1 hour run to test N10 for correct ToT-Charge Graph
+
+N112-250407-162648.root : 5 min run to test N112 for correct ToT-Charge Graph
+
+N113-250408-100406.root : 5 min run to test N113 for correct ToT-Charge Graph
+
+N116-250401-115615.root : First test run for N116
+N116-250403-104207.root : 20 min run to test N116 for correct ToT-Charge Graph
+N116-250403-150114.root : 30 min run to test N116 for correct ToT-Charge Graph
+N116-250408-105332.root : 5 min run to test N116 for correct ToT-Charge Graph
