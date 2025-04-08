@@ -1,0 +1,57 @@
+# Timepix4 DAC configuration
+# 
+# Device:   N10
+# Mode:     Fast timing
+# Date:     23-06-21 16:50:46+0200
+# Vdd/Vdda: 1.296/1.172V
+
+# Current DAC registers (Max value: 255)
+# 
+# Max value: 255
+# 
+# Reg   Value  #  Init  Description           Note
+0xa000    128  #   128  VBIAS_ADC             
+0xa001     65  #    65  VBIAS_DAC             
+0xa002    135  #   135  VBIAS_DISC_PMOS       ~1.25 uA
+0xa003     64  #    64  VBIAS_DISC_TRAFF      ~2    uA
+0xa004     83  #    83  VBIAS_DISC_TAIL_NMOS  ~1    uA
+0xa005      3  #     3  VBIAS_IKRUM           ~1    nA
+0xa006     88  #    88  VBIAS_LEVEL_SHIFT     ~0.5  uA
+0xa007    135  #   135  VBIAS_PREAMP          ~0.5  uA
+
+# Voltage DAC registers
+# 
+# VTHRESHOLD and VTPULSE_FINE have maximum values of 16383.
+# The others have a maximum value of 255.
+# 
+# Reg   Value  #  Init  Description           Note
+0xa008    103  #   103  VCASC_DISC            550 mV
+0xa009    142  #   142  VCASC_PREAMP          753 mV
+0xa00a    109  #   109  VCONTROL_VCO          601 mV
+0xa00b     91  #    91  VFBK                  502 mV
+0xa00c   3071  #  3071  VTHRESHOLD             ~7 ke
+0xa00d    104  #   104  VTPULSE_COARSE        577 mV
+0xa00e    123  #   123  VTPULSE_FINE           81 mV
+
+# Voltage DAC gain registers
+# 
+# Max value: 15
+# 
+# Reg   Value  #  Init  Description           Note
+0xa010      5  #     5  GAIN_VCASC_DISC       
+0xa011      5  #     5  GAIN_VCASC_PREAMP     
+0xa012      5  #     5  GAIN_VCONTROL_VCO     
+0xa013      5  #     5  GAIN_VFBK             
+0xa014      5  #     5  GAIN_VTHRESHOLD       Affects thr_step
+0xa015      5  #     5  GAIN_VTPULSE_COARSE   Affects vtp_pars
+0xa016      5  #     5  GAIN_VTPULSE_FINE     Affects vtp_pars
+
+# Not DACs, but useful settings to have here
+polarity  electrons
+low_gain  false
+log_gain  false
+
+# For setting the threshold and the test-pulse charge
+thr_step  0.55934
+vtp_pars  13.58319 214 5.44815 0.54773
+

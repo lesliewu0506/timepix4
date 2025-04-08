@@ -1,0 +1,69 @@
+# Timepix4 DAC configuration
+# 
+# Tpx4tools:   master-f3f895e6-dirty, build date: 2025-03-18 13:51:09
+# Control app: -, build date: 2023-11-22 15:50:22
+# Firmware:    v2.2b15-90-75353f0, build date: 2018-03-09 12:34:56
+# Gateware:    6e946263, build date: 2023-11-28 12:51:15
+# Spidr4:      1000-8034-2874-aa05
+# Chipboard:   113, type: NIKHEF_TPX4_V3
+# Device:      N113
+# Mode:        Telescope
+# Date:        25-04-08 09:39:04+0200
+# Machine:     dskt-gst-022.nikhef.nl
+# Vdd:         1.288 V
+# Vdd centre:  1.215 V
+# Idd:         1.161 A
+# Vdda:        1.168 V
+# Vdda centre: 1.043 V
+# Idda:        3.031 A
+
+# Current DAC registers (Max value: 255)
+# 
+# Max value: 255
+# 
+# Reg   Value  #  Init  Description           Note
+0xa000    128  #   128  VBIAS_ADC             0.00 nA
+0xa001     65  #    65  VBIAS_DAC             40.8 nA
+0xa002    135  #   135  VBIAS_DISC_PMOS       1.91 uA
+0xa003     64  #    64  VBIAS_DISC_TRAFF      1.00 uA
+0xa004     83  #    83  VBIAS_DISC_TAIL_NMOS  1.01 uA
+0xa005      3  #     3  VBIAS_IKRUM           1.18 nA
+0xa006     88  #    88  VBIAS_LEVEL_SHIFT      500 nA
+0xa007    135  #   135  VBIAS_PREAMP           768 nA
+
+# Voltage DAC registers
+# 
+# VTHRESHOLD and VTPULSE_FINE have maximum values of 16383.
+# The others have a maximum value of 255.
+# 
+# Reg   Value  #  Init  Description           Note
+0xa008    105  #   105  VCASC_DISC            505 mV
+0xa009    141  #   141  VCASC_PREAMP          691 mV
+0xa00a    110  #   110  VCONTROL_VCO          537 mV, Not used
+0xa00b     96  #    96  VFBK                  460 mV
+0xa00c   3597  #  3597  VTHRESHOLD            495 mV, ~1.0 ke
+0xa00d    116  #   116  VTPULSE_COARSE        563 mV
+0xa00e    133  #   133  VTPULSE_FINE           68 mV
+
+# Voltage DAC gain registers
+# 
+# Max value: 15
+# 
+# Reg   Value  #  Init  Description           Note
+0xa010      5  #     5  GAIN_VCASC_DISC       
+0xa011      5  #     5  GAIN_VCASC_PREAMP     
+0xa012      5  #     5  GAIN_VCONTROL_VCO     
+0xa013      5  #     5  GAIN_VFBK             
+0xa014      5  #     5  GAIN_VTHRESHOLD       
+0xa015      5  #     5  GAIN_VTPULSE_COARSE   
+0xa016      5  #     5  GAIN_VTPULSE_FINE     
+
+# Not DACs, but useful settings to have here
+polarity  electrons
+low_gain  false
+log_gain  false
+
+# For setting the threshold and the test-pulse charge
+thr_step  0.48799
+vtp_pars  13.10888 214 4.83504 0.47674
+
