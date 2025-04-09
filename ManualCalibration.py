@@ -6,13 +6,7 @@ THRESHOLDTOT = 150
 
 def LoadCSV(filepath):
     df = pd.read_csv(filepath, usecols=["nhits", "col", "row", "tot"])
-    df_filtered = df[df["nhits"] == 1].copy()
-
-    df_filtered["col"] = df_filtered["col"].str.strip("[]").astype(int)
-    df_filtered["row"] = df_filtered["row"].str.strip("[]").astype(int)
-    df_filtered["tot"] = df_filtered["tot"].str.strip("[]").astype(float)
-    df_filtered["pixel"] = list(zip(df_filtered["col"], df_filtered["row"]))
-    return df_filtered
+ 
 
 def FindHighestToT(df, target_col, target_row):
     # Filter for pixel
@@ -55,7 +49,7 @@ def CalculateCharge(df:pd.DataFrame, save: bool = False):
     df["charge"] = df["tot"] * df["correction"]
     
     if save:
-        df.to_csv("N10-filtered.csv", index = False)
+        df.to_csv("N116-filtered.csv", index = False)
     
     return df
 
@@ -65,14 +59,14 @@ def PlotHistogram(df:pd.DataFrame = None, filepath:str = None):
 
     df.loc[df['charge'] > 25, 'charge'] = np.nan
 
-    ax = df.hist(column = "charge", bins = 80, grid = False, figsize = (10, 7), color = "blue", alpha = 0.7)
+    ax = df.hist(column = "charge", bins = 240, grid = False, figsize = (10, 7), color = "blue", alpha = 0.7)
 
-    plt.xlabel("Charge (ke)")
+    plt.xlabel("Charge [ke]")
     plt.ylabel("Counts")
     plt.xlim(0, 20)
-    plt.title("Charge Distribution")
+    plt.title("N116 Manual Calibrated Charge Distribution")
     plt.grid(False)
-    # plt.savefig("charge_histogram.png")
+    plt.savefig("N116_Charge_Distribution_Manual.png")
     plt.show()
 
 def FilterNormalData(filepath):
@@ -111,7 +105,7 @@ def main(filepath):
 
 if __name__ == "__main__":
     # filepath = "N116-250403-150114-filtered.csv" 
-    filepath = "N10-filtered.csv"
+    # filepath = "N116-250408-123554.csv"
     # main(filepath)
-    # PlotHistogram(filepath=filepath)
-    PlotTwoToT("N10-250404-143700_normal.csv", "N10-filtered.csv")
+    PlotHistogram(filepath = "N116-filtered.csv")
+    # PlotTwoToT("N10-250404-143700_normal.csv", "N10-filtered.csv")
