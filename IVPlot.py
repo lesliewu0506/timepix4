@@ -1,19 +1,15 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-pre = "Voltage Scan/"
+
 def CreateDataframe(filepath):
-    # Read the file, no header, space-separated, and each row becomes a row in the DataFrame
-    df = pd.read_csv(filepath, sep=' ', header=None)
-    
-    # Rename the columns to appropriate labels
+    df = pd.read_csv(f"Voltage Scans/{filepath}.txt", sep=' ', header=None)
+
     df.columns = ['Voltage', 'Current', 'Std']
     df['Current'] = df['Current'] * (-10 ** 6)
     
     return df
 
 def PlotIV(filepath: str):
-    # Extract the file name without extension
     FileName = filepath.split('_')[0]
     df = CreateDataframe(filepath)
     # Plot Current vs Voltage
@@ -23,13 +19,14 @@ def PlotIV(filepath: str):
     plt.ylim(0, 2)
     plt.ylabel('Current [$\mu$A]')
     plt.gca().invert_xaxis()
-    plt.title(f'I-V Curve {FileName}')
+    plt.title(f'I-V Curve N10 with Tape')
     plt.tight_layout()
     
-    plt.savefig(f'IV_curve_{FileName}.png', dpi=600)
+    plt.savefig(f'IV_curve_N10_with_Tape.png', dpi=600)
     plt.show()
 
 if __name__ == "__main__":
-    files = [f"{pre}N10_voltage_scan.txt", f"{pre}N116_voltage_scan.txt"]
+    # files = [f"{pre}N10_voltage_scan.txt", f"{pre}N116_voltage_scan.txt"]
+    files = ["N10_voltage_scan_Tape"]
     for file in files:
         PlotIV(file)
