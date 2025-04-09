@@ -6,7 +6,6 @@ THRESHOLDTOT = 150
 
 def LoadCSV(filepath):
     df = pd.read_csv(filepath, usecols=["nhits", "col", "row", "tot"])
- 
 
 def FindHighestToT(df, target_col, target_row):
     # Filter for pixel
@@ -64,9 +63,22 @@ def PlotHistogram(df:pd.DataFrame = None, filepath:str = None):
     plt.xlabel("Charge [ke]")
     plt.ylabel("Counts")
     plt.xlim(0, 20)
+
+    vlines = [
+        {"x": 2.225, "color": "red",    "label": "8.01 keV"},
+        {"x": 3.861, "color": "green",  "label": "13.9 keV"},
+        {"x": 4.917, "color": "blue",   "label": "17.7 keV"},
+        {"x": 5.75,  "color": "magenta","label": "20.7 keV"},
+        {"x": 7.306, "color": "cyan",   "label": "26.3 keV"},
+        {"x": 16.5,  "color": "orange", "label": "59.5 keV"},
+    ]
+    for line in vlines:
+        plt.axvline(x=line["x"], color=line["color"], linestyle='--', label=line["label"])
+    
+    plt.legend()
     plt.title("N116 Manual Calibrated Charge Distribution")
     plt.grid(False)
-    plt.savefig("N116_Charge_Distribution_Manual.png")
+    plt.savefig("N116_Charge_Distribution_Manual.png", dpi = 600)
     plt.show()
 
 def FilterNormalData(filepath):
@@ -107,5 +119,5 @@ if __name__ == "__main__":
     # filepath = "N116-250403-150114-filtered.csv" 
     # filepath = "N116-250408-123554.csv"
     # main(filepath)
-    PlotHistogram(filepath = "N116-filtered.csv")
+    PlotHistogram(filepath = "Calibration Data/N116-filtered.csv")
     # PlotTwoToT("N10-250404-143700_normal.csv", "N10-filtered.csv")
