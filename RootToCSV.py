@@ -103,21 +103,21 @@ def ConvertToT4Sector(filepath: str) -> None:
     file = uproot.open(f"Data/Am-241 Runs/{filepath}")
     tree = file["clusterTree"]
 
-    arrays_data = tree.arrays(["col", "row", "tot", "nhits"], library="pd")
+    arrays_data = tree.arrays(["col", "row", "charge", "nhits"], library="pd")
     df_data = pd.DataFrame({
         "col": arrays_data["col"].to_numpy(),
         "row": arrays_data["row"].to_numpy(),
-        "tot": arrays_data["tot"].to_numpy(),
+        "charge": arrays_data["charge"].to_numpy(),
         "nhits": arrays_data["nhits"].to_numpy()
     })
     df_filtered = df_data[df_data["nhits"] == 1]
     df_filtered = df_filtered.map(lambda x: x[0] if isinstance(x, (list, tuple)) and len(x) == 1 else x)
 
-    df_filtered["Top Left"] = df_filtered.loc[(df_filtered["col"] < 224) & (df_filtered["row"] < 256), "tot"]
-    df_filtered["Bottom Left"] = df_filtered.loc[(df_filtered["col"] < 224) & (df_filtered["row"] >= 256), "tot"]
-    df_filtered["Top Right"] = df_filtered.loc[(df_filtered["col"] >= 224) & (df_filtered["row"] < 256), "tot"]
-    df_filtered["Bottom Right"] = df_filtered.loc[(df_filtered["col"] >= 224) & (df_filtered["row"] >= 256), "tot"]
-    df_filtered.to_csv(f"Data/4Sector Data/{filename}-ToT4Sector.csv", index=False, columns = ["Top Left", "Bottom Left", "Top Right", "Bottom Right"])
+    df_filtered["Top Left"] = df_filtered.loc[(df_filtered["col"] < 224) & (df_filtered["row"] < 256), "charge"] / 1000
+    df_filtered["Bottom Left"] = df_filtered.loc[(df_filtered["col"] < 224) & (df_filtered["row"] >= 256), "charge"] / 1000
+    df_filtered["Top Right"] = df_filtered.loc[(df_filtered["col"] >= 224) & (df_filtered["row"] < 256), "charge"] / 1000
+    df_filtered["Bottom Right"] = df_filtered.loc[(df_filtered["col"] >= 224) & (df_filtered["row"] >= 256), "charge"] / 1000
+    df_filtered.to_csv(f"Data/4Sector Data/{filename}-Charge4Sector.csv", index=False, columns = ["Top Left", "Bottom Left", "Top Right", "Bottom Right"])
 
 if __name__ == "__main__":
 

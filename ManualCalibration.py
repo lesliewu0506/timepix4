@@ -39,9 +39,10 @@ def PlotCompare(filepath):
     df.loc[df["Raw Charge"] > 25, "Raw Charge"] = np.nan
     data_test_pulse = df["Raw Charge"].dropna()
     data_manual = df["charge"].dropna()
-    
-    plt.hist(data_test_pulse, bins=1600, alpha=0.6, label="Test Pulse Calibration", color="blue", density=True)
-    plt.hist(data_manual, bins=1600, alpha=0.6, label="Manual Calibration", color="orange", density=True)
+
+    plt.figure(figsize=(12, 6))
+    plt.hist(data_test_pulse, bins=400, alpha=0.6, label="Test Pulse Calibration", color="blue", density=True)
+    plt.hist(data_manual, bins=400, alpha=0.6, label="Manual Calibration", color="orange", density=True)
 
     plt.xlabel("Charge [ke]")
     plt.ylabel("Counts")
