@@ -96,7 +96,11 @@ def ConvertClusterData(filepath: str) -> None:
 
     df_filtered = FilterAndUnwrap(df_data)
     df_transformed = TransformDataFrame(df_filtered)
-    df_transformed.to_csv(f"Data/Filtered Calibration Data/{filename}-Charge-Data.csv", index=False, columns = ["charge", "Raw Charge"])
+
+    df_correction = pd.DataFrame(list(CorrectionFactors.items()), columns=["pixel", "correction"])
+
+    df_correction.to_csv(f"Data/Filtered Calibration Data/{filename}-CorrectionFactors.csv", index=False)
+    # df_transformed.to_csv(f"Data/Filtered Calibration Data/{filename}-Charge-Data.csv", index=False, columns = ["charge", "Raw Charge"])
 
 def ConvertToT4Sector(filepath: str) -> None:
     filename = filepath.split(".")[0]
@@ -121,7 +125,7 @@ def ConvertToT4Sector(filepath: str) -> None:
 
 if __name__ == "__main__":
 
-    # for root_file_path in ["N10-250409-113850.root"]:
-    #     ConvertClusterData(root_file_path)
-    ConvertToT4Sector("N116-250408-123554.root")
+    for root_file_path in ["N116-250408-123554.root"]:
+        ConvertClusterData(root_file_path)
+    # ConvertToT4Sector("N116-250408-123554.root")
     # ConvertToT4Sector("N116-250408-105332.root")
