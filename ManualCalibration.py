@@ -31,17 +31,17 @@ def PlotHistogram(df:pd.DataFrame = None, filepath:str = None):
     plt.savefig("N116_Charge_Distribution_Manual.png", dpi = 600)
     plt.show()
 
-def PlotCompare(filepath_raw, filepath_manual):
-    df_auto = pd.read_csv(f"Raw Charge Data/{filepath_raw}-Raw-Charge.csv")
-    data_auto = df_auto["charge"].dropna()
-
-    df_manual = pd.read_csv(f"Calibration Data/{filepath_manual}-Filtered.csv")
+def PlotCompare(filepath):
+    filename = filepath.split("-")[0]
+    df = pd.read_csv(f"Data/Filtered Calibration Data/{filepath}-Charge-Data.csv")
     
-    df_manual.loc[df_manual["charge"] > 25, "charge"] = np.nan
-    data_manual = df_manual["charge"].dropna()
+    df.loc[df["charge"] > 25, "charge"] = np.nan
+    df.loc[df["Raw Charge"] > 25, "Raw Charge"] = np.nan
+    data_test_pulse = df["Raw Charge"].dropna()
+    data_manual = df["charge"].dropna()
     
-    plt.hist(data_auto, bins=1600, alpha=0.6, label="Test Pulse Calibration", color="blue", density=True)
-    plt.hist(data_manual, bins=160, alpha=0.6, label="Manual Calibration", color="orange", density=True)
+    plt.hist(data_test_pulse, bins=1600, alpha=0.6, label="Test Pulse Calibration", color="blue", density=True)
+    plt.hist(data_manual, bins=1600, alpha=0.6, label="Manual Calibration", color="orange", density=True)
 
     plt.xlabel("Charge [ke]")
     plt.ylabel("Counts")
@@ -58,14 +58,14 @@ def PlotCompare(filepath_raw, filepath_manual):
     for line in vlines:
         plt.axvline(x=line["x"], color=line["color"], linestyle='--', label=line["label"])
     
-    plt.title("Charge Distribution N10")
+    plt.title(f"Charge Distribution {filename}")
     plt.grid(False)
     plt.legend()
-    plt.savefig("N10_Charge_Distribution_ManualvsAuto.png", dpi = 600)
+    plt.savefig(f"{filename}_Charge_Distribution_ManualvsTestPulse.png", dpi = 600)
     plt.show()
 
 if __name__ == "__main__":
     # filepath = "N116-250403-150114-filtered.csv" 
     # filepath = "N116-250408-123554.csv"
 
-    PlotCompare("N10-250409-113850", "N10-250409-113850")
+    PlotCompare("N10-250409-113850")
