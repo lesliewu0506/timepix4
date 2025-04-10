@@ -98,7 +98,30 @@ def ConvertClusterData(filepath: str) -> None:
     df_transformed = TransformDataFrame(df_filtered)
     df_transformed.to_csv(f"Data/Filtered Calibration Data/{filename}-Charge-Data.csv", index=False, columns = ["charge", "Raw Charge"])
 
+def ConvertToT4Sector(filepath: str) -> None:
+    filename = filepath.split(".")[0]
+    file = uproot.open(f"Data/Am-241 Runs/{filepath}")
+    tree = file["clusterTree"]
+
+    arrays_data = tree.arrays(["col", "row", "tot", "nhits"], library="pd")
+    df_data = pd.DataFrame({
+        "col": arrays_data["col"].to_numpy(),
+        "row": arrays_data["row"].to_numpy(),
+        "tot": arrays_data["tot"].to_numpy(),
+        "nhits": arrays_data["nhits"].to_numpy()
+    })
+    df_filtered = df_data[df_data["nhits"] == 1]
+    df_filtered = df_filtered.map(lambda x: x[0] if isinstance(x, (list, tuple)) and len(x) == 1 else x)
+
+    df_filtered["Top Left"] = df_filtered.loc[(df_filtered["col"] < 224) & (df_filtered["row"] < 256), "tot"]
+    df_filtered["Bottom Left"] = df_filtered.loc[(df_filtered["col"] < 224) & (df_filtered["row"] >= 256), "tot"]
+    df_filtered["Top Right"] = df_filtered.loc[(df_filtered["col"] >= 224) & (df_filtered["row"] < 256), "tot"]
+    df_filtered["Bottom Right"] = df_filtered.loc[(df_filtered["col"] >= 224) & (df_filtered["row"] >= 256), "tot"]
+    df_filtered.to_csv(f"Data/4Sector Data/{filename}-ToT4Sector.csv", index=False, columns = ["Top Left", "Bottom Left", "Top Right", "Bottom Right"])
+
 if __name__ == "__main__":
 
-    for root_file_path in ["N10-250409-113850.root"]:
-        ConvertClusterData(root_file_path)
+    # for root_file_path in ["N10-250409-113850.root"]:
+    #     ConvertClusterData(root_file_path)
+    ConvertToT4Sector("N116-250408-123554.root")
+    # ConvertToT4Sector("N116-250408-105332.root")
