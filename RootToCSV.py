@@ -193,7 +193,7 @@ def Threshold(folder_path: str) -> None:
     threshold_columns = [f"threshold {val}" for val in thresholds]
     merged_df = merged_df[merged_df[threshold_columns].sum(axis=1) > 0]
     # Write the final merged dataframe to a CSV file
-    merged_df.to_csv("Data/Threshold Test Data/FinalHits.csv", index=False)
+    merged_df.to_csv(f"{folder_path}FinalHits.csv", index=False)
 
 def parse_tuple(s):
     tup = ast.literal_eval(s)
@@ -212,4 +212,5 @@ if __name__ == "__main__":
     # ConvertToT4Sector("N116-250408-105332.root")
     # Threshold("Data/Threshold Test Data/")
     # FilterThreshold("Data/Threshold Test Data/FinalHits.csv")
-    pass
+    # Threshold("Data/Threshold Test Data/N112/")
+    ConvertToT4Sector("N10-250409-113326.root")

@@ -30,30 +30,40 @@ def PlotOnePixel(filepath):
     plt.savefig("Pixel_0_0.png", dpi=600)
     plt.show()
 
-def PlotAveragePixels(filepath):
-    df_filtered = LoadCSV(filepath)
-    
-    # Identify columns that start with "threshold"
-    threshold_cols = [col for col in df_filtered.columns if col.startswith("threshold")]
-    
-    # Create x values for the plot by extracting the threshold values from the column names
-    x_values = [int(col.split()[1]) if " " in col else int(col.replace("threshold", "")) for col in threshold_cols]
-    
-    # Compute the mean counts over all pixels for each threshold
-    y_values = df_filtered[threshold_cols].mean().values
-    
-    # Plot the average counts versus the threshold values
+def PlotAveragePixels(filepaths: list[str]) -> None:
+    if not filepaths:
+        print("No filepaths provided.")
+        return
+
     plt.figure(figsize=(12, 8))
-    plt.plot(x_values, y_values, marker="o", linestyle="-")
-    plt.axhline(y=500, color='red', linestyle='--')
+    legend_labels = []
+
+    df_first = LoadCSV(filepaths[0])
+    threshold_cols = [col for col in df_first.columns if col.startswith("threshold")]
+    x_values = [int(col.split()[1]) if " " in col else int(col.replace("threshold", "")) for col in threshold_cols]
+
+    # Optional: A list of colors. If more files than colors, matplotlib will cycle through.
+    colors = ['blue', 'red', 'green', 'purple']
+    
+    for index, filepath in enumerate(filepaths):
+        sensor = filepath.split("/")[-2]
+        df = LoadCSV(filepath)
+        y_values = df[threshold_cols].mean().values
+        plt.plot(x_values, y_values, marker="o", linestyle="-", color=colors[index % len(colors)])
+        legend_labels.append(sensor)
+        
+    plt.axhline(y=500, color='black', linestyle='--')  # Common horizontal line for reference
     plt.xlabel("Threshold")
     plt.ylabel("Average Counts across all pixels")
-    plt.title("Average Counts vs Threshold")
-    plt.xticks(x_values)  # Set x-ticks to exactly the thresholds
-    plt.savefig("Average_Pixels.png", dpi=600)
+    plt.title("Average Counts vs Threshold for Multiple Sensors")
+    plt.xticks(x_values)
+    plt.legend(legend_labels)
+    # You can adjust the filename as needed:
+    plt.savefig("Multiple_Sensors_Average_Pixels.png", dpi=600)
     plt.show()
 
 def PlotSectorAverages(filepath):
+    sensor = filepath.split("/")[-2]
     df = LoadCSV(filepath)
     # Identify threshold columns (assumes columns named like 'threshold 4000', etc.)
     threshold_columns = [col for col in df.columns if col.startswith("threshold")]
@@ -102,9 +112,9 @@ def PlotSectorAverages(filepath):
     axs[1, 1].set_xlabel("Threshold")
     axs[1, 1].set_ylabel("Average Hits")
     axs[1, 1].axhline(y=500, color='red', linestyle='--')
-    
+    plt.suptitle(f"{sensor} Sector Averages vs Threshold")
     plt.tight_layout()
-    plt.savefig("Sector_Averages.png", dpi=600)
+    plt.savefig(f"{sensor}_Sector_Averages.png", dpi=600)
     plt.show()
 
 def ExtrapolateThreshold(row):
@@ -139,6 +149,7 @@ def ExtrapolateThresholds(df: pd.DataFrame):
     return df["extrapolated_threshold"]
 
 def PlotThresholdDistribution(filepath):
+    sensor = filepath.split("/")[-2]
     df = LoadCSV(filepath)
     df_thresholds = ExtrapolateThresholds(df)
 
@@ -146,10 +157,12 @@ def PlotThresholdDistribution(filepath):
     plt.hist(df_thresholds, bins=26, color='blue', alpha=0.7, range = (4000, 5300))
     plt.xlabel("Extrapolated Threshold")
     plt.ylabel("Frequency")
-    plt.title("Distribution of Extrapolated Thresholds")
+    plt.title(f"{sensor} Distribution of Extrapolated Thresholds")
     plt.show()
 
 def PlotThresholdSector(filepath):
+    sensor = filepath.split("/")[-2]
+
     df = LoadCSV(filepath)
     sectors = {
         "Top Left": df[df["pixel"].apply(lambda p: p[0] < 224 and p[1] < 256)],
@@ -169,12 +182,13 @@ def PlotThresholdSector(filepath):
         ax.set_title(f"Distribution of Extrapolated Thresholds - {name}")
         ax.set_xlabel("Extrapolated Threshold")
         ax.set_ylabel("Frequency")
-    
+    plt.suptitle(f"{sensor} Distribution of Extrapolated Thresholds by Sector")
     plt.tight_layout()
-    # plt.savefig("ThresholdSectors_Subplots.png", dpi=600)
+    plt.savefig(f"{sensor}_ThresholdSectors_Subplots.png", dpi=600)
     plt.show()
 
 def PlotThresholdSector16(filepath):
+    sensor = filepath.split("/")[-2]
     df = LoadCSV(filepath)
     x_boundaries = [0, 112, 224, 336, 448]
     y_boundaries = [0, 128, 256, 384, 512]
@@ -198,14 +212,18 @@ def PlotThresholdSector16(filepath):
         ax.set_xlabel("Extrapolated Threshold")
         ax.set_ylabel("Frequency")
 
+    plt.suptitle(f"{sensor} Distribution of Extrapolated Thresholds by Sector")
     plt.tight_layout()
-    plt.savefig("Threshold16Sectors_Subplots.png", dpi=600)
+    plt.savefig(f"{sensor}_Threshold16Sectors_Subplots.png", dpi=600)
     plt.show()
 
 if __name__ == "__main__":
-    filepath = "Data/Threshold Test Data/FinalHits.csv"
+    filepath = "Data/Threshold Test Data/N116/FinalHits.csv"
+    filepath2 = "Data/Threshold Test Data/N112/FinalHits.csv"
     # PlotOnePixel(filepath)
-    # PlotAveragePixels(filepath)
-    # PlotSectorAverages(filepath)
     # PlotThresholdDistribution(filepath)
-    PlotThresholdSector16(filepath)
+
+    PlotAveragePixels([filepath, filepath2])
+    # PlotSectorAverages(filepath)
+    # PlotThresholdSector(filepath)
+    # PlotThresholdSector16(filepath)
