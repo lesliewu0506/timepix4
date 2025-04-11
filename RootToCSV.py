@@ -212,5 +212,5 @@ if __name__ == "__main__":
     # ConvertToT4Sector("N116-250408-105332.root")
     # Threshold("Data/Threshold Test Data/")
     # FilterThreshold("Data/Threshold Test Data/FinalHits.csv")
-    # Threshold("Data/Threshold Test Data/N112/")
-    ConvertToT4Sector("N10-250409-113326.root")
+    Threshold("Data/Threshold Test Data/N113/")
+    # ConvertToT4Sector("N112-250411-101613.root")

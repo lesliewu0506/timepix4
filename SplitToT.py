@@ -15,20 +15,21 @@ def PlotCompare(filepath):
     df = pd.read_csv(f"Data/4Sector Data/{filepath}-Charge4Sector.csv")
     df = df[["Top Left", "Top Right", "Bottom Left", "Bottom Right"]]
     # Combine all values into one array
-    all_values = df.values.flatten() * 1.1424
+    all_values = df.values.flatten()
 
     # Create a single histogram
     plt.figure(figsize=(10, 6))
-    plt.hist(all_values, bins=1600, alpha=0.6)
+    plt.hist(all_values, bins=1600, alpha=0.6, color = "blue", label = "Raw Charge")
+    plt.hist(all_values * 1.1424, bins=1600, alpha=0.6, color = "orange", label = "Corrected Charge (Factor = 1.1424)")
     plt.xlim(0, 20)
     plt.xlabel("Charge [ke]")
     plt.ylabel("Counts")
     for line in vlines:
         plt.axvline(x=line["x"], color=line["color"], linestyle='--', label=line["label"])
     plt.legend(loc = "best")
-    plt.title(f"{filename} Corrected Combined Charge Distribution (All Sectors) (Factor 1.1424)")
+    plt.title(f"{filename} Combined Charge Distribution (All Sectors)")
     plt.tight_layout()
-    plt.savefig(f"{filename}_Corrected_Combined_Charge_Distribution.png", dpi=600)
+    plt.savefig(f"{filename}_Combined_Charge_Distribution.png", dpi=600)
     plt.show()
     # # Create histogram and get axes
     # axarr = df.hist(layout=(2, 2), bins=1600, alpha=0.5, figsize=(20, 20), grid = False)
