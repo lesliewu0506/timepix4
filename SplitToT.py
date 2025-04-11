@@ -52,6 +52,6 @@ def PlotCompare(filepath):
     plt.show()
 
 if __name__ == "__main__":
-    filepath = "N116-250408-123554"
+    filepath = "N10-250409-113326"
     # filepath = "N116-250408-105332"
     PlotCompare(filepath)
