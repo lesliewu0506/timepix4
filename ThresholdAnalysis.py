@@ -165,13 +165,41 @@ def PlotThresholdSector(filepath):
     for ax, (name, sector_df) in zip(axs, sectors.items()):
         df_thresholds = ExtrapolateThresholds(sector_df)
         
-        ax.hist(df_thresholds, bins=26, color='blue', alpha=0.7, range=(4000, 5300))
+        ax.hist(df_thresholds, bins=13, color='blue', alpha=0.7, range=(4000, 5300))
         ax.set_title(f"Distribution of Extrapolated Thresholds - {name}")
         ax.set_xlabel("Extrapolated Threshold")
         ax.set_ylabel("Frequency")
     
     plt.tight_layout()
-    plt.savefig("ThresholdSectors_Subplots.png", dpi=600)
+    # plt.savefig("ThresholdSectors_Subplots.png", dpi=600)
+    plt.show()
+
+def PlotThresholdSector16(filepath):
+    df = LoadCSV(filepath)
+    x_boundaries = [0, 112, 224, 336, 448]
+    y_boundaries = [0, 128, 256, 384, 512]
+
+    sectors = {}
+    for i in range(4):
+        for j in range(4):
+            sector_name = f"Sector (Column: {x_boundaries[j]}-{x_boundaries[j+1]}, Row: {y_boundaries[i]}-{y_boundaries[i+1]})"
+            sector_df = df[df["pixel"].apply(lambda p: p[0] >= x_boundaries[j] and p[0] < x_boundaries[j+1] and p[1] >= y_boundaries[i] and p[1] < y_boundaries[i+1])]
+            sectors[sector_name] = sector_df
+
+    # Create a 4x4 subplot figure for histograms
+    fig, axs = plt.subplots(4, 4, figsize=(16, 16))
+    axs = axs.flatten()
+    
+    # Iterate through each sector and plot its histogram of extrapolated thresholds
+    for ax, (name, sector_df) in zip(axs, sectors.items()):
+        df_thresholds = ExtrapolateThresholds(sector_df)
+        ax.hist(df_thresholds, bins=13, color='blue', alpha=0.7, range=(4000, 5300))
+        ax.set_title(f"{name}")
+        ax.set_xlabel("Extrapolated Threshold")
+        ax.set_ylabel("Frequency")
+
+    plt.tight_layout()
+    plt.savefig("Threshold16Sectors_Subplots.png", dpi=600)
     plt.show()
 
 if __name__ == "__main__":
@@ -180,4 +208,4 @@ if __name__ == "__main__":
     # PlotAveragePixels(filepath)
     # PlotSectorAverages(filepath)
     # PlotThresholdDistribution(filepath)
-    PlotThresholdSector(filepath)
+    PlotThresholdSector16(filepath)
