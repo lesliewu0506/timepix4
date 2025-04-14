@@ -136,6 +136,29 @@ def PlotCompare(filepath):
     plt.show()
 
 
+def PlotToTSinglePixel(filepath):
+    filename = filepath.split("-")[0]
+    df = pd.read_csv(f"Data/Filtered Calibration Data/{filepath}-Charge-Data.csv")
+
+    target_row = 200
+    target_col = 200
+
+    df_filtered = df[(df["row"] == target_row) & (df["col"] == target_col)]
+
+    tot_values = df_filtered["tot"]
+
+    plt.figure(figsize=(14, 6))
+    plt.hist(tot_values, bins=50, color="blue", alpha=0.7)
+    plt.xlabel("ToT [25ns]")
+    plt.ylabel("Count")
+    plt.title(f"ToT Distribution for Pixel (Row {target_row}, Col {target_col})")
+    # plt.grid(True)
+    plt.tight_layout()
+    plt.xlim(0, 300)
+    plt.savefig("ToT_Distribution_Single_Pixel.png", dpi=600)
+    plt.show()
+
+
 if __name__ == "__main__":
     # filepath = "N116-250403-150114-filtered.csv"
     # filepath = "N116-250408-123554.csv"
@@ -143,4 +166,5 @@ if __name__ == "__main__":
     filepath2 = ["N112-250411-101613", "N113-250408-100406"]
     # PlotCompare("N10-250409-113850")
     # PlotCharge(filepaths)
-    PlotCharge(filepath2)
+    # PlotCharge(filepath2)
+    PlotToTSinglePixel("N112-250411-101613")
