@@ -11,7 +11,27 @@ def CreateDataFrame(filepath):
     return df
 
 
-def PlotTotCharge(sensor):
+def CreatePixelDataFrames(filepath) -> dict[str, pd.DataFrame]:
+    df = pd.read_csv(filepath)
+    df = df.replace([np.inf, -np.inf], np.nan).dropna(subset=["col", "row"])
+
+    df["col"] = df["col"].astype(int)
+    df["row"] = df["row"].astype(int)
+    # Sort the DataFrame by pixel column and row.
+    df.sort_values(by=["col", "row"], inplace=True)
+
+    pixel_dataframes = {}
+    # Group by 'col' and 'row' and then remove those columns from each pixel DataFrame.
+    for (col, row), group in df.groupby(["col", "row"]):
+        # Only keep groups with 500 or more counts
+        if group.shape[0] < 500:
+            continue
+        filtered_group = group.drop(columns=["row", "col"])
+        pixel_dataframes[(col, row)] = filtered_group.reset_index(drop=True)
+    return pixel_dataframes
+
+
+def CreateTestPulseDF(sensor: str) -> pd.DataFrame:
     df = CreateDataFrame(f"Data/Test Pulse Data/fitData_{sensor}.csv")
 
     df_plot = pd.DataFrame(columns=["Charge", "meanTot", "stdvTot"])
@@ -30,7 +50,7 @@ def PlotTotCharge(sensor):
     return df_plot
 
 
-def PlotTotChargeSingle(sensor, TestCol, TestRow):
+def HelperPlotTotChargeSingle(sensor, TestCol, TestRow):
     df = CreateDataFrame(f"Data/Test Pulse Data/fitData_{sensor}.csv")
     df_plot = pd.DataFrame(columns=["Charge", "meanTot", "stdvTot"])
 
@@ -75,70 +95,96 @@ def iqr_filtered_stats(df: pd.DataFrame):
     return means, stds
 
 
-def Main(filepath):
-    df = pd.read_csv(f"Data/Single Pixel Data/Filtered/{filepath}")
+def HelperPlotToTvsCharge(pixel, means_threshold, std_thresholds):
+    col_val, row_val = pixel
+    plt.errorbar(
+        np.arange(1, 16.2, 0.2),
+        means_threshold,
+        yerr=std_thresholds,
+        fmt=".",
+        color="red",
+        ecolor="darkred",
+        capsize=4,
+        label=f"Threshold Test Pixel ({col_val}, {row_val})",
+    )
 
-    means_chargecal = PlotTotChargeSingle("N116", 240, 240)
-    means_chargecal = PlotTotCharge("N116")
-    relative_errors_testpulse = means_chargecal["stdvTot"] / means_chargecal["meanTot"]
-    means_threshold, std_thresholds = iqr_filtered_stats(df)
-    # means_threshold = df.mean().tolist()
-    # std_thresholds = df.std().tolist()
 
-    charges = list(np.arange(1, 16.2, 0.2))
-    # plt.figure(figsize=(14, 6))
-    # plt.scatter(
-    #     means_chargecal["Charge"] / 1000,
-    #     means_chargecal["meanTot"],
-    #     color="blue",
-    #     label="Test Pulse",
-    #     s=10,
-    # )
-
-    # plt.errorbar(
-    #     charges,
-    #     means_threshold,
-    #     yerr=std_thresholds,
-    #     fmt=".",
-    #     color="red",
-    #     ecolor="darkred",
-    #     capsize=4,
-    #     label="Threshold Test",
-    # )
-    # plt.title(f"ToT vs Charge for N116")
-    # plt.xlabel("Charge [ke]")
-    # plt.ylabel("ToT [25ns]")
-    # plt.legend()
-    # # plt.savefig(f"ToT_vs_Charge_N116.png", dpi=600)
-    # plt.show()
-
-    relative_errors_threshold = [
-        s / m if m != 0 else np.nan for m, s in zip(means_threshold, std_thresholds)
-    ]
-    # Plot relative errors
-    plt.figure(figsize=(14, 6))
+def PlotToTvsCharge(df_testpulse, dict_pixels):
+    # Start Plot
+    plt.figure(figsize=(14, 8))
     plt.scatter(
-        charges,
+        df_testpulse["Charge"] / 1000,
+        df_testpulse["meanTot"],
+        color="blue",
+        label="Test Pulse",
+        s=10,
+    )
+    for keys, df_pixels in dict_pixels.items():
+        means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
+        HelperPlotToTvsCharge(keys, means_chargecal, std_thresholds)
+
+    plt.title("ToT vs Charge for N116")
+    plt.xlabel("Charge [ke]")
+    plt.ylabel("ToT [25ns]")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    # plt.savefig(f"ToT_vs_Charge_N116.png", dpi=600)
+    plt.show()
+
+
+def HelperPlotErrors(pixel, relative_errors_threshold):
+
+    col_val, row_val = pixel
+
+    plt.scatter(
+        np.arange(1, 16.2, 0.2),
         relative_errors_threshold,
         marker="o",
         color="green",
-        label="Threshold Test",
+        label=f"Threshold Test Pixel ({col_val}, {row_val})",
     )
+
+
+def PlotErrors(df_testpulse, dict_pixels):
+    relative_errors_testpulse = df_testpulse["stdvTot"] / df_testpulse["meanTot"]
+
+    plt.figure(figsize=(14, 6))
     plt.scatter(
-        means_chargecal["Charge"] / 1000,
+        np.arange(1, 16.2, 0.2),
         relative_errors_testpulse,
         marker="o",
         color="blue",
         label="Test Pulse",
     )
+    for keys, df_pixels in dict_pixels.items():
+        means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
+        relative_errors_threshold = [
+            s / m if m != 0 else np.nan for m, s in zip(means_chargecal, std_thresholds)
+        ]
+        HelperPlotErrors(keys, relative_errors_threshold)
+
     plt.title("Relative Error vs Charge for N116")
     plt.xlabel("Charge [ke]")
     plt.ylim(0, 0.1)
     plt.ylabel("Relative Error")
     plt.grid(True)
     plt.legend()
-    # plt.savefig("Relative_Error_vs_Charge_N116.png", dpi=600)
+    plt.tight_layout()
+    # plt.savefig(f"Relative_Error_N116.png", dpi=600)
     plt.show()
+
+
+def Main(filepath):
+    dict_pixels: dict = CreatePixelDataFrames(
+        f"Data/Single Pixel Data/Filtered/{filepath}"
+    )
+
+    df_testpulse = CreateTestPulseDF("N116")
+
+    # PlotToTvsCharge(df_testpulse, dict_pixels)
+
+    PlotErrors(df_testpulse, dict_pixels)
 
 
 if __name__ == "__main__":

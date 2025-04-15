@@ -287,7 +287,7 @@ def SinglePixel(folder):
             merged_df["row"] = row_list
         else:
             merged_df = pd.concat([merged_df, df_filtered], axis=1)
-    merged_df.to_csv("Data/Single Pixel Data/Filtered/MultiplePixels.csv", index=False)
+    merged_df.to_csv("Data/Single Pixel Data/Filtered/TR.csv", index=False)
 
 
 if __name__ == "__main__":
@@ -308,4 +308,4 @@ if __name__ == "__main__":
     # FilterThreshold("Data/Threshold Test Data/FinalHits.csv")
     # Threshold("Data/Threshold Test Data/N113/")
     # ConvertToT4Sector("N112-250411-101613.root")
-    SinglePixel("Data/Single Pixel Data/Sectors/")
+    SinglePixel("Data/Single Pixel Data/Sectors/Multiple/TR/")
