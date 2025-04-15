@@ -274,13 +274,15 @@ def SinglePixel(folder):
         row_list = [to_scalar(item) for item in arrays_data["row"]]
 
         df = pd.DataFrame(
-            {"col": col_list, "row": row_list, "tot": tot_list, "nhits": nhits_list}
+            {"tot": tot_list, "nhits": nhits_list}
         )
         df_filtered = df[df["nhits"] == 1]
         df_filtered = df_filtered.rename(columns={"tot": f"Charge {Charge}"})
         df_filtered = df_filtered.drop(columns=["nhits"])
         if merged_df is None:
             merged_df = df_filtered
+            merged_df["col"] = col_list
+            merged_df["row"] = row_list
         else:
             merged_df = pd.concat([merged_df, df_filtered], axis=1)
     merged_df.to_csv("Data/Single Pixel Data/Filtered/SinglePixel.csv", index=False)
