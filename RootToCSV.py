@@ -263,6 +263,8 @@ def SinglePixel(folder):
     ChargeList = list(range(1000, 16200, 200))
 
     for file_name, Charge in zip(file_list, ChargeList):
+        if not file_name.endswith(".root"):
+            continue
         full_path = os.path.join(folder, file_name)
         file = uproot.open(full_path)
         tree = file["clusterTree"]
@@ -285,7 +287,7 @@ def SinglePixel(folder):
             merged_df["row"] = row_list
         else:
             merged_df = pd.concat([merged_df, df_filtered], axis=1)
-    merged_df.to_csv("Data/Single Pixel Data/Filtered/SinglePixel.csv", index=False)
+    merged_df.to_csv("Data/Single Pixel Data/Filtered/MultiplePixels.csv", index=False)
 
 
 if __name__ == "__main__":
@@ -306,4 +308,4 @@ if __name__ == "__main__":
     # FilterThreshold("Data/Threshold Test Data/FinalHits.csv")
     # Threshold("Data/Threshold Test Data/N113/")
     # ConvertToT4Sector("N112-250411-101613.root")
-    SinglePixel("Data/Single Pixel Data/SinglePixel/")
+    SinglePixel("Data/Single Pixel Data/Sectors/")
