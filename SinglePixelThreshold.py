@@ -162,31 +162,44 @@ def HelperPlotToTvsCharge(pixel, means_threshold, std_thresholds):
     sector_colors = {"TL": "red", "TR": "green", "BL": "blue", "BR": "orange"}
     color = sector_colors[orientation]
 
-    plt.errorbar(
+    # plt.errorbar(
+    #     np.arange(1, 16.2, 0.2),
+    #     means_threshold,
+    #     yerr=std_thresholds,
+    #     fmt=".",
+    #     color=color,
+    #     ecolor=color,
+    #     capsize=4,
+    #     label=f"Threshold Test Pixel ({col}, {row}, {orientation})",
+    # )
+    plt.scatter(
         np.arange(1, 16.2, 0.2),
         means_threshold,
-        yerr=std_thresholds,
-        fmt=".",
+        marker="o",
         color=color,
-        ecolor=color,
-        capsize=4,
         label=f"Threshold Test Pixel ({col}, {row}, {orientation})",
     )
 
 
-def PlotToTvsCharge(df_testpulse, dict_pixels):
+def PlotToTvsCharge(df_testpulse, df_testpulse_2, dict_pixels):
     # Start Plot
     plt.figure(figsize=(18, 12))
 
-    for key, df_pixels in dict_pixels.items():
-        means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
-        HelperPlotToTvsCharge(key, means_chargecal, std_thresholds)
-
+    # for key, df_pixels in dict_pixels.items():
+    #     means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
+    #     HelperPlotToTvsCharge(key, means_chargecal, std_thresholds)
+    plt.scatter(
+        np.arange(1, 16.2, 0.2),
+        df_testpulse_2["meanTot"],
+        marker="o",
+        color="blue",
+        label=f"Test Pulse doubled eoc and row spacing",
+    )
     plt.scatter(
         df_testpulse["Charge"] / 1000,
         df_testpulse["meanTot"],
         color="magenta",  # Use a distinct color for test pulse
-        label="Test Pulse",
+        label="Test Pulse standard",
         s=40,
         zorder=10,
     )
@@ -196,7 +209,7 @@ def PlotToTvsCharge(df_testpulse, dict_pixels):
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    # plt.savefig(f"ToT_vs_Charge_N116.png", dpi=600)
+    plt.savefig(f"ToT_vs_Charge_N116_differentFits.png", dpi=600)
     plt.show()
 
 
@@ -268,18 +281,81 @@ def PlotToTHistogram(df):
     plt.show()
 
 
+def Difference(dict_pixels: dict[tuple[int, int], pd.DataFrame]):
+    df_testpulse: pd.DataFrame = CreateDataFrame(
+        f"Data/Test Pulse Data/fitData_N116_2.csv"
+    )
+    diff_list = []
+
+    for (col, row), df_pixels in dict_pixels.items():
+        means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
+
+        filtered_row_testpulse = df_testpulse[
+            (df_testpulse["Col"] == col)
+            & (df_testpulse["Row"] == row)
+            & np.isclose(df_testpulse["Charge"], 16000, atol=100)
+        ]
+
+        diff = means_chargecal[-1] - filtered_row_testpulse["meanTot"].values[0]
+        diff_list.append(diff)
+
+    plt.figure(figsize=(14, 8))
+    plt.hist(diff_list, bins=100, color="blue", alpha=0.7)
+    plt.xlabel("Difference")
+    plt.ylabel("Counts")
+    plt.title("Difference between Charge 16000 and Test Pulse")
+    plt.tight_layout()
+    plt.savefig(f"Difference_Histogram.png", dpi=600)
+    plt.show()
+
+
+def PlotMultipleToTCharge(dict_pixels):
+    df_testpulse: pd.DataFrame = CreateDataFrame(
+        f"Data/Test Pulse Data/fitData_N116_2.csv"
+    )
+
+    for (col, row), df_pixels in dict_pixels.items():
+
+        filtered_row_testpulse = df_testpulse[
+            (df_testpulse["Col"] == col) & (df_testpulse["Row"] == row)
+        ]
+        means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
+        plt.figure(figsize=(14, 8))
+        HelperPlotToTvsCharge((col, row), means_chargecal, std_thresholds)
+
+        plt.scatter(
+            filtered_row_testpulse["Charge"] / 1000,
+            filtered_row_testpulse["meanTot"],
+            color="magenta",  # Use a distinct color for test pulse
+            label="Test Pulse",
+            s=40,
+            zorder=10,
+        )
+        plt.title("ToT vs Charge for N116")
+        plt.xlabel("Charge [ke]")
+        plt.ylabel("ToT [25ns]")
+        plt.grid(True)
+        plt.legend()
+        plt.tight_layout()
+        # plt.savefig(f"ToT_vs_Charge_N116.png", dpi=600)
+        plt.show()
+
+
 def Main(filepaths):
     dict_pixels: dict = CreatePixelDataFrames(filepaths)
 
-    df_testpulse = CreateTestPulseDF("N116")
-
+    df_testpulse = CreateTestPulseDF("N116_1")
+    df_testpulse_2 = CreateTestPulseDF("N116_2")
+    # print(df_testpulse)
     # PlotToTHistogram(dict_pixels[(319, 280)])
-    PlotToTvsCharge(df_testpulse, dict_pixels)
+    PlotToTvsCharge(df_testpulse, df_testpulse_2, dict_pixels)
 
     # PlotErrors(df_testpulse, dict_pixels)
+    # Difference(dict_pixels)
+    # PlotMultipleToTCharge(dict_pixels)
 
 
 if __name__ == "__main__":
     filepaths = ["BL.csv", "BR.csv", "TL.csv", "TR.csv"]
-    # Main(["TL.csv"]) 
+    # Main(["TL.csv"])
     Main(filepaths)
