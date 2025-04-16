@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+THRESHOLDS = list(range(1000, 16001, 200))
+
 
 def CreateDataFrame(filepath):
     df = pd.read_csv(filepath, sep=",", on_bad_lines="skip", encoding="utf-8")
@@ -11,23 +13,73 @@ def CreateDataFrame(filepath):
     return df
 
 
-def CreatePixelDataFrames(filepath) -> dict[str, pd.DataFrame]:
-    df = pd.read_csv(filepath)
-    df = df.replace([np.inf, -np.inf], np.nan).dropna(subset=["col", "row"])
+def HelperDFDropper(df):
+    for Charge in THRESHOLDS:
+        df = df.replace([np.inf, -np.inf], np.nan).dropna(
+            subset=[f"col {Charge}", f"row {Charge}", f"Charge {Charge}"]
+        )
+        df[f"col {Charge}"] = df[f"col {Charge}"].astype(int)
+        df[f"row {Charge}"] = df[f"row {Charge}"].astype(int)
+    return df
 
-    df["col"] = df["col"].astype(int)
-    df["row"] = df["row"].astype(int)
-    # Sort the DataFrame by pixel column and row.
-    df.sort_values(by=["col", "row"], inplace=True)
 
+def HelperCreateSortedDataFrames(df):
+    sorted_blocks = []
+    for Charge in THRESHOLDS:
+
+        df = df.replace([np.inf, -np.inf], np.nan).dropna(
+            subset=[f"col {Charge}", f"row {Charge}", f"Charge {Charge}"]
+        )
+
+        subset = df[[f"col {Charge}", f"row {Charge}", f"Charge {Charge}"]].copy()
+        subset.columns = [f"col {Charge}", f"row {Charge}", f"Charge {Charge}"]
+        subset = subset.sort_values(by=[f"col {Charge}", f"row {Charge}"]).reset_index(
+            drop=True
+        )
+        sorted_blocks.append(subset)
+    sorted_df = pd.concat(sorted_blocks, axis=1)
+    sorted_df = HelperDFDropper(sorted_df)
+
+    return sorted_df
+
+
+def CreatePixelDataFramesFromSorted(sorted_df):
     pixel_dataframes = {}
-    # Group by 'col' and 'row' and then remove those columns from each pixel DataFrame.
-    for (col, row), group in df.groupby(["col", "row"]):
-        # Only keep groups with 500 or more counts
-        if group.shape[0] < 500:
-            continue
-        filtered_group = group.drop(columns=["row", "col"])
-        pixel_dataframes[(col, row)] = filtered_group.reset_index(drop=True)
+    for _, row in sorted_df.iterrows():
+        pixel = (row["col 1000"], row["row 1000"])
+        # Build a dictionary for the charge values for each threshold
+        charge_data = {}
+        for threshold in THRESHOLDS:
+            charge_data[f"Charge {threshold}"] = row[f"Charge {threshold}"]
+        # Append the charge data to the list for this pixel
+        if pixel not in pixel_dataframes:
+            pixel_dataframes[pixel] = []
+        pixel_dataframes[pixel].append(charge_data)
+
+    pixels_to_remove = []
+    for pixel, data_list in pixel_dataframes.items():
+        df = pd.DataFrame(data_list)
+
+        if len(df) < 400:
+            pixels_to_remove.append(pixel)
+        else:
+            pixel_dataframes[pixel] = df
+
+    for pixel in pixels_to_remove:
+        del pixel_dataframes[pixel]
+
+    return pixel_dataframes
+
+
+def CreatePixelDataFrames(filepaths) -> dict[str, pd.DataFrame]:
+    pixel_dataframes = {}
+
+    for filepath in filepaths:
+
+        df = pd.read_csv(f"Data/Single Pixel Data/Filtered/{filepath}")
+        sorted_df = HelperCreateSortedDataFrames(df)
+        # pixel_dataframes = CreatePixelDataFramesFromSorted(sorted_df)
+        pixel_dataframes.update(CreatePixelDataFramesFromSorted(sorted_df))
     return pixel_dataframes
 
 
@@ -96,33 +148,48 @@ def iqr_filtered_stats(df: pd.DataFrame):
 
 
 def HelperPlotToTvsCharge(pixel, means_threshold, std_thresholds):
-    col_val, row_val = pixel
+    col, row = pixel
+    # Determine the orientation based on sensor dimensions
+    if col < 224 and row < 256:
+        orientation = "TL"
+    elif col >= 224 and row < 256:
+        orientation = "TR"
+    elif col < 224 and row >= 256:
+        orientation = "BL"
+    else:
+        orientation = "BR"
+    # Define sector colors
+    sector_colors = {"TL": "red", "TR": "green", "BL": "blue", "BR": "orange"}
+    color = sector_colors[orientation]
+
     plt.errorbar(
         np.arange(1, 16.2, 0.2),
         means_threshold,
         yerr=std_thresholds,
         fmt=".",
-        color="red",
-        ecolor="darkred",
+        color=color,
+        ecolor=color,
         capsize=4,
-        label=f"Threshold Test Pixel ({col_val}, {row_val})",
+        label=f"Threshold Test Pixel ({col}, {row}, {orientation})",
     )
 
 
 def PlotToTvsCharge(df_testpulse, dict_pixels):
     # Start Plot
-    plt.figure(figsize=(14, 8))
+    plt.figure(figsize=(18, 12))
+
+    for key, df_pixels in dict_pixels.items():
+        means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
+        HelperPlotToTvsCharge(key, means_chargecal, std_thresholds)
+
     plt.scatter(
         df_testpulse["Charge"] / 1000,
         df_testpulse["meanTot"],
-        color="blue",
+        color="magenta",  # Use a distinct color for test pulse
         label="Test Pulse",
-        s=10,
+        s=40,
+        zorder=10,
     )
-    for keys, df_pixels in dict_pixels.items():
-        means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
-        HelperPlotToTvsCharge(keys, means_chargecal, std_thresholds)
-
     plt.title("ToT vs Charge for N116")
     plt.xlabel("Charge [ke]")
     plt.ylabel("ToT [25ns]")
@@ -134,35 +201,49 @@ def PlotToTvsCharge(df_testpulse, dict_pixels):
 
 
 def HelperPlotErrors(pixel, relative_errors_threshold):
-
-    col_val, row_val = pixel
+    col, row = pixel
+    # Determine the orientation based on sensor dimensions
+    if col < 224 and row < 256:
+        orientation = "TL"
+    elif col >= 224 and row < 256:
+        orientation = "TR"
+    elif col < 224 and row >= 256:
+        orientation = "BL"
+    else:
+        orientation = "BR"
+    # Define sector colors
+    sector_colors = {"TL": "red", "TR": "green", "BL": "blue", "BR": "orange"}
+    color = sector_colors[orientation]
 
     plt.scatter(
         np.arange(1, 16.2, 0.2),
         relative_errors_threshold,
         marker="o",
-        color="green",
-        label=f"Threshold Test Pixel ({col_val}, {row_val})",
+        color=color,
+        label=f"4 Pixel Test Pulse Injection ({col}, {row}, {orientation})",
     )
 
 
 def PlotErrors(df_testpulse, dict_pixels):
     relative_errors_testpulse = df_testpulse["stdvTot"] / df_testpulse["meanTot"]
 
-    plt.figure(figsize=(14, 6))
-    plt.scatter(
-        np.arange(1, 16.2, 0.2),
-        relative_errors_testpulse,
-        marker="o",
-        color="blue",
-        label="Test Pulse",
-    )
-    for keys, df_pixels in dict_pixels.items():
+    plt.figure(figsize=(18, 12))
+    for key, df_pixels in dict_pixels.items():
         means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
         relative_errors_threshold = [
             s / m if m != 0 else np.nan for m, s in zip(means_chargecal, std_thresholds)
         ]
-        HelperPlotErrors(keys, relative_errors_threshold)
+        HelperPlotErrors(key, relative_errors_threshold)
+
+    # Plot test pulse data on top
+    plt.scatter(
+        np.arange(1, 16.2, 0.2),
+        relative_errors_testpulse,
+        marker="o",
+        color="magenta",  # Distinct color for test pulse
+        label="Test Pulse",
+        zorder=10,
+    )
 
     plt.title("Relative Error vs Charge for N116")
     plt.xlabel("Charge [ke]")
@@ -171,21 +252,34 @@ def PlotErrors(df_testpulse, dict_pixels):
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    # plt.savefig(f"Relative_Error_N116.png", dpi=600)
+    plt.savefig(f"Relative_Error_N116.png", dpi=600)
     plt.show()
 
 
-def Main(filepath):
-    dict_pixels: dict = CreatePixelDataFrames(
-        f"Data/Single Pixel Data/Filtered/{filepath}"
-    )
+def PlotToTHistogram(df):
+    plt.figure(figsize=(14, 8))
+    plt.hist(df["Charge 13000"], bins=100, color="blue", alpha=0.7)
+    plt.xlabel("ToT [25ns]")
+    plt.ylabel("Counts")
+    plt.title("ToT (319, 280) Charge 13000")
+
+    plt.tight_layout()
+    plt.savefig(f"ToT_Histogram13_2.png", dpi=600)
+    plt.show()
+
+
+def Main(filepaths):
+    dict_pixels: dict = CreatePixelDataFrames(filepaths)
 
     df_testpulse = CreateTestPulseDF("N116")
 
-    # PlotToTvsCharge(df_testpulse, dict_pixels)
+    # PlotToTHistogram(dict_pixels[(319, 280)])
+    PlotToTvsCharge(df_testpulse, dict_pixels)
 
-    PlotErrors(df_testpulse, dict_pixels)
+    # PlotErrors(df_testpulse, dict_pixels)
 
 
 if __name__ == "__main__":
-    Main("SinglePixel.csv")
+    filepaths = ["BL.csv", "BR.csv", "TL.csv", "TR.csv"]
+    # Main(["TL.csv"]) 
+    Main(filepaths)

@@ -276,18 +276,16 @@ def SinglePixel(folder):
         row_list = [to_scalar(item) for item in arrays_data["row"]]
 
         df = pd.DataFrame(
-            {"tot": tot_list, "nhits": nhits_list}
+            {f"col {Charge}" : col_list, f"row {Charge}" : row_list, "tot": tot_list, "nhits": nhits_list}
         )
         df_filtered = df[df["nhits"] == 1]
         df_filtered = df_filtered.rename(columns={"tot": f"Charge {Charge}"})
         df_filtered = df_filtered.drop(columns=["nhits"])
         if merged_df is None:
             merged_df = df_filtered
-            merged_df["col"] = col_list
-            merged_df["row"] = row_list
         else:
             merged_df = pd.concat([merged_df, df_filtered], axis=1)
-    merged_df.to_csv("Data/Single Pixel Data/Filtered/TR.csv", index=False)
+    merged_df.to_csv("Data/Single Pixel Data/Filtered/BR.csv", index=False)
 
 
 if __name__ == "__main__":
@@ -308,4 +306,5 @@ if __name__ == "__main__":
     # FilterThreshold("Data/Threshold Test Data/FinalHits.csv")
     # Threshold("Data/Threshold Test Data/N113/")
     # ConvertToT4Sector("N112-250411-101613.root")
-    SinglePixel("Data/Single Pixel Data/Sectors/Multiple/TR/")
+
+    SinglePixel(f"Data/Single Pixel Data/Sectors/Multiple/BR/")
