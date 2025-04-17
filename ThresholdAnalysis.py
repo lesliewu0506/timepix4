@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import ast, re
 import numpy as np
+from scipy.special import erf, erfc
+from scipy.optimize import curve_fit
 
 
 def LoadCSV(filepath):
@@ -159,7 +161,6 @@ def ExtrapolateThresholds(df: pd.DataFrame):
     global threshold_columns
     threshold_columns = [col for col in df.columns if col.startswith("threshold")]
     threshold_columns.sort(key=lambda x: int(re.findall(r"\d+", x)[0]))
-
     df["extrapolated_threshold"] = df.apply(ExtrapolateThreshold, axis=1)
     return df["extrapolated_threshold"]
 
@@ -415,15 +416,83 @@ def PlotThresholdSector16Multiple(filepaths: list[str]) -> None:
     plt.show()
 
 
+def error_func(x, mu, sigma):
+    return 500 * (erf((mu - x) / (np.sqrt(2) * sigma))) + 500
+
+def error_func_no_C(x, A, mu, sigma, y0):
+    return y0 + 0.5 * A * erfc((x - mu) / (sigma * np.sqrt(2)))
+
+def SingleErrorFit(filepaths: list[str]) -> None:
+    all_sigmas = []
+    sensors = []
+    for filepath in filepaths:
+        sensor = filepath.split("/")[-2]
+        sensors.append(sensor)
+        df = LoadCSV(filepath)
+        threshold_columns = [col for col in df.columns if col.startswith("threshold")]
+        threshold_vals = [int(c.split()[1]) for c in threshold_columns]
+        sigma_list = []
+        for index, row in df.iterrows():
+            pixel = row["pixel"]
+
+            ydata = row[threshold_columns].values.astype(float)
+            xdata = threshold_vals
+            xdata_2 = np.arange(4000, 5301, 5)
+            try:
+                popt, _ = curve_fit(
+                    error_func_no_C,
+                    xdata,
+                    ydata,
+                    p0=[1000, 4600, 75, 1000],
+                    maxfev=20000,
+                )
+                sigma = popt[2]
+                sigma_list.append(sigma)
+                # df_2 = df[(df["pixel"] == (pixel))].iloc[0]
+                # y_values = df_2.drop(["pixel"]).values.astype(float)
+                # plt.figure(figsize=(12, 8))
+                # plt.plot(xdata, y_values, marker="o", linestyle="-")
+                # plt.plot(xdata_2, error_func_no_C(xdata_2, *popt), color="red", label="Fit")
+                # plt.xlabel("Threshold")
+                # plt.ylabel("Counts")
+                # plt.title(f"Counts vs Threshold for pixel {pixel}")
+                # plt.legend()
+                # # plt.savefig(f"Counts_vs_Threshold_{sensor}_{pixel}.png", dpi=600)
+                # plt.show()
+            except (RuntimeError, ValueError):
+                pass
+        all_sigmas.append(sigma_list)
+
+    # Now plot a 2×2 grid of histograms
+    fig, axs = plt.subplots(1, 2, figsize=(14, 8))
+    axs = axs.flatten()
+    for ax, sigmas, sensor in zip(axs, all_sigmas, sensors):
+        if sensor == "N116_2":
+            ax.hist(sigmas, bins=15, alpha=0.7)
+        else:
+            ax.hist(sigmas, bins=451, alpha=0.7)
+        ax.set_xlim(0, 150)
+        ax.set_ylim(0, 800)
+        ax.set_xlabel("Sigma")
+        ax.set_ylabel("Frequency")
+        ax.set_title(f"Sigma Distribution for {sensor}")
+    plt.tight_layout()
+    plt.savefig("Sigma_Distribution_Grid.png", dpi=600)
+    plt.show()
+
 if __name__ == "__main__":
-    N116 = "Data/Threshold Test Data/N116/FinalHits.csv"
+    # N116 = "Data/Threshold Test Data/N116/FinalHits.csv"
     N112 = "Data/Threshold Test Data/N112/FinalHits.csv"
     N10 = "Data/Threshold Test Data/N10/FinalHits.csv"
     N113 = "Data/Threshold Test Data/N113/FinalHits.csv"
-    filepaths = [N10, N112, N113, N116]
+    N116 = "Data/Threshold Test Data/N116_2/FinalHits.csv"
+    # filepaths = [N10, N112, N113, N116]
+    # filepaths = [N116]
+    filepaths = [N10, N116]
 
     # PlotAveragePixels(filepaths)
     # PlotSectorAverages(filepaths)
     # PlotThresholdDistributionMultiple(filepaths)
     # PlotThresholdSectorMultiple(filepaths)
-    PlotThresholdSector16Multiple(filepaths)
+    # PlotThresholdSector16Multiple(filepaths)
+    SingleErrorFit(filepaths)

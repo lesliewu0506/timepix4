@@ -189,10 +189,10 @@ def to_scalar(x):
 
 def Threshold(folder_path: str) -> None:
     # List all files in the directory
-    file_list = sorted(os.listdir(folder_path))
+    file_list = sorted([f for f in os.listdir(folder_path) if f.endswith(".root")])
 
     # Define threshold values from 4000 to 5300 in steps of 100 (14 values total)
-    thresholds = list(range(4000, 5301, 100))
+    thresholds = list(range(4000, 5301, 50))
     if len(file_list) != len(thresholds):
         print(
             "Warning: Number of files does not match the expected number of threshold values."
@@ -306,5 +306,6 @@ if __name__ == "__main__":
     # FilterThreshold("Data/Threshold Test Data/FinalHits.csv")
     # Threshold("Data/Threshold Test Data/N113/")
     # ConvertToT4Sector("N112-250411-101613.root")
-    ConvertFitData("Data/Test Pulse Data/N116-250416-150618.root", "Data/Test Pulse Data/fitData_N116_2.csv")
+    # ConvertFitData("Data/Test Pulse Data/N116-250416-150618.root", "Data/Test Pulse Data/fitData_N116_2.csv")
+    Threshold("Data/Threshold Test Data/N116_2/")
     # SinglePixel(f"Data/Single Pixel Data/Sectors/Multiple/BR/")
