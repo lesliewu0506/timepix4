@@ -446,25 +446,28 @@ def SingleErrorFit(filepaths: list[str]) -> None:
                     p0=[1000, 4600, 75, 1000],
                     maxfev=20000,
                 )
+                # Create a legend label with fitted parameters
+                fit_label = f"Fit: sigma={popt[2]:.2f}"
                 sigma = popt[2]
                 sigma_list.append(sigma)
-                # df_2 = df[(df["pixel"] == (pixel))].iloc[0]
-                # y_values = df_2.drop(["pixel"]).values.astype(float)
-                # plt.figure(figsize=(12, 8))
-                # plt.plot(xdata, y_values, marker="o", linestyle="-")
-                # plt.plot(xdata_2, error_func_no_C(xdata_2, *popt), color="red", label="Fit")
-                # plt.xlabel("Threshold")
-                # plt.ylabel("Counts")
-                # plt.title(f"Counts vs Threshold for pixel {pixel}")
-                # plt.legend()
-                # # plt.savefig(f"Counts_vs_Threshold_{sensor}_{pixel}.png", dpi=600)
-                # plt.show()
+                df_2 = df[(df["pixel"] == (pixel))].iloc[0]
+                y_values = df_2.drop(["pixel"]).values.astype(float)
+                plt.figure(figsize=(12, 8))
+                plt.plot(xdata, y_values, marker="o", linestyle="-")
+                plt.plot(xdata_2, error_func_no_C(xdata_2, *popt), color="red", label=fit_label)
+                plt.xlabel("Threshold")
+                plt.ylabel("Counts")
+                plt.title(f"Counts vs Threshold for pixel {pixel}")
+                
+                plt.legend()
+                # plt.savefig(f"Counts_vs_Threshold_{sensor}_{pixel}.png", dpi=600)
+                plt.show()
             except (RuntimeError, ValueError):
                 pass
         all_sigmas.append(sigma_list)
 
     # Now plot a 2×2 grid of histograms
-    fig, axs = plt.subplots(1, 2, figsize=(14, 8))
+    fig, axs = plt.subplots(2, 2, figsize=(14, 8))
     axs = axs.flatten()
     for ax, sigmas, sensor in zip(axs, all_sigmas, sensors):
         if sensor == "N116_2":
@@ -486,9 +489,9 @@ if __name__ == "__main__":
     N10 = "Data/Threshold Test Data/N10/FinalHits.csv"
     N113 = "Data/Threshold Test Data/N113/FinalHits.csv"
     N116 = "Data/Threshold Test Data/N116_2/FinalHits.csv"
-    # filepaths = [N10, N112, N113, N116]
+    filepaths = [N10, N112, N113, N116]
     # filepaths = [N116]
-    filepaths = [N10, N116]
+    # filepaths = [N10, N116]
 
     # PlotAveragePixels(filepaths)
     # PlotSectorAverages(filepaths)

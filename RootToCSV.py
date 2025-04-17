@@ -306,6 +306,6 @@ if __name__ == "__main__":
     # FilterThreshold("Data/Threshold Test Data/FinalHits.csv")
     # Threshold("Data/Threshold Test Data/N113/")
     # ConvertToT4Sector("N112-250411-101613.root")
-    # ConvertFitData("Data/Test Pulse Data/N116-250416-150618.root", "Data/Test Pulse Data/fitData_N116_2.csv")
-    Threshold("Data/Threshold Test Data/N116_2/")
+    ConvertFitData("Data/Test Pulse Data/N116-250417-093801.root", "Data/Test Pulse Data/fitData_N116_3.csv")
+    # Threshold("Data/Threshold Test Data/N116_2/")
     # SinglePixel(f"Data/Single Pixel Data/Sectors/Multiple/BR/")

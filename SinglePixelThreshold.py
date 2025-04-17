@@ -181,28 +181,30 @@ def HelperPlotToTvsCharge(pixel, means_threshold, std_thresholds):
     )
 
 
-def PlotToTvsCharge(df_testpulse, df_testpulse_2, dict_pixels):
+def PlotToTvsCharge(testpulse_list, dict_pixels):
     # Start Plot
     plt.figure(figsize=(18, 12))
 
     # for key, df_pixels in dict_pixels.items():
     #     means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
     #     HelperPlotToTvsCharge(key, means_chargecal, std_thresholds)
-    plt.scatter(
-        np.arange(1, 16.2, 0.2),
-        df_testpulse_2["meanTot"],
-        marker="o",
-        color="blue",
-        label=f"Test Pulse doubled eoc and row spacing",
-    )
-    plt.scatter(
-        df_testpulse["Charge"] / 1000,
-        df_testpulse["meanTot"],
-        color="magenta",  # Use a distinct color for test pulse
-        label="Test Pulse standard",
-        s=40,
-        zorder=10,
-    )
+    colors = {"N116_1": "red", "N116_2": "green", "N116_3": "blue"}
+    for keys, df in testpulse_list.items():
+        plt.scatter(
+            np.arange(1, 16.2, 0.2),
+            df["meanTot"],
+            marker="o",
+            color=colors[keys],
+            label=f"Test Pulse {keys}",
+        )
+    # plt.scatter(
+    #     df_testpulse["Charge"] / 1000,
+    #     df_testpulse["meanTot"],
+    #     color="magenta",  # Use a distinct color for test pulse
+    #     label="Test Pulse standard",
+    #     s=40,
+    #     zorder=10,
+    # )
     plt.title("ToT vs Charge for N116")
     plt.xlabel("Charge [ke]")
     plt.ylabel("ToT [25ns]")
@@ -237,26 +239,27 @@ def HelperPlotErrors(pixel, relative_errors_threshold):
     )
 
 
-def PlotErrors(df_testpulse, dict_pixels):
-    relative_errors_testpulse = df_testpulse["stdvTot"] / df_testpulse["meanTot"]
-
+def PlotErrors(df_testpulse):
+    colors = {"N116_1": "red", "N116_2": "green", "N116_3": "blue"}
     plt.figure(figsize=(18, 12))
-    for key, df_pixels in dict_pixels.items():
-        means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
-        relative_errors_threshold = [
-            s / m if m != 0 else np.nan for m, s in zip(means_chargecal, std_thresholds)
-        ]
-        HelperPlotErrors(key, relative_errors_threshold)
+    # for key, df_pixels in dict_pixels.items():
+    #     means_chargecal, std_thresholds = iqr_filtered_stats(df_pixels)
+    #     relative_errors_threshold = [
+    #         s / m if m != 0 else np.nan for m, s in zip(means_chargecal, std_thresholds)
+    #     ]
+    #     HelperPlotErrors(key, relative_errors_threshold)
 
     # Plot test pulse data on top
-    plt.scatter(
-        np.arange(1, 16.2, 0.2),
-        relative_errors_testpulse,
-        marker="o",
-        color="magenta",  # Distinct color for test pulse
-        label="Test Pulse",
-        zorder=10,
-    )
+    for keys, df in df_testpulse.items():
+        relative_errors_testpulse = df["stdvTot"] / df["meanTot"]
+        plt.scatter(
+            np.arange(1, 16.2, 0.2),
+            relative_errors_testpulse,
+            marker="o",
+            color=colors[keys],  # Distinct color for test pulse
+            label=f"Test Pulse {keys}",
+            zorder=10,
+        )
 
     plt.title("Relative Error vs Charge for N116")
     plt.xlabel("Charge [ke]")
@@ -342,15 +345,17 @@ def PlotMultipleToTCharge(dict_pixels):
 
 
 def Main(filepaths):
-    dict_pixels: dict = CreatePixelDataFrames(filepaths)
+    # dict_pixels: dict = CreatePixelDataFrames(filepaths)
 
     df_testpulse = CreateTestPulseDF("N116_1")
     df_testpulse_2 = CreateTestPulseDF("N116_2")
+    df_testpulse_3 = CreateTestPulseDF("N116_3")
+    testpulse_list = {"N116_1" : df_testpulse, "N116_2" : df_testpulse_2, "N116_3" : df_testpulse_3}
     # print(df_testpulse)
     # PlotToTHistogram(dict_pixels[(319, 280)])
-    PlotToTvsCharge(df_testpulse, df_testpulse_2, dict_pixels)
+    # PlotToTvsCharge(testpulse_list, dict_pixels = None)
 
-    # PlotErrors(df_testpulse, dict_pixels)
+    PlotErrors(testpulse_list)
     # Difference(dict_pixels)
     # PlotMultipleToTCharge(dict_pixels)
 
