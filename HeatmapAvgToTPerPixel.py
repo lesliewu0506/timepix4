@@ -140,7 +140,7 @@ def PlotAvgToTAndFitHeatmaps(filepath):
         vmax=30,
         # robust=True,
     )
-    plt.title(f"Avg ToT / Fit p1 per Pixel", fontsize=16)
+    plt.title(f"Avg ToT / Fit p1 perx§ Pixel", fontsize=16)
     plt.xlabel("")
     plt.ylabel("")
     plt.xticks([])
