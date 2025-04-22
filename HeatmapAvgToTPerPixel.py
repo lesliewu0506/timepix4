@@ -80,6 +80,7 @@ def PlotAvgToTAndFitHeatmaps(filepath):
     sensor = filepath.split("-")[0]
 
     tot_df = LoadCleanCSV(f"Data/Filtered Calibration Data/{filepath}-Filtered.csv")
+    # tot_df = LoadCleanCSV(f"Data/Filtered Calibration Data/{filepath}-Charge-Data.csv")
     fit_df = LoadFitCSV(sensor)
     avg_tot = CalulcateAvgToTPerPixel(tot_df)
 
@@ -126,17 +127,20 @@ def PlotAvgToTAndFitHeatmaps(filepath):
     # # plt.savefig(f"{sensor}_AvgToT_Fit_p1_Heatmaps.png", dpi=600)
     # plt.show()
 
-    divided = heatmap_data_ToT / heatmap_data_p1
+    divided = heatmap_data_ToT/ heatmap_data_p1
     divided = divided.fillna(0)
     divided = divided.replace([float("inf"), -float("inf")], 0)
+    # Select subregion from row 60 to 70 and col 350 to 360
+    # divided = divided.loc[360:370, 70:80]
     sns.heatmap(
         divided,
         cmap="viridis",
         cbar_kws={"label": "Avg ToT / Fit p1"},
         vmin=20,
-        vmax=40,
+        vmax=30,
+        # robust=True,
     )
-    plt.title(f"{sensor} Avg ToT / Fit p1 per Pixel", fontsize=16)
+    plt.title(f"Avg ToT / Fit p1 per Pixel", fontsize=16)
     plt.xlabel("")
     plt.ylabel("")
     plt.xticks([])
@@ -152,9 +156,10 @@ if __name__ == "__main__":
     # avg_tot_per_pixel = CalulcateAvgToTPerPixel(df)
     # PlotAvgToTHeatmap(avg_tot_per_pixel)
     # PlotAvgToTAndFitHeatmaps(filepath, "Charge Calibrations/N116_charge.txt")
-    filepaths = ["N10-250404-143700", "N116-250403-150114"]
-    filepath2 = ["N112-250411-101613", "N113-250408-100406"]
+    # filepaths = ["N10-250404-143700", "N116-250403-150114"]
+    # filepath2 = ["N112-250411-101613", "N113-250408-100406"]
     # for filepath in filepath2:
     #     # PlotAvgToTAndFitHeatmaps(filepath)
     #     PlotAvgToTHeatmap(filepath)
     PlotAvgToTAndFitHeatmaps("N116")
+    # PlotAvgToTAndFitHeatmaps("N116-250403-150114")

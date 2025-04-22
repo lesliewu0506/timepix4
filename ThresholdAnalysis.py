@@ -419,8 +419,10 @@ def PlotThresholdSector16Multiple(filepaths: list[str]) -> None:
 def error_func(x, mu, sigma):
     return 500 * (erf((mu - x) / (np.sqrt(2) * sigma))) + 500
 
+
 def error_func_no_C(x, A, mu, sigma, y0):
     return y0 + 0.5 * A * erfc((x - mu) / (sigma * np.sqrt(2)))
+
 
 def SingleErrorFit(filepaths: list[str]) -> None:
     all_sigmas = []
@@ -454,11 +456,16 @@ def SingleErrorFit(filepaths: list[str]) -> None:
                 y_values = df_2.drop(["pixel"]).values.astype(float)
                 plt.figure(figsize=(12, 8))
                 plt.plot(xdata, y_values, marker="o", linestyle="-")
-                plt.plot(xdata_2, error_func_no_C(xdata_2, *popt), color="red", label=fit_label)
+                plt.plot(
+                    xdata_2,
+                    error_func_no_C(xdata_2, *popt),
+                    color="red",
+                    label=fit_label,
+                )
                 plt.xlabel("Threshold")
                 plt.ylabel("Counts")
                 plt.title(f"Counts vs Threshold for pixel {pixel}")
-                
+
                 plt.legend()
                 # plt.savefig(f"Counts_vs_Threshold_{sensor}_{pixel}.png", dpi=600)
                 plt.show()
@@ -483,19 +490,108 @@ def SingleErrorFit(filepaths: list[str]) -> None:
     plt.savefig("Sigma_Distribution_Grid.png", dpi=600)
     plt.show()
 
+
+def MultipleErrorFit(filepaths: list[str]) -> None:
+    all_sigmas = []
+    sensors = []
+    filepath_n10 = filepaths[0]
+    filepath_n116 = filepaths[1]
+    sensor_n10 = filepath_n10.split("/")[-2]
+    sensor_n116 = filepath_n116.split("/")[-2]
+
+    sensors.append(sensor_n10)
+    sensors.append(sensor_n116)
+    df_n116 = LoadCSV(filepath_n116)
+    df_n10 = LoadCSV(filepath_n10)
+    threshold_columns_n10 = [col for col in df_n10.columns if col.startswith("threshold")]
+    threshold_columns_n116 = [col for col in df_n116.columns if col.startswith("threshold")]
+    threshold_vals_n10 = [int(c.split()[1]) for c in threshold_columns_n10]
+    threshold_vals_n116 = [int(c.split()[1]) for c in threshold_columns_n116]
+    sigma_list_n10 = []
+    sigma_list_n116 = []
+
+    for (index10, row10), (index116, row116) in zip(df_n10.iterrows(), df_n116.iterrows()):
+        pixel_n10 = row10["pixel"]
+        pixel_n116 = row116["pixel"]
+        ydata_n10 = row10[threshold_columns_n10].values.astype(float)
+        ydata_n116 = row116[threshold_columns_n116].values.astype(float)
+        xdata_n10 = threshold_vals_n10
+        xdata_n116 = threshold_vals_n116
+        xdata_2_n10 = np.arange(4000, 5301, 5)
+        xdata_2_n116 = np.arange(4000, 5301, 5)
+        plt.figure(figsize=(12, 8))
+        try:
+            popt, _ = curve_fit(
+                error_func_no_C,
+                xdata_n10,
+                ydata_n10,
+                p0=[1000, 4600, 75, 1000],
+                maxfev=20000,
+            )
+            # Create a legend label with fitted parameters
+            fit_label = f"Fit: sigma={popt[2]:.2f}"
+            sigma = popt[2]
+            sigma_list_n10.append(sigma)
+            df_2 = df_n10[(df_n10["pixel"] == (pixel_n10))].iloc[0]
+            y_values = df_2.drop(["pixel"]).values.astype(float)
+            plt.plot(xdata_n10, y_values, marker="o", linestyle="-", label = "N10")
+            plt.plot(
+                xdata_2_n10,
+                error_func_no_C(xdata_2_n10, *popt),
+                color="red",
+                label=fit_label,
+            )
+            plt.xlabel("Threshold")
+            plt.ylabel("Counts")
+
+            plt.legend()
+
+        except (RuntimeError, ValueError):
+            pass
+
+        try:
+            popt, _ = curve_fit(
+                error_func_no_C,
+                xdata_n116,
+                ydata_n116,
+                p0=[1000, 4600, 75, 1000],
+                maxfev=20000,
+            )
+            # Create a legend label with fitted parameters
+            fit_label = f"Fit: sigma={popt[2]:.2f}"
+            sigma = popt[2]
+            sigma_list_n116.append(sigma)
+            df_2 = df_n116[(df_n116["pixel"] == (pixel_n116))].iloc[0]
+            y_values = df_2.drop(["pixel"]).values.astype(float)
+            plt.plot(xdata_n116, y_values, marker="o", linestyle="-", label = "N116")
+            plt.plot(
+                xdata_2_n116,
+                error_func_no_C(xdata_2_n116, *popt),
+                color="green",
+                label=fit_label,
+            )
+            plt.xlabel("Threshold")
+            plt.ylabel("Counts")
+
+            plt.legend()
+        except (RuntimeError, ValueError):
+            pass
+        plt.show()
+
 if __name__ == "__main__":
     # N116 = "Data/Threshold Test Data/N116/FinalHits.csv"
     N112 = "Data/Threshold Test Data/N112/FinalHits.csv"
     N10 = "Data/Threshold Test Data/N10/FinalHits.csv"
     N113 = "Data/Threshold Test Data/N113/FinalHits.csv"
     N116 = "Data/Threshold Test Data/N116_2/FinalHits.csv"
-    filepaths = [N10, N112, N113, N116]
+    # filepaths = [N10, N112, N113, N116]
     # filepaths = [N116]
-    # filepaths = [N10, N116]
+    filepaths = [N10, N116]
 
     # PlotAveragePixels(filepaths)
     # PlotSectorAverages(filepaths)
     # PlotThresholdDistributionMultiple(filepaths)
     # PlotThresholdSectorMultiple(filepaths)
     # PlotThresholdSector16Multiple(filepaths)
-    SingleErrorFit(filepaths)
+    # SingleErrorFit(filepaths)
+    MultipleErrorFit(filepaths)
