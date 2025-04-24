@@ -35,24 +35,28 @@ def FindHighestToT(df, target_col, target_row):
 
     if pixel_df.empty:
         return None
-
-    counts, bin_edges = np.histogram(pixel_df["tot"], bins=301)
-
-    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-    # Can be higher than 100
-    mask = bin_centers > THRESHOLDTOT
-    filtered_counts = counts[mask]
-    filtered_bins = bin_centers[mask]
-
-    if len(filtered_bins) == 0:
+    mask = pixel_df["tot"] > THRESHOLDTOT
+    filtered_tot = pixel_df.loc[mask, "tot"]
+    if filtered_tot.empty:
         return None
+    return filtered_tot.mean()
+    # counts, bin_edges = np.histogram(pixel_df["tot"], bins=3011=)
 
-    # Find Dominant Bin
-    max_index = np.argmax(filtered_counts)
-    dominant_bin_value = filtered_bins[max_index]
+    # bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-    return dominant_bin_value
+    # # Can be higher than 100
+    # mask = bin_centers > THRESHOLDTOT
+    # filtered_counts = counts[mask]
+    # filtered_bins = bin_centers[mask]
+
+    # if len(filtered_bins) == 0:
+    #     return None
+
+    # # Find Dominant Bin
+    # max_index = np.argmax(filtered_counts)
+    # dominant_bin_value = filtered_bins[max_index]
+
+    # return dominant_bin_value
 
 
 def GetCalibrationFactors(df: pd.DataFrame):
@@ -116,12 +120,12 @@ def ConvertClusterData(filepath: str) -> None:
     df_transformed["correction"] = df_transformed["pixel"].apply(
         lambda pixel: CorrectionFactors.get(pixel, np.nan)
     )
-    # df_correction = pd.DataFrame(list(CorrectionFactors.items()), columns=["pixel", "correction"])
+    df_correction = pd.DataFrame(list(CorrectionFactors.items()), columns=["pixel", "correction"])
 
-    # df_correction.to_csv(f"Data/Filtered Calibration Data/{filename}-CorrectionFactors.csv", index=False)
-    df_transformed.to_csv(
-        f"Data/Filtered Calibration Data/{filename}-Charge-Data.csv", index=False
-    )
+    df_correction.to_csv(f"Data/Filtered Calibration Data/{filename}-CorrectionFactors.csv", index=False)
+    # df_transformed.to_csv(
+    #     f"Data/Filtered Calibration Data/{filename}-Charge-Data.csv", index=False
+    # )
 
 
 def ConvertToT4Sector(filepath: str) -> None:
@@ -298,14 +302,15 @@ if __name__ == "__main__":
     # for filepath in filepaths:
     # ConvertClusterData(filepath)
     # ConvertToT4Sector(filepath)
-    # for root_file_path in ["N116-250408-123554.root"]:
-    #     ConvertClusterData(root_file_path)
+    for root_file_path in ["N116-250408-123554.root"]:
+    # root_file_path = "N10-250409-113326.root"
+        ConvertClusterData(root_file_path)
     # ConvertToT4Sector("N116-250408-123554.root")
     # ConvertToT4Sector("N116-250408-105332.root")
     # Threshold("Data/Threshold Test Data/")
     # FilterThreshold("Data/Threshold Test Data/FinalHits.csv")
     # Threshold("Data/Threshold Test Data/N113/")
     # ConvertToT4Sector("N112-250411-101613.root")
-    ConvertFitData("Data/Test Pulse Data/N116-250417-093801.root", "Data/Test Pulse Data/fitData_N116_3.csv")
+    # ConvertFitData("Data/Test Pulse Data/N116-250417-093801.root", "Data/Test Pulse Data/fitData_N116_3.csv")
     # Threshold("Data/Threshold Test Data/N116_2/")
     # SinglePixel(f"Data/Single Pixel Data/Sectors/Multiple/BR/")
