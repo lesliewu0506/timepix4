@@ -87,6 +87,7 @@ def ConvertClusterData(filepath: str) -> None:
         cbar_kws={"label": "Charge [ke]"},
         square=True,
         annot=True,
+        annot_kws={"size": 18},
         fmt=".2f",
     )
     ax.set_title(f"Charge [ke] per pixel with stage at (27.610/23.52/42.{z})")
@@ -155,7 +156,7 @@ def ZScanPlot():
     plt.figure(figsize=(10, 6))
     plt.plot(z_list, tot_list, label="Charge", marker="o")
     plt.plot(z_list, cltot_list, label="Cluster Charge", marker="o")
-    plt.xlabel("Z Position")
+    plt.xlabel("Z Position Stage [mm]")
     plt.ylabel("Charge [ke]")
     # plt.xticks(np.arange(42.165, 42.891, 0.05))
     plt.title("Z Scan Plot")
