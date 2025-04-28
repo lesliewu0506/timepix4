@@ -2,7 +2,7 @@ import pandas as pd
 import ast
 
 
-def createdicts(df: pd.DataFrame):
+def createdicts():
     df = pd.read_csv(
         f"Data/Filtered Calibration Data/N116-250408-123554-CorrectionFactors.csv"
     )
