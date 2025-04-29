@@ -139,6 +139,21 @@ def ZScanPlot(r: str):
         color="green",
         label="Mean cluster size",
     )
+    # fix right axis limits and align tick count with dynamic left ToT limits
+    ax2.set_ylim(0, 9)
+    if r == "z":
+        ax2.set_ylim(1, 9)
+        # determine number of ticks on cluster size axis
+        num_ticks = len(ax2.get_yticks())
+        # dynamic ToT axis limits rounded to nearest 100
+        all_tot = np.hstack([df["mean_cltot"].values, df["max_tot"].values])
+        min_lim = np.floor(all_tot.min() / 100) * 100
+        max_lim = np.ceil(all_tot.max() / 100) * 100
+        # generate matching tick positions
+        left_ticks = np.linspace(min_lim, max_lim, num_ticks)
+        ax.set_ylim(min_lim, max_lim)
+        ax.set_yticks(left_ticks)
+        ax2.set_yticks(np.linspace(1, 9, num_ticks))
     ax2.set_ylabel("Mean cluster size [pixels]")
 
     # Highlight global maximum of max_tot
@@ -161,7 +176,7 @@ def ZScanPlot(r: str):
     )
     lines, labels = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax.legend(lines + lines2, labels + labels2, loc="upper center")
+    ax.legend(lines + lines2, labels + labels2, loc="best")
     ax.grid(True)
     plt.tight_layout()
     plt.savefig(f"{r.capitalize()}ScanPlot{AttenuationVoltage}.png", dpi=600)
@@ -197,5 +212,5 @@ def ProcessFiles(r: str):
 
 
 if __name__ == "__main__":
-    ProcessFiles("z")
-    ZScanPlot("z")
+    ProcessFiles("x")
+    ZScanPlot("x")
