@@ -55,13 +55,28 @@ def process_folder(folder_path: str, r: str):
     )
     df_exp = FilterAndUnwrap(df_data)
     df_filtered = df_exp[(df_exp["row"] == ROW) & (df_exp["col"] == COL)].copy()
-    # Compute average cltot per event
-    df_cl_under_limit = df_filtered[df_filtered["cltot"] < LIMIT]
+
+    if r == "x":
+        # Include the target pixel and its immediate neighbors in the row direction
+        mask = (
+            df_exp["row"].isin([ROW, ROW + 1, ROW - 1])
+        ) & (df_exp["col"] == COL)
+        df_filtered_cl_cs = df_exp[mask].copy()
+    elif r == "y":
+        # Include the target pixel and its immediate neighbors in the column direction
+        mask = (
+            df_exp["col"].isin([COL, COL + 1, COL - 1])
+        ) & (df_exp["row"] == ROW)
+        df_filtered_cl_cs = df_exp[mask].copy()
+    else:
+        df_filtered_cl_cs = df_filtered.copy()
+
+    df_cl_under_limit = df_filtered_cl_cs[df_filtered_cl_cs["cltot"] < LIMIT]
     mean_cl = df_cl_under_limit["cltot"].mean()
     std_cl = df_cl_under_limit["cltot"].std()
 
     # Compute average cluster size per event
-    sizes = df_filtered["nhits"]
+    sizes = df_filtered_cl_cs["nhits"]
     std_cs = sizes.std()
     mean_cs = sizes.mean()
 
@@ -81,6 +96,7 @@ def process_folder(folder_path: str, r: str):
         max_tot = df_mean["tot"].iloc[0]
     else:
         max_tot = 0
+
     ref_tot_series = df_filtered["tot"]
     std_tot = ref_tot_series.std()
     return height_num2, mean_cl, std_cl, max_tot, std_tot, mean_cs, std_cs
