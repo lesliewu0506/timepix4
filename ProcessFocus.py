@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from HelperFunctions import parse_list
 
-AttenuationVoltage = 3.5
+AttenuationVoltage = 3.6
 ROW = 230
 COL = 228
 LIMIT = 1000
@@ -58,18 +58,69 @@ def process_folder(folder_path: str, r: str):
 
     if r == "x":
         # Include the target pixel and its immediate neighbors in the row direction
-        mask = (
-            df_exp["row"].isin([ROW, ROW + 1, ROW - 1])
-        ) & (df_exp["col"] == COL)
+        mask = (df_exp["row"].isin([ROW, ROW + 1, ROW - 1, ROW - 2, ROW + 2])) & (
+            df_exp["col"] == COL
+        )
         df_filtered_cl_cs = df_exp[mask].copy()
+        df_row_next = df_exp[(df_exp["row"] == ROW + 1) & (df_exp["col"] == COL)].copy()
+        df_row_prev = df_exp[(df_exp["row"] == ROW - 1) & (df_exp["col"] == COL)].copy()
+        df_mean_next_under = df_row_next[df_row_next["tot"] < LIMIT]
+        df_mean_next_in = df_mean_next_under[df_mean_next_under["tot"] > 0]
+        df_mean_next = df_mean_next_in.groupby(["row", "col"]).mean().reset_index()
+        df_mean_next = df_mean_next.sort_values("tot", ascending=False)
+
+        df_mean_prev_under = df_row_prev[df_row_prev["tot"] < LIMIT]
+        df_mean_prev_in = df_mean_prev_under[df_mean_prev_under["tot"] > 0]
+        df_mean_prev = df_mean_prev_in.groupby(["row", "col"]).mean().reset_index()
+        df_mean_prev = df_mean_prev.sort_values("tot", ascending=False)
+
+        std_tot_next = df_row_next["tot"].std()
+        std_tot_prev = df_row_prev["tot"].std()
+
+        if not df_mean_next.empty:
+            max_tot_next = df_mean_next["tot"].iloc[0]
+        else:
+            max_tot_next = 0
+        if not df_mean_prev.empty:
+            max_tot_prev = df_mean_prev["tot"].iloc[0]
+        else:
+            max_tot_prev = 0
+
     elif r == "y":
         # Include the target pixel and its immediate neighbors in the column direction
-        mask = (
-            df_exp["col"].isin([COL, COL + 1, COL - 1])
-        ) & (df_exp["row"] == ROW)
+        mask = (df_exp["col"].isin([COL, COL + 1, COL - 1, COL - 2, COL + 2])) & (
+            df_exp["row"] == ROW
+        )
         df_filtered_cl_cs = df_exp[mask].copy()
+        df_col_next = df_exp[(df_exp["row"] == ROW) & (df_exp["col"] == COL + 1)].copy()
+        df_col_prev = df_exp[(df_exp["row"] == ROW) & (df_exp["col"] == COL - 1)].copy()
+        df_mean_next_under = df_col_next[df_col_next["tot"] < LIMIT]
+        df_mean_next_in = df_mean_next_under[df_mean_next_under["tot"] > 0]
+        df_mean_next = df_mean_next_in.groupby(["row", "col"]).mean().reset_index()
+        df_mean_next = df_mean_next.sort_values("tot", ascending=False)
+        df_mean_prev_under = df_col_prev[df_col_prev["tot"] < LIMIT]
+        df_mean_prev_in = df_mean_prev_under[df_mean_prev_under["tot"] > 0]
+        df_mean_prev = df_mean_prev_in.groupby(["row", "col"]).mean().reset_index()
+        df_mean_prev = df_mean_prev.sort_values("tot", ascending=False)
+
+        std_tot_next = df_col_next["tot"].std()
+        std_tot_prev = df_col_prev["tot"].std()
+        if not df_mean_next.empty:
+            max_tot_next = df_mean_next["tot"].iloc[0]
+        else:
+            max_tot_next = 0
+
+        if not df_mean_prev.empty:
+            max_tot_prev = df_mean_prev["tot"].iloc[0]
+        else:
+            max_tot_prev = 0
+
     else:
         df_filtered_cl_cs = df_filtered.copy()
+        max_tot_next = 0
+        max_tot_prev = 0
+        std_tot_next = 0
+        std_tot_prev = 0
 
     df_cl_under_limit = df_filtered_cl_cs[df_filtered_cl_cs["cltot"] < LIMIT]
     mean_cl = df_cl_under_limit["cltot"].mean()
@@ -84,27 +135,38 @@ def process_folder(folder_path: str, r: str):
     df_under_limit = df_filtered[df_filtered["tot"] < LIMIT]
     df_in_limit = df_under_limit[df_under_limit["tot"] > 0]
     df_mean = df_in_limit.groupby(["row", "col"]).mean().reset_index()
-    # Sort by ToT descending if desired
     df_mean = df_mean.sort_values("tot", ascending=False)
 
     df_mean.to_csv(
-        f"Data/{r.capitalize()}Focus/ProcessedFocus {AttenuationVoltage} V/tot_{height_num}.csv",
+        f"Data/Focus/{r.capitalize()}/ProcessedFocus {AttenuationVoltage} V/tot_{height_num}.csv",
         index=False,
     )
     # Determine max_tot for target pixel, or NaN if not present
-    if not df_filtered.empty:
+    if not df_filtered.empty and not df_mean.empty:
         max_tot = df_mean["tot"].iloc[0]
     else:
         max_tot = 0
 
     ref_tot_series = df_filtered["tot"]
     std_tot = ref_tot_series.std()
-    return height_num2, mean_cl, std_cl, max_tot, std_tot, mean_cs, std_cs
+    return (
+        height_num2,
+        mean_cl,
+        std_cl,
+        max_tot,
+        std_tot,
+        mean_cs,
+        std_cs,
+        max_tot_next,
+        max_tot_prev,
+        std_tot_next,
+        std_tot_prev,
+    )
 
 
 def ZScanPlot(r: str):
     df = pd.read_csv(
-        f"Data/{r.capitalize()}Focus/ProcessedFocus {AttenuationVoltage} V/Results.csv"
+        f"Data/Focus/{r.capitalize()}/ProcessedFocus {AttenuationVoltage} V/Results.csv"
     )
 
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -118,7 +180,7 @@ def ZScanPlot(r: str):
         marker="o",
         linestyle="-",
         capsize=5,
-        label="Mean cltot",
+        label="Mean clToT",
     )
     ax.errorbar(
         df["height"],
@@ -127,8 +189,46 @@ def ZScanPlot(r: str):
         marker="o",
         linestyle="-",
         capsize=5,
-        label="Mean tot",
+        label=f"Mean ToT ({COL}, {ROW})",
     )
+    if r == "x":
+        ax.errorbar(
+            df["height"],
+            df["max_tot_prev"],
+            yerr=df["std_tot_prev"],
+            marker="o",
+            linestyle="-",
+            capsize=5,
+            label=f"Mean ToT ({COL}, {ROW - 1})",
+        )
+        ax.errorbar(
+            df["height"],
+            df["max_tot_next"],
+            yerr=df["std_tot_next"],
+            marker="o",
+            linestyle="-",
+            capsize=5,
+            label=f"Mean ToT ({COL}, {ROW + 1})",
+        )
+    elif r == "y":
+        ax.errorbar(
+            df["height"],
+            df["max_tot_prev"],
+            yerr=df["std_tot_prev"],
+            marker="o",
+            linestyle="-",
+            capsize=5,
+            label=f"Mean ToT ({COL - 1}, {ROW})",
+        )
+        ax.errorbar(
+            df["height"],
+            df["max_tot_next"],
+            yerr=df["std_tot_next"],
+            marker="o",
+            linestyle="-",
+            capsize=5,
+            label=f"Mean ToT ({COL + 1}, {ROW})",
+        )
     ax2.errorbar(
         df["height"],
         df["mean_clustersize"],
@@ -140,9 +240,9 @@ def ZScanPlot(r: str):
         label="Mean cluster size",
     )
     # fix right axis limits and align tick count with dynamic left ToT limits
-    ax2.set_ylim(0, 9)
+    ax2.set_ylim(0, 8)
     if r == "z":
-        ax2.set_ylim(1, 9)
+        ax2.set_ylim(0, 8)
         # determine number of ticks on cluster size axis
         num_ticks = len(ax2.get_yticks())
         # dynamic ToT axis limits rounded to nearest 100
@@ -172,7 +272,7 @@ def ZScanPlot(r: str):
     ax.set_xlabel(f"{r.capitalize()} Position Stage [mm]")
     ax.set_ylabel("ToT [25ns]")
     ax.set_title(
-        f"Mean clToT and ToT vs {r.capitalize()} Position (Attenuation Voltage = {AttenuationVoltage} V; Pixel ({COL}, {ROW}))"
+        f"{r.capitalize()} Scan: Attenuation Voltage = {AttenuationVoltage} V; Pixel ({COL}, {ROW})"
     )
     lines, labels = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
@@ -184,8 +284,12 @@ def ZScanPlot(r: str):
 
 
 def ProcessFiles(r: str):
-    data_root = f"Data/{r.capitalize()}Focus/Focus {AttenuationVoltage} V"
+    data_root = (
+        f"Data/Focus/{r.capitalize()}/{r.capitalize()}Focus {AttenuationVoltage} V"
+    )
     results = []
+    output_dir = f"Data/Focus/{r.capitalize()}/ProcessedFocus {AttenuationVoltage} V"
+    os.makedirs(output_dir, exist_ok=True)
     for d in os.listdir(data_root):
         if d.startswith("focus_"):
             result = process_folder(os.path.join(data_root, d), r)
@@ -202,15 +306,19 @@ def ProcessFiles(r: str):
             "std_tottarget",
             "mean_clustersize",
             "std_clustersize",
+            "max_tot_next",
+            "max_tot_prev",
+            "std_tot_next",
+            "std_tot_prev",
         ],
     )
     df_results = df_results.sort_values("height")
     df_results.to_csv(
-        f"Data/{r.capitalize()}Focus/ProcessedFocus {AttenuationVoltage} V/Results.csv",
+        f"Data/Focus/{r.capitalize()}/ProcessedFocus {AttenuationVoltage} V/Results.csv",
         index=False,
     )
 
 
 if __name__ == "__main__":
-    ProcessFiles("x")
-    ZScanPlot("x")
+    ProcessFiles("z")
+    ZScanPlot("z")

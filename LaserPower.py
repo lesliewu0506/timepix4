@@ -7,7 +7,7 @@ def main_plot(filepath):
     df = pd.read_csv(filepath)
     # plt.figure(figsize=(14, 8))
     plt.plot(df["V"], df["power"], linestyle="-", marker="o", color="blue", label="Power")
-    plt.xticks(np.arange(0, 5, 1))
+    # plt.xticks(np.arange(0, 5, 1))
     plt.xlabel("Attenuation Voltage [V]")
     plt.ylabel("Power [$\mu$W]")
     # plt.title("Power vs Voltage")
