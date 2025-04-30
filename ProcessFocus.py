@@ -2,26 +2,60 @@ import os, uproot
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from HelperFunctions import parse_list
+from HelperFunctions import parse_list, createdicts
 
-AttenuationVoltage = 3.6
+AttenuationVoltage = 3.5
 ROW = 230
 COL = 228
 LIMIT = 1000
+LIMITCHARGE = 100
+
+
+def tot_to_charge(tot_list, row_list, col_list):
+
+    pix_charges = []
+    for tot, r, c in zip(tot_list, row_list, col_list):
+
+        factor = conv_dict.get((c, r), 0.10)
+        pix_charges.append(tot * factor)
+    clcharge = sum(pix_charges)
+
+    return pix_charges, [clcharge]
 
 
 def FilterAndUnwrap(df: pd.DataFrame) -> pd.DataFrame:
     for c in ["col", "row", "tot", "cltot", "nhits"]:
         df[c] = df[c].apply(parse_list)
+    df_charge = df.copy()
 
-    df["combined"] = df.apply(
-        lambda r: list(zip(r["row"], r["col"], r["tot"], r["cltot"], r["nhits"])),
+    df_charge[["charge", "clcharge"]] = df_charge.apply(
+        lambda r: pd.Series(
+            tot_to_charge(r["tot"], r["row"], r["col"]), index=["charge", "clcharge"]
+        ),
+        axis=1,
+    )
+    df_charge = df_charge[
+        ["row", "col", "tot", "cltot", "nhits", "charge", "clcharge"]
+    ].reset_index(drop=True)
+
+    df["combined"] = df_charge.apply(
+        lambda r: list(
+            zip(
+                r["row"],
+                r["col"],
+                r["tot"],
+                r["cltot"],
+                r["nhits"],
+                r["charge"],
+                r["clcharge"],
+            )
+        ),
         axis=1,
     )
     df_exploded = df.explode("combined")
 
-    df_exploded[["row", "col", "tot", "cltot", "nhits"]] = pd.DataFrame(
-        df_exploded["combined"].tolist(), index=df_exploded.index
+    df_exploded[["row", "col", "tot", "cltot", "nhits", "charge", "clcharge"]] = (
+        pd.DataFrame(df_exploded["combined"].tolist(), index=df_exploded.index)
     )
     df_exploded = df_exploded.drop(columns=["combined"])
 
@@ -126,6 +160,16 @@ def process_folder(folder_path: str, r: str):
     mean_cl = df_cl_under_limit["cltot"].mean()
     std_cl = df_cl_under_limit["cltot"].std()
 
+    df_charge_under_limit = df_filtered[df_filtered["charge"] < LIMITCHARGE]
+    mean_charge = df_charge_under_limit["charge"].mean()
+    std_charge = df_charge_under_limit["charge"].std()
+
+    df_clcharge_under_limit = df_charge_under_limit[
+        df_charge_under_limit["clcharge"] < LIMITCHARGE
+    ]
+    mean_clcharge = df_clcharge_under_limit["clcharge"].mean()
+    std_clcharge = df_clcharge_under_limit["clcharge"].std()
+
     # Compute average cluster size per event
     sizes = df_filtered_cl_cs["nhits"]
     std_cs = sizes.std()
@@ -149,6 +193,7 @@ def process_folder(folder_path: str, r: str):
 
     ref_tot_series = df_filtered["tot"]
     std_tot = ref_tot_series.std()
+
     return (
         height_num2,
         mean_cl,
@@ -161,6 +206,10 @@ def process_folder(folder_path: str, r: str):
         max_tot_prev,
         std_tot_next,
         std_tot_prev,
+        mean_charge,
+        std_charge,
+        mean_clcharge,
+        std_clcharge,
     )
 
 
@@ -283,7 +332,128 @@ def ZScanPlot(r: str):
     plt.show()
 
 
+def ZScanPlotCharge(r: str):
+    df = pd.read_csv(
+        f"Data/Focus/{r.capitalize()}/ProcessedFocus {AttenuationVoltage} V/Results.csv"
+    )
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+    ax2 = ax.twinx()
+
+    # Plot mean_cltot and max_tot vs height
+    ax.errorbar(
+        df["height"],
+        df["mean_clcharge"],
+        yerr=df["std_clcharge"],
+        marker="o",
+        linestyle="-",
+        capsize=5,
+        label=f"Mean clCharge ({COL}, {ROW})",
+    )
+    ax.errorbar(
+        df["height"],
+        df["mean_charge"],
+        yerr=df["std_charge"],
+        marker="o",
+        linestyle="-",
+        capsize=5,
+        label="Mean Charge",
+    )
+    if r == "x":
+        ax.errorbar(
+            df["height"],
+            df["max_tot_prev"],
+            yerr=df["std_tot_prev"],
+            marker="o",
+            linestyle="-",
+            capsize=5,
+            label=f"Mean ToT ({COL}, {ROW - 1})",
+        )
+        ax.errorbar(
+            df["height"],
+            df["max_tot_next"],
+            yerr=df["std_tot_next"],
+            marker="o",
+            linestyle="-",
+            capsize=5,
+            label=f"Mean ToT ({COL}, {ROW + 1})",
+        )
+    elif r == "y":
+        ax.errorbar(
+            df["height"],
+            df["max_tot_prev"],
+            yerr=df["std_tot_prev"],
+            marker="o",
+            linestyle="-",
+            capsize=5,
+            label=f"Mean ToT ({COL - 1}, {ROW})",
+        )
+        ax.errorbar(
+            df["height"],
+            df["max_tot_next"],
+            yerr=df["std_tot_next"],
+            marker="o",
+            linestyle="-",
+            capsize=5,
+            label=f"Mean ToT ({COL + 1}, {ROW})",
+        )
+    ax2.errorbar(
+        df["height"],
+        df["mean_clustersize"],
+        yerr=df["std_clustersize"],
+        marker="s",
+        linestyle="None",
+        capsize=5,
+        color="green",
+        label="Mean cluster size",
+    )
+    # fix right axis limits and align tick count with dynamic left ToT limits
+    ax2.set_ylim(0, 8)
+    if r == "z":
+        ax2.set_ylim(0, 8)
+        # determine number of ticks on cluster size axis
+        num_ticks = len(ax2.get_yticks())
+        # dynamic ToT axis limits rounded to nearest 100
+        all_tot = np.hstack([df["mean_clcharge"].values, df["mean_charge"].values])
+        min_lim = np.floor(all_tot.min() / 5) * 5
+        max_lim = np.ceil(all_tot.max() / 5) * 5
+        # generate matching tick positions
+        left_ticks = np.linspace(min_lim, max_lim, num_ticks)
+        ax.set_ylim(min_lim, max_lim)
+        ax.set_yticks(left_ticks)
+        ax2.set_yticks(np.linspace(1, 9, num_ticks))
+    ax2.set_ylabel("Mean cluster size [pixels]")
+
+    # Highlight global maximum of max_tot
+    # max_idx = df["max_tot"].idxmax()
+    # max_height = df.loc[max_idx, "height"]
+    # max_value = df.loc[max_idx, "max_tot"]
+    # ax.scatter(
+    #     max_height,
+    #     max_value,
+    #     marker="o",
+    #     color="red",
+    #     s=100,
+    #     label=f"Max ToT at {r} = {max_height} mm",
+    #     zorder=3,
+    # )
+    ax.set_xlabel(f"{r.capitalize()} Position Stage [mm]")
+    ax.set_ylabel("Charge [ke]")
+    ax.set_title(
+        f"{r.capitalize()} Scan: Attenuation Voltage = {AttenuationVoltage} V; Pixel ({COL}, {ROW})"
+    )
+    lines, labels = ax.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax.legend(lines + lines2, labels + labels2, loc="best")
+    ax.grid(True)
+    plt.tight_layout()
+    plt.savefig(f"{r.capitalize()}ScanPlotCharge{AttenuationVoltage}.png", dpi=600)
+    plt.show()
+
+
 def ProcessFiles(r: str):
+    global conv_dict
+    conv_dict = createdicts()
     data_root = (
         f"Data/Focus/{r.capitalize()}/{r.capitalize()}Focus {AttenuationVoltage} V"
     )
@@ -310,6 +480,10 @@ def ProcessFiles(r: str):
             "max_tot_prev",
             "std_tot_next",
             "std_tot_prev",
+            "mean_charge",
+            "std_charge",
+            "mean_clcharge",
+            "std_clcharge",
         ],
     )
     df_results = df_results.sort_values("height")
@@ -321,4 +495,5 @@ def ProcessFiles(r: str):
 
 if __name__ == "__main__":
     ProcessFiles("z")
-    ZScanPlot("z")
+    # ZScanPlot("z")
+    ZScanPlotCharge("z")
