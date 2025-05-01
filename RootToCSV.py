@@ -116,16 +116,18 @@ def ConvertClusterData(filepath: str) -> None:
     )
 
     df_filtered = FilterAndUnwrap(df_data)
-    df_transformed = TransformDataFrame(df_filtered)
-    df_transformed["correction"] = df_transformed["pixel"].apply(
-        lambda pixel: CorrectionFactors.get(pixel, np.nan)
-    )
+    df_filtered.to_csv(
+        f"Data/Filtered Calibration Data/{filename}-Charge-Data.csv",)
+    # df_transformed = TransformDataFrame(df_filtered)
+    # df_transformed["correction"] = df_transformed["pixel"].apply(
+    #     lambda pixel: CorrectionFactors.get(pixel, np.nan)
+    # )
     # df_correction = pd.DataFrame(list(CorrectionFactors.items()), columns=["pixel", "correction"])
 
     # df_correction.to_csv(f"Data/Filtered Calibration Data/{filename}-CorrectionFactors.csv", index=False)
-    df_transformed.to_csv(
-        f"Data/Filtered Calibration Data/{filename}-Charge-Data.csv", index=False
-    )
+    # df_transformed.to_csv(
+    #     f"Data/Filtered Calibration Data/{filename}-Charge-Data.csv", index=False
+    # )
 
 
 def ConvertToT4Sector(filepath: str) -> None:

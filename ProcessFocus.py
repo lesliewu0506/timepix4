@@ -9,6 +9,7 @@ ROW = 230
 COL = 228
 LIMIT = 1000
 LIMITCHARGE = 100
+direction = "z"
 
 
 def tot_to_charge(tot_list, row_list, col_list):
@@ -88,6 +89,8 @@ def process_folder(folder_path: str, r: str):
         }
     )
     df_exp = FilterAndUnwrap(df_data)
+    if height_num2 == "41.500":
+        print(df_exp)
     df_filtered = df_exp[(df_exp["row"] == ROW) & (df_exp["col"] == COL)].copy()
 
     if r == "x":
@@ -98,15 +101,28 @@ def process_folder(folder_path: str, r: str):
         df_filtered_cl_cs = df_exp[mask].copy()
         df_row_next = df_exp[(df_exp["row"] == ROW + 1) & (df_exp["col"] == COL)].copy()
         df_row_prev = df_exp[(df_exp["row"] == ROW - 1) & (df_exp["col"] == COL)].copy()
+
         df_mean_next_under = df_row_next[df_row_next["tot"] < LIMIT]
         df_mean_next_in = df_mean_next_under[df_mean_next_under["tot"] > 0]
         df_mean_next = df_mean_next_in.groupby(["row", "col"]).mean().reset_index()
         df_mean_next = df_mean_next.sort_values("tot", ascending=False)
 
+        df_charge_next_under = df_row_next[df_row_next["charge"] < LIMITCHARGE]
+        df_charge_next_in = df_charge_next_under[df_charge_next_under["charge"] > 0]
+        df_charge_next = df_charge_next_in.groupby(["row", "col"]).mean().reset_index()
+        df_charge_next = df_charge_next.sort_values("charge", ascending=False)
+        std_charge_next = df_row_next["charge"].std()
+
         df_mean_prev_under = df_row_prev[df_row_prev["tot"] < LIMIT]
         df_mean_prev_in = df_mean_prev_under[df_mean_prev_under["tot"] > 0]
         df_mean_prev = df_mean_prev_in.groupby(["row", "col"]).mean().reset_index()
         df_mean_prev = df_mean_prev.sort_values("tot", ascending=False)
+
+        df_charge_prev_under = df_row_prev[df_row_prev["charge"] < LIMITCHARGE]
+        df_charge_prev_in = df_charge_prev_under[df_charge_prev_under["charge"] > 0]
+        df_charge_prev = df_charge_prev_in.groupby(["row", "col"]).mean().reset_index()
+        df_charge_prev = df_charge_prev.sort_values("charge", ascending=False)
+        std_charge_prev = df_row_prev["charge"].std()
 
         std_tot_next = df_row_next["tot"].std()
         std_tot_prev = df_row_prev["tot"].std()
@@ -119,6 +135,14 @@ def process_folder(folder_path: str, r: str):
             max_tot_prev = df_mean_prev["tot"].iloc[0]
         else:
             max_tot_prev = 0
+        if not df_charge_next.empty:
+            charge_next = df_charge_next["charge"].iloc[0]
+        else:
+            charge_next = 0
+        if not df_charge_prev.empty:
+            charge_prev = df_charge_prev["charge"].iloc[0]
+        else:
+            charge_prev = 0
 
     elif r == "y":
         # Include the target pixel and its immediate neighbors in the column direction
@@ -128,26 +152,48 @@ def process_folder(folder_path: str, r: str):
         df_filtered_cl_cs = df_exp[mask].copy()
         df_col_next = df_exp[(df_exp["row"] == ROW) & (df_exp["col"] == COL + 1)].copy()
         df_col_prev = df_exp[(df_exp["row"] == ROW) & (df_exp["col"] == COL - 1)].copy()
+
         df_mean_next_under = df_col_next[df_col_next["tot"] < LIMIT]
         df_mean_next_in = df_mean_next_under[df_mean_next_under["tot"] > 0]
         df_mean_next = df_mean_next_in.groupby(["row", "col"]).mean().reset_index()
         df_mean_next = df_mean_next.sort_values("tot", ascending=False)
+
+        df_charge_next_under = df_col_next[df_col_next["charge"] < LIMITCHARGE]
+        df_charge_next_in = df_charge_next_under[df_charge_next_under["charge"] > 0]
+        df_charge_next = df_charge_next_in.groupby(["row", "col"]).mean().reset_index()
+        df_charge_next = df_charge_next.sort_values("charge", ascending=False)
+        std_charge_next = df_col_next["charge"].std()
+
         df_mean_prev_under = df_col_prev[df_col_prev["tot"] < LIMIT]
         df_mean_prev_in = df_mean_prev_under[df_mean_prev_under["tot"] > 0]
         df_mean_prev = df_mean_prev_in.groupby(["row", "col"]).mean().reset_index()
         df_mean_prev = df_mean_prev.sort_values("tot", ascending=False)
 
+        df_charge_prev_under = df_col_prev[df_col_prev["charge"] < LIMITCHARGE]
+        df_charge_prev_in = df_charge_prev_under[df_charge_prev_under["charge"] > 0]
+        df_charge_prev = df_charge_prev_in.groupby(["row", "col"]).mean().reset_index()
+        df_charge_prev = df_charge_prev.sort_values("charge", ascending=False)
+        std_charge_prev = df_col_prev["charge"].std()
+
         std_tot_next = df_col_next["tot"].std()
         std_tot_prev = df_col_prev["tot"].std()
+
         if not df_mean_next.empty:
             max_tot_next = df_mean_next["tot"].iloc[0]
         else:
             max_tot_next = 0
-
         if not df_mean_prev.empty:
             max_tot_prev = df_mean_prev["tot"].iloc[0]
         else:
             max_tot_prev = 0
+        if not df_charge_next.empty:
+            charge_next = df_charge_next["charge"].iloc[0]
+        else:
+            charge_next = 0
+        if not df_charge_prev.empty:
+            charge_prev = df_charge_prev["charge"].iloc[0]
+        else:
+            charge_prev = 0
 
     else:
         df_filtered_cl_cs = df_filtered.copy()
@@ -155,17 +201,23 @@ def process_folder(folder_path: str, r: str):
         max_tot_prev = 0
         std_tot_next = 0
         std_tot_prev = 0
+        charge_next = 0
+        charge_prev = 0
+        std_charge_next = 0
+        std_charge_prev = 0
 
     df_cl_under_limit = df_filtered_cl_cs[df_filtered_cl_cs["cltot"] < LIMIT]
+
     mean_cl = df_cl_under_limit["cltot"].mean()
     std_cl = df_cl_under_limit["cltot"].std()
 
-    df_charge_under_limit = df_filtered[df_filtered["charge"] < LIMITCHARGE]
-    mean_charge = df_charge_under_limit["charge"].mean()
+    df_charge_under_limit = df_filtered_cl_cs[df_filtered_cl_cs["charge"] < LIMITCHARGE]
+    mean_charge = df_charge_under_limit.groupby(["row", "col"])["charge"].mean().reset_index()
+    mean_charge = mean_charge.sort_values("charge", ascending=False)
     std_charge = df_charge_under_limit["charge"].std()
 
-    df_clcharge_under_limit = df_charge_under_limit[
-        df_charge_under_limit["clcharge"] < LIMITCHARGE
+    df_clcharge_under_limit = df_filtered_cl_cs[
+        df_filtered_cl_cs["clcharge"] < LIMITCHARGE
     ]
     mean_clcharge = df_clcharge_under_limit["clcharge"].mean()
     std_clcharge = df_clcharge_under_limit["clcharge"].std()
@@ -188,9 +240,10 @@ def process_folder(folder_path: str, r: str):
     # Determine max_tot for target pixel, or NaN if not present
     if not df_filtered.empty and not df_mean.empty:
         max_tot = df_mean["tot"].iloc[0]
+        mean_charge = df_mean["charge"].iloc[0]
     else:
         max_tot = 0
-
+        mean_charge = 0
     ref_tot_series = df_filtered["tot"]
     std_tot = ref_tot_series.std()
 
@@ -210,6 +263,10 @@ def process_folder(folder_path: str, r: str):
         std_charge,
         mean_clcharge,
         std_clcharge,
+        charge_next,
+        charge_prev,
+        std_charge_next,
+        std_charge_prev,
     )
 
 
@@ -289,15 +346,18 @@ def ZScanPlot(r: str):
         label="Mean cluster size",
     )
     # fix right axis limits and align tick count with dynamic left ToT limits
-    ax2.set_ylim(0, 8)
+    # ax2.set_ylim(0, 8)
     if r == "z":
-        ax2.set_ylim(0, 8)
         # determine number of ticks on cluster size axis
         num_ticks = len(ax2.get_yticks())
         # dynamic ToT axis limits rounded to nearest 100
         all_tot = np.hstack([df["mean_cltot"].values, df["max_tot"].values])
+        # filter out any NaN values before computing min and max
+        all_tot = all_tot[~np.isnan(all_tot)]
+
         min_lim = np.floor(all_tot.min() / 100) * 100
         max_lim = np.ceil(all_tot.max() / 100) * 100
+
         # generate matching tick positions
         left_ticks = np.linspace(min_lim, max_lim, num_ticks)
         ax.set_ylim(min_lim, max_lim)
@@ -321,7 +381,7 @@ def ZScanPlot(r: str):
     ax.set_xlabel(f"{r.capitalize()} Position Stage [mm]")
     ax.set_ylabel("ToT [25ns]")
     ax.set_title(
-        f"{r.capitalize()} Scan: Attenuation Voltage = {AttenuationVoltage} V; Pixel ({COL}, {ROW})"
+        f"{r.capitalize()} Scan ToT: Pixel ({COL}, {ROW})"
     )
     lines, labels = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
@@ -348,7 +408,7 @@ def ZScanPlotCharge(r: str):
         marker="o",
         linestyle="-",
         capsize=5,
-        label=f"Mean clCharge ({COL}, {ROW})",
+        label=f"Mean clCharge",
     )
     ax.errorbar(
         df["height"],
@@ -357,45 +417,45 @@ def ZScanPlotCharge(r: str):
         marker="o",
         linestyle="-",
         capsize=5,
-        label="Mean Charge",
+        label=f"Mean Charge ({COL}, {ROW})",
     )
     if r == "x":
         ax.errorbar(
             df["height"],
-            df["max_tot_prev"],
-            yerr=df["std_tot_prev"],
+            df["charge_prev"],
+            yerr=df["std_charge_prev"],
             marker="o",
             linestyle="-",
             capsize=5,
-            label=f"Mean ToT ({COL}, {ROW - 1})",
+            label=f"Mean Charge ({COL}, {ROW - 1})",
         )
         ax.errorbar(
             df["height"],
-            df["max_tot_next"],
-            yerr=df["std_tot_next"],
+            df["charge_next"],
+            yerr=df["std_charge_next"],
             marker="o",
             linestyle="-",
             capsize=5,
-            label=f"Mean ToT ({COL}, {ROW + 1})",
+            label=f"Mean Charge ({COL}, {ROW + 1})",
         )
     elif r == "y":
         ax.errorbar(
             df["height"],
-            df["max_tot_prev"],
-            yerr=df["std_tot_prev"],
+            df["charge_prev"],
+            yerr=df["std_charge_prev"],
             marker="o",
             linestyle="-",
             capsize=5,
-            label=f"Mean ToT ({COL - 1}, {ROW})",
+            label=f"Mean Charge ({COL - 1}, {ROW})",
         )
         ax.errorbar(
             df["height"],
-            df["max_tot_next"],
-            yerr=df["std_tot_next"],
+            df["charge_next"],
+            yerr=df["std_charge_next"],
             marker="o",
             linestyle="-",
             capsize=5,
-            label=f"Mean ToT ({COL + 1}, {ROW})",
+            label=f"Mean Charge ({COL + 1}, {ROW})",
         )
     ax2.errorbar(
         df["height"],
@@ -415,6 +475,7 @@ def ZScanPlotCharge(r: str):
         num_ticks = len(ax2.get_yticks())
         # dynamic ToT axis limits rounded to nearest 100
         all_tot = np.hstack([df["mean_clcharge"].values, df["mean_charge"].values])
+        all_tot = all_tot[~np.isnan(all_tot)]
         min_lim = np.floor(all_tot.min() / 5) * 5
         max_lim = np.ceil(all_tot.max() / 5) * 5
         # generate matching tick positions
@@ -440,7 +501,7 @@ def ZScanPlotCharge(r: str):
     ax.set_xlabel(f"{r.capitalize()} Position Stage [mm]")
     ax.set_ylabel("Charge [ke]")
     ax.set_title(
-        f"{r.capitalize()} Scan: Attenuation Voltage = {AttenuationVoltage} V; Pixel ({COL}, {ROW})"
+        f"{r.capitalize()} Scan Charge: Pixel ({COL}, {ROW})"
     )
     lines, labels = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
@@ -484,6 +545,10 @@ def ProcessFiles(r: str):
             "std_charge",
             "mean_clcharge",
             "std_clcharge",
+            "charge_next",
+            "charge_prev",
+            "std_charge_next",
+            "std_charge_prev",
         ],
     )
     df_results = df_results.sort_values("height")
@@ -494,6 +559,6 @@ def ProcessFiles(r: str):
 
 
 if __name__ == "__main__":
-    ProcessFiles("z")
-    # ZScanPlot("z")
-    ZScanPlotCharge("z")
+    ProcessFiles(direction)
+    # ZScanPlot(direction)
+    # ZScanPlotCharge(direction)
