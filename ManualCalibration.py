@@ -32,8 +32,9 @@ def PlotHistogram(df: pd.DataFrame = None, filepath: str = None):
         )
 
     plt.legend()
-    plt.title("N116 Test Pulse Calibrated Charge Distribution")
+    plt.title("N116 Manual Calibrated Charge Distribution With Am-241 Source")
     plt.grid(False)
+    plt.tight_layout()
     plt.savefig("N116_Charge_Distribution_Manual.png", dpi=600)
     plt.show()
 
@@ -250,4 +251,4 @@ if __name__ == "__main__":
     # PlotCharge(filepath2)
     # PlotToTSinglePixel("N112-250411-101613")
     # calibrationmethods("N10-250409-113326")
-    PlotHistogram(filepath="Data/Filtered Calibration Data/N116-250408-123554-Charge-Data.csv")
+    PlotHistogram(filepath="Data/Filtered Calibration Data/N116-Filtered.csv")
