@@ -115,6 +115,41 @@ class Focus:
         # ============ Save Results ============
         self.results.append(self.PositionResults)
 
+    def _ComputePixelStats(
+        self, df_pixel: pd.DataFrame
+    ) -> tuple[float, float, float, float]:
+        return (
+            float(df_pixel["tot"].mean() or 0),
+            float(df_pixel["tot"].std() or 0),
+            float(df_pixel["charge"].mean() or 0),
+            float(df_pixel["charge"].std() or 0),
+        )
+
+    def _ComputeTargetPixelStats(self) -> None:
+        MeanToT, StdToT, MeanCharge, StdCharge = self._ComputePixelStats(
+            self.dfTargetPixel
+        )
+        self.PositionResults.extend([MeanToT, StdToT, MeanCharge, StdCharge])
+
+    def _ComputeClusterStats(self) -> None:
+        # Cluster ToT Stats
+        MeanclToT = self.dfCluster["cltot"].mean() or 0
+        StdclToT = self.dfCluster["cltot"].std() or 0
+        self.PositionResults.append(MeanclToT)
+        self.PositionResults.append(StdclToT)
+
+        # Cluster Charge Stats
+        MeanclCharge = self.dfCluster["clcharge"].mean() or 0
+        StdclCharge = self.dfCluster["clcharge"].std() or 0
+        self.PositionResults.append(MeanclCharge)
+        self.PositionResults.append(StdclCharge)
+
+        # Cluster Size Stats
+        MeanclSize = self.dfCluster["nhits"].mean() or 0
+        StdclSize = self.dfCluster["nhits"].std() or 0
+        self.PositionResults.append(MeanclSize)
+        self.PositionResults.append(StdclSize)
+
     def _ComputeNeighbourStats(self) -> None:
         Positions = self._NeighbourPositions()
         if Positions is not None:
@@ -125,34 +160,26 @@ class Focus:
                 (self.dfExp["row"] == NextPosition[0])
                 & (self.dfExp["col"] == NextPosition[1])
             ].copy()
-            # Next ToT Stats
-            MeanToTNext = dfNextPixel["tot"].mean() or 0
-            StdToTNext = dfNextPixel["tot"].std() or 0
-            self.PositionResults.append(MeanToTNext)
-            self.PositionResults.append(StdToTNext)
 
-            # Next Charge Stats
-            MeanChargeNext = dfNextPixel["charge"].mean() or 0
-            StdChargeNext = dfNextPixel["charge"].std() or 0
-            self.PositionResults.append(MeanChargeNext)
-            self.PositionResults.append(StdChargeNext)
+            MeanToTNext, StdToTNext, MeanChargeNext, StdChargeNext = (
+                self._ComputePixelStats(dfNextPixel)
+            )
+            self.PositionResults.extend(
+                [MeanToTNext, StdToTNext, MeanChargeNext, StdChargeNext]
+            )
 
             # ============ Prev Pixel Stats ============
             dfPrevPixel = self.dfExp[
                 (self.dfExp["row"] == PrevPosition[0])
                 & (self.dfExp["col"] == PrevPosition[1])
             ].copy()
-            # Prev ToT Stats
-            MeanToTPrev = dfPrevPixel["tot"].mean() or 0
-            StdToTPrev = dfPrevPixel["tot"].std() or 0
-            self.PositionResults.append(MeanToTPrev)
-            self.PositionResults.append(StdToTPrev)
 
-            # Prev Charge Stats
-            MeanChargePrev = dfPrevPixel["charge"].mean() or 0
-            StdChargePrev = dfPrevPixel["charge"].std() or 0
-            self.PositionResults.append(MeanChargePrev)
-            self.PositionResults.append(StdChargePrev)
+            MeanToTPrev, StdToTPrev, MeanChargePrev, StdChargePrev = (
+                self._ComputePixelStats(dfPrevPixel)
+            )
+            self.PositionResults.extend(
+                [MeanToTPrev, StdToTPrev, MeanChargePrev, StdChargePrev]
+            )
         else:
             for _ in range(8):
                 self.PositionResults.append(0)
@@ -176,38 +203,6 @@ class Focus:
 
         else:
             return self.dfTargetPixel
-
-    def _ComputeClusterStats(self) -> None:
-        # Cluster ToT Stats
-        MeanclToT = self.dfCluster["cltot"].mean() or 0
-        StdclToT = self.dfCluster["cltot"].std() or 0
-        self.PositionResults.append(MeanclToT)
-        self.PositionResults.append(StdclToT)
-
-        # Cluster Charge Stats
-        MeanclCharge = self.dfCluster["clcharge"].mean() or 0
-        StdclCharge = self.dfCluster["clcharge"].std() or 0
-        self.PositionResults.append(MeanclCharge)
-        self.PositionResults.append(StdclCharge)
-
-        # Cluster Size Stats
-        MeanclSize = self.dfCluster["nhits"].mean() or 0
-        StdclSize = self.dfCluster["nhits"].std() or 0
-        self.PositionResults.append(MeanclSize)
-        self.PositionResults.append(StdclSize)
-
-    def _ComputeTargetPixelStats(self) -> None:
-        # ToT Stats
-        MeanToT = self.dfTargetPixel["tot"].mean() or 0
-        StdToT = self.dfTargetPixel["tot"].std() or 0
-        self.PositionResults.append(MeanToT)
-        self.PositionResults.append(StdToT)
-
-        # Charge Stats
-        MeanCharge = self.dfTargetPixel["charge"].mean() or 0
-        StdCharge = self.dfTargetPixel["charge"].std() or 0
-        self.PositionResults.append(MeanCharge)
-        self.PositionResults.append(StdCharge)
 
     def _NeighbourPositions(self) -> list[tuple[int, int]] | None:
         if self.direction == "x":
@@ -586,18 +581,16 @@ class FocusVisualizer:
         for spine in ax.spines.values():
             spine.set_visible(True)
             spine.set_linewidth(1)
-            spine.set_color('black')
+            spine.set_color("black")
         ax.set_title(f"ToT per pixel")
         plt.tight_layout()
         plt.savefig(f"Focus at ({center_col}, {center_row}).png", dpi=600)
         plt.show()
 
     def _FilterAndUnwrap(self, df: pd.DataFrame) -> pd.DataFrame:
-        # Parse each cell into a list
         for c in ["col", "row", "tot"]:
             df[c] = df[c].apply(self._ParseList)
 
-        # Zip the three lists together so they explode in parallel
         df["combined"] = df.apply(
             lambda r: list(zip(r["row"], r["col"], r["tot"])), axis=1
         )
@@ -624,12 +617,12 @@ class FocusVisualizer:
 
 
 if __name__ == "__main__":
-    # focus = Focus(AttenuationVoltage=3.5, direction="y")
-    # focus.ProcessAll()
-    # plotter = FocusPlotter(direction="y", AttenuationVoltage=3.5, ROW=230, COL=228)
-    # plotter.Plot_ToT()
-    # plotter.Plot_Charge()
-    visualizer = FocusVisualizer(
-        "Data/Focus/Z/ZFocus 3.5 V/focus_39p500/N116-250502-152529.root"
-    )
-    visualizer.CreateHitmap()
+    focus = Focus(AttenuationVoltage=3.5, direction="y")
+    focus.ProcessAll()
+    plotter = FocusPlotter(direction="y", AttenuationVoltage=3.5, ROW=230, COL=228)
+    plotter.Plot_ToT()
+    plotter.Plot_Charge()
+    # visualizer = FocusVisualizer(
+    #     "Data/Focus/Z/ZFocus 3.5 V/focus_39p500/N116-250502-152529.root"
+    # )
+    # visualizer.CreateHitmap()
