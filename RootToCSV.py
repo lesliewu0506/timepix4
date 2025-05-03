@@ -2,29 +2,6 @@ import uproot, os, ast
 import pandas as pd
 import numpy as np
 
-
-def ConvertFitData(root_file_path, csv_file_path):
-    file = uproot.open(root_file_path)
-    ### ----------- FIT DATA -------------
-    tree_data = file["fitData"]
-    arrays_data = tree_data.arrays()
-
-    # Convert to DataFrame
-    df_data = pd.DataFrame(
-        {
-            "col": arrays_data["col"].to_numpy(),
-            "row": arrays_data["row"].to_numpy(),
-            "charge": arrays_data["charge"].to_numpy(),
-            "meanTot": arrays_data["meanTot"].to_numpy(),
-            "stdvTot": arrays_data["stdvTot"].to_numpy(),
-            "nhits": arrays_data["nhits"].to_numpy(),
-        }
-    )
-
-    # Save to CSV
-    df_data.to_csv(csv_file_path, index=False)
-
-
 # =========================Calculating factors===================
 THRESHOLDTOT = 150
 

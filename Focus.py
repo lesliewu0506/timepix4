@@ -1,4 +1,4 @@
-from classes.focus import FocusProcessor, ScanPlotter, HitmapVisualizer
+from timepix4.focus import FocusProcessor, ScanPlotter, HitmapVisualizer
 
 
 def main():
