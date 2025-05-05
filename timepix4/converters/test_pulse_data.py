@@ -3,15 +3,17 @@ import uproot
 
 
 def ConvertTestPulseData(
-    root_file_path: str,
-    charge_file_path: str,
-    output_path_data: str = None,
-    output_path_results: str = None,
+    root_file_path: str | None = None,
+    charge_file_path: str | None = None,
+    output_path_data: str | None = None,
+    output_path_results: str | None = None,
 ) -> None:
-    sensor = root_file_path.split("/")[-1].split("-")[0]
-
-    _FitDataUnwrap(root_file_path, sensor, output_path_data)
-    _FitResultsUnwrap(charge_file_path, sensor, output_path_results)
+    if root_file_path:
+        sensor = root_file_path.split("/")[-1].split("-")[0]
+        _FitDataUnwrap(root_file_path, sensor, output_path_data)
+    if charge_file_path:
+        sensor = charge_file_path.split("/")[-1].split("_")[0]
+        _FitResultsUnwrap(charge_file_path, sensor, output_path_results)
 
 
 def _FitDataUnwrap(file_path: str, sensor: str, output_path: str | None) -> None:
@@ -36,7 +38,7 @@ def _FitDataUnwrap(file_path: str, sensor: str, output_path: str | None) -> None
 
 
 def _FitResultsUnwrap(file_path, sensor: str, output_path: str | None) -> None:
-    df = pd.read_csv(file_path, sep='\s+', header=None, skiprows=15)
+    df = pd.read_csv(file_path, sep="\s+", header=None, skiprows=15)
     df.columns = [
         "Col",
         "Row",
