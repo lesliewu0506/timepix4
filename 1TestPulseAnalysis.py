@@ -137,27 +137,6 @@ def VisualizeMultipleToTChargeSingle(filepath1, filepath2):
     # print("Fitted parameters: a=%.6f, b=%.6f, c=%.6f, t=%.6f" % tuple(popt))
 
 
-def STDHistogram(filepath1, filepath2, filepath3, filepath4):
-    plt.figure(figsize=(12, 10))
-
-    for filepath, color in zip(
-        [filepath1, filepath2, filepath3, filepath4], ["blue", "orange", "green", "red"]
-    ):
-        filename = filepath.split("_")
-        filename = filename[1].split(".")[0]
-        df = CreateDataFrame(filepath)
-        df["stdvTot"] = df["stdvTot"] / df["meanTot"] * 100
-        plt.hist(df["stdvTot"], bins=100, alpha=0.3, label=filename, color=color)
-
-    plt.xlabel("std ToT [%]")
-    plt.ylabel("Frequency")
-    plt.title("std ToT Histogram Comparison")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("stdTot_Histogram_Comparison.png", dpi=600)
-    plt.show()
-
-
 if __name__ == "__main__":
     # VisualizeMultipleToTChargeSingle("fitData_N10.csv", "fitData_N116.csv")
     # PlotTotCharge(f"{pre}fitData_N113.csv")

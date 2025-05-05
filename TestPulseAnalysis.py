@@ -1,4 +1,8 @@
-from timepix4.test_pulse_analysis import ParameterComparison, HeatmapFitParam
+from timepix4.test_pulse_analysis import (
+    ParameterComparison,
+    HeatmapFitParam,
+    STDHistogramComparison,
+)
 
 
 def parameter_comparison() -> None:
@@ -17,9 +21,20 @@ def heatmap_fit_param() -> None:
     HeatmapFitParam(filepaths, parameter="p1")
 
 
+def std_histogram_comparison() -> None:
+    filepaths = [
+        "Data/Test Pulse Data/N116-TestPulseData.csv",
+        "Data/Test Pulse Data/N10-TestPulseData.csv",
+        "Data/Test Pulse Data/N112-TestPulseData.csv",
+        "Data/Test Pulse Data/N113-TestPulseData.csv",
+    ]
+    STDHistogramComparison(filepaths)
+
+
 def main():
     # parameter_comparison()
-    heatmap_fit_param()
+    # heatmap_fit_param()
+    std_histogram_comparison()
 
 
 if __name__ == "__main__":
