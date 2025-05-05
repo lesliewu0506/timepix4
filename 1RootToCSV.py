@@ -17,23 +17,6 @@ def FindHighestToT(df, target_col, target_row):
     if filtered_tot.empty:
         return None
     return filtered_tot.mean()
-    # counts, bin_edges = np.histogram(pixel_df["tot"], bins=3011=)
-
-    # bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-    # # Can be higher than 100
-    # mask = bin_centers > THRESHOLDTOT
-    # filtered_counts = counts[mask]
-    # filtered_bins = bin_centers[mask]
-
-    # if len(filtered_bins) == 0:
-    #     return None
-
-    # # Find Dominant Bin
-    # max_index = np.argmax(filtered_counts)
-    # dominant_bin_value = filtered_bins[max_index]
-
-    # return dominant_bin_value
 
 
 def GetCalibrationFactors(df: pd.DataFrame):
