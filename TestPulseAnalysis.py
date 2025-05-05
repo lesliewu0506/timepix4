@@ -1,4 +1,4 @@
-from timepix4.test_pulse_analysis import ParameterComparison
+from timepix4.test_pulse_analysis import ParameterComparison, HeatmapFitParam
 
 
 def parameter_comparison() -> None:
@@ -7,8 +7,19 @@ def parameter_comparison() -> None:
     ParameterComparison(filepath1, filepath2)
 
 
+def heatmap_fit_param() -> None:
+    filepaths = [
+        "N116-TestPulseResults.csv",
+        "N10-TestPulseResults.csv",
+        "N112-TestPulseResults.csv",
+        "N113-TestPulseResults.csv",
+    ]
+    HeatmapFitParam(filepaths, parameter="p1")
+
+
 def main():
-    parameter_comparison()
+    # parameter_comparison()
+    heatmap_fit_param()
 
 
 if __name__ == "__main__":

@@ -1,3 +1,3 @@
-from .fit_parameter_analysis import ParameterComparison
+from .fit_parameter_analysis import ParameterComparison, HeatmapFitParam
 
-__all__ = ["ParameterComparison"]
+__all__ = ["ParameterComparison", "HeatmapFitParam"]

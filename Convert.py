@@ -9,11 +9,17 @@ def convert_test_pulse_data() -> None:
     # ConvertTestPulseData(
     #     RootFilePath, ChargeFilePath, OutputPathData, OutputPathResults
     # )
-    ConvertTestPulseData(
-        charge_file_path=ChargeFilePath,
-        output_path_data=OutputPathData,
-        output_path_results=OutputPathResults,
-    )
+    ChargeFilePaths = [
+        "Data/Test Pulse Data/Charge Calibrations/N10_charge.txt",
+        "Data/Test Pulse Data/Charge Calibrations/N116_charge.txt",
+        "Data/Test Pulse Data/Charge Calibrations/N112_charge.txt",
+        "Data/Test Pulse Data/Charge Calibrations/N113_charge.txt",
+    ]
+    for filepath in ChargeFilePaths:
+        ConvertTestPulseData(
+            charge_file_path=filepath,
+            output_path_results=OutputPathResults,
+        )
 
 
 def main():
