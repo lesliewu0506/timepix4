@@ -1,4 +1,4 @@
-from timepix4.converters import ConvertTestPulseData
+from timepix4.converters import ConvertTestPulseData, ConvertClusterData
 
 
 def convert_test_pulse_data() -> None:
@@ -21,8 +21,13 @@ def convert_test_pulse_data() -> None:
             output_path_results=OutputPathResults,
         )
 
+def convert_cluster_data() -> None:
+    RootFilePath = "Data/Am-241 Runs/N116-250408-105332.root"
+    ConvertClusterData(RootFilePath)
+
 def main():
-    convert_test_pulse_data()
+    # convert_test_pulse_data()
+    convert_cluster_data()
 
 
 if __name__ == "__main__":
