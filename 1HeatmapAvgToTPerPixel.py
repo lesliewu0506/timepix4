@@ -53,29 +53,6 @@ def CalulcateAvgToTPerPixel(df: pd.DataFrame):
     return avg_tot_per_pixel
 
 
-def PlotAvgToTHeatmap(filepath):
-    sensor = filepath.split("-")[0]
-    df = LoadCleanCSV(f"Data/Filtered Calibration Data/{filepath}-Charge-Data.csv")
-    avg_tot_per_pixel = CalulcateAvgToTPerPixel(df)
-    heatmap_data = avg_tot_per_pixel.pivot(index="row", columns="col", values="tot")
-    plt.figure(figsize=(12, 10))
-    sns.heatmap(
-        heatmap_data,
-        cmap="viridis",
-        cbar_kws={"label": "Average ToT"},
-        vmin=15,
-        vmax=60,
-    )
-    plt.title(f"{sensor} Average ToT per Pixel", fontsize=16)
-    plt.xlabel("")
-    plt.ylabel("")
-    plt.xticks([])
-    plt.yticks([])
-    plt.tight_layout()
-    plt.savefig(f"{sensor}_AvgToT_Heatmap.png", dpi=600)
-    plt.show()
-
-
 def PlotAvgToTAndFitHeatmaps(filepath):
     sensor = filepath.split("-")[0]
 
