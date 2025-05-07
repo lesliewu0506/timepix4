@@ -21,9 +21,16 @@ def convert_test_pulse_data() -> None:
             output_path_results=OutputPathResults,
         )
 
+
 def convert_cluster_data() -> None:
-    RootFilePath = "Data/Am-241 Runs/N116-250408-105332.root"
-    ConvertClusterData(RootFilePath)
+    import os
+
+    # RootFilePath = "Data/Am-241 Runs/N116-250408-105332.root"
+    folder = "Data/Laser Measurements"
+    RootFilePaths = [File for File in os.listdir(folder) if File.endswith(".root")]
+    for RootFilePath in RootFilePaths:
+        ConvertClusterData(RootFilePath)
+
 
 def main():
     # convert_test_pulse_data()
