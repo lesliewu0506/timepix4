@@ -12,20 +12,22 @@ def ToTChargePlotter(FilePath: str) -> None:
         marker="o",
         linestyle="--",
         color="b",
-        label="ToT vs Charge",
+        label="ToT vs Charge Raw",
     )
-    # plt.plot(
-    #     df["Mean Charge"],
-    #     df["Mean Tot"],
-    #     marker="o",
-    #     linestyle="--",
-    #     color="r",
-    #     label="ToT vs Charge Raw",
-    # )
+    plt.plot(
+        df["Mean Charge"],
+        df["Mean Tot"],
+        marker="o",
+        linestyle="--",
+        color="r",
+        label="ToT vs clCharge",
+    )
     # Set labels and title
     ax.set_xlabel("Charge [ke]")
     ax.set_ylabel("ToT [25ns]")
     ax.set_title("ToT vs Charge")
+    # ax.set_xlim(0, 20)
+    # ax.set_ylim(0, 200)
     ax.legend()
     plt.grid()
     plt.tight_layout()

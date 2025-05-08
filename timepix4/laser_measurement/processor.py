@@ -52,16 +52,21 @@ class Processor:
         File = uproot.open(FilePath)
         tree = File["clusterTree"]
 
-        arrays = tree.arrays(["col", "row", "tot", "nhits", "clCharge"], library="pd")
+        arrays = tree.arrays(
+            ["col", "row", "tot", "cltot", "nhits", "charge", "clCharge"], library="pd"
+        )
         dfData = pd.DataFrame(
             {
                 "col": arrays["col"].tolist(),
                 "row": arrays["row"].tolist(),
                 "tot": arrays["tot"].tolist(),
+                "cltot": arrays["cltot"].tolist(),
                 "nhits": arrays["nhits"].tolist(),
-                "raw charge": arrays["clCharge"].tolist(),
+                "raw charge": arrays["charge"].tolist(),
+                "clcharge": arrays["clCharge"].tolist(),
             }
         )
+        # self.FilterAndUnwrap(dfData)
         self.dfExp = self._FilterAndUnwrap(dfData)
         self._ComputeStats()
 
@@ -74,21 +79,13 @@ class Processor:
         self._ComputeTargetPixelStats()
 
     def _ComputeTargetPixelStats(self) -> None:
-        self.dfTargetPixel["raw charge"] = self.dfTargetPixel["raw charge"].astype(
-            float
-        )
-
-        self.dfTargetPixel["charge"] = self.dfTargetPixel["charge"].astype(float)
         self.dfTargetPixel["tot"] = self.dfTargetPixel["tot"].astype(float)
-        self.dfTargetPixel["nhits"] = self.dfTargetPixel["nhits"].astype(float)
+        self.dfTargetPixel["raw charge"] = self.dfTargetPixel["raw charge"].astype(float)
+        self.dfTargetPixel["clcharge"] = self.dfTargetPixel["clcharge"].astype(float)
 
         mean_tot = self.dfTargetPixel["tot"].mean()
-        # mean_charge_raw = self.dfTargetPixel["raw charge"].mean() / 1000
-        mean_charge = self.dfTargetPixel["charge"].mean()
-        self.dfTargetPixel["Charge"] = self.dfTargetPixel["tot"].apply(
-            self._ToTConverter
-        )
-        mean_charge_raw = self.dfTargetPixel["Charge"].mean()
+        mean_charge_raw = self.dfTargetPixel["charge"].mean()
+        mean_charge = self.dfTargetPixel["clcharge"].mean() / 1000
         self.AttenuationVoltageResults.append(
             (
                 float(self.AttenuationVoltage),
@@ -96,26 +93,6 @@ class Processor:
                 float(mean_charge_raw),
                 float(mean_charge),
             )
-        )
-
-    def _ToTConverter(self, ToT: float) -> float:
-        # a = 61.5472
-        # b = 1.683213
-        # c = 970420.8
-        # t = 353.9627
-        # -7.782196,1.704267,1295264.0,61.11348
-        b = -7.782196
-        a = 1.704267
-        c = 1295264.0
-        t = 61.11348
-
-        # 65.03894,2.135082,1119591.0,328.8884
-        # a = 65.03894
-        # b = 2.135082
-        # c = 1119591.0
-        # t = 328.8884
-        return (ToT + a * t - b + np.sqrt(4 * a * c + np.square(b + a * t - ToT))) / (
-            2 * a
         )
 
     def _ParseList(self, x: str | list | tuple) -> list:
@@ -141,8 +118,17 @@ class Processor:
 
         return pix_charges
 
+    def FilterAndUnwrap(self, df: pd.DataFrame) -> pd.DataFrame:
+        df_filtered = df[
+            (df["row"].apply(lambda x: x[0]) == self.ROW) &
+            (df["col"].apply(lambda x: x[0]) == self.COL)
+            & (df["nhits"] == 1)
+        ]
+        return df_filtered
+
     def _FilterAndUnwrap(self, df: pd.DataFrame) -> pd.DataFrame:
-        for c in ["col", "row", "tot", "nhits", "raw charge"]:
+
+        for c in ["col", "row", "tot", "nhits", "raw charge", "clcharge"]:
             df[c] = df[c].apply(self._ParseList)
         df_charge = df.copy()
 
@@ -155,7 +141,7 @@ class Processor:
             axis=1,
         )
         df_charge = df_charge[
-            ["row", "col", "tot", "nhits", "raw charge", "charge"]
+            ["row", "col", "tot", "nhits", "raw charge", "clcharge", "charge"]
         ].reset_index(drop=True)
         df["combined"] = df_charge.apply(
             lambda r: list(
@@ -165,6 +151,7 @@ class Processor:
                     r["tot"],
                     r["nhits"],
                     r["raw charge"],
+                    r["clcharge"],
                     r["charge"],
                 )
             ),
@@ -172,9 +159,9 @@ class Processor:
         )
         df_exploded = df.explode("combined")
 
-        df_exploded[["row", "col", "tot", "nhits", "raw charge", "charge"]] = (
-            pd.DataFrame(df_exploded["combined"].tolist(), index=df_exploded.index)
-        )
+        df_exploded[
+            ["row", "col", "tot", "nhits", "raw charge", "clcharge", "charge"]
+        ] = pd.DataFrame(df_exploded["combined"].tolist(), index=df_exploded.index)
         df_exploded = df_exploded.drop(columns=["combined"])
         return df_exploded
 
