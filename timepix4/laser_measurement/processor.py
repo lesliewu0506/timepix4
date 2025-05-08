@@ -1,5 +1,6 @@
 import uproot, os, ast
 import pandas as pd
+import numpy as np
 
 
 class Processor:
@@ -32,6 +33,7 @@ class Processor:
             columns=[
                 "AttenuationVoltage",
                 "Mean Tot",
+                "Mean Charge Raw",
                 "Mean Charge",
             ],
         )
@@ -43,8 +45,9 @@ class Processor:
 
     def _ProcessFile(self, FilePath: str) -> None:
         self.AttenuationVoltageResults = []
-        self.AttenuationVoltage = FilePath.split("/")[-1].split(".")[0].replace("_", ".")
-
+        self.AttenuationVoltage = (
+            FilePath.split("/")[-1].split(".")[0].replace("_", ".")
+        )
 
         File = uproot.open(FilePath)
         tree = File["clusterTree"]
@@ -60,8 +63,6 @@ class Processor:
             }
         )
         self.dfExp = self._FilterAndUnwrap(dfData)
-        if self.AttenuationVoltage == "3.200":
-            self.dfExp.to_csv("test.csv", index=False)
         self._ComputeStats()
 
         self.results.extend(self.AttenuationVoltageResults)
@@ -73,19 +74,48 @@ class Processor:
         self._ComputeTargetPixelStats()
 
     def _ComputeTargetPixelStats(self) -> None:
-        self.dfTargetPixel["raw charge"] = self.dfTargetPixel["raw charge"].astype(float)
+        self.dfTargetPixel["raw charge"] = self.dfTargetPixel["raw charge"].astype(
+            float
+        )
+
+        self.dfTargetPixel["charge"] = self.dfTargetPixel["charge"].astype(float)
         self.dfTargetPixel["tot"] = self.dfTargetPixel["tot"].astype(float)
         self.dfTargetPixel["nhits"] = self.dfTargetPixel["nhits"].astype(float)
 
         mean_tot = self.dfTargetPixel["tot"].mean()
-        mean_charge = self.dfTargetPixel["raw charge"].mean()
-
+        # mean_charge_raw = self.dfTargetPixel["raw charge"].mean() / 1000
+        mean_charge = self.dfTargetPixel["charge"].mean()
+        self.dfTargetPixel["Charge"] = self.dfTargetPixel["tot"].apply(
+            self._ToTConverter
+        )
+        mean_charge_raw = self.dfTargetPixel["Charge"].mean()
         self.AttenuationVoltageResults.append(
             (
                 float(self.AttenuationVoltage),
                 float(mean_tot),
+                float(mean_charge_raw),
                 float(mean_charge),
             )
+        )
+
+    def _ToTConverter(self, ToT: float) -> float:
+        # a = 61.5472
+        # b = 1.683213
+        # c = 970420.8
+        # t = 353.9627
+        # -7.782196,1.704267,1295264.0,61.11348
+        b = -7.782196
+        a = 1.704267
+        c = 1295264.0
+        t = 61.11348
+
+        # 65.03894,2.135082,1119591.0,328.8884
+        # a = 65.03894
+        # b = 2.135082
+        # c = 1119591.0
+        # t = 328.8884
+        return (ToT + a * t - b + np.sqrt(4 * a * c + np.square(b + a * t - ToT))) / (
+            2 * a
         )
 
     def _ParseList(self, x: str | list | tuple) -> list:
@@ -116,6 +146,17 @@ class Processor:
             df[c] = df[c].apply(self._ParseList)
         df_charge = df.copy()
 
+        df_charge["charge"] = df_charge.apply(
+            lambda r: self._ToTToCharge(
+                r["tot"],
+                r["row"],
+                r["col"],
+            ),
+            axis=1,
+        )
+        df_charge = df_charge[
+            ["row", "col", "tot", "nhits", "raw charge", "charge"]
+        ].reset_index(drop=True)
         df["combined"] = df_charge.apply(
             lambda r: list(
                 zip(
@@ -124,14 +165,15 @@ class Processor:
                     r["tot"],
                     r["nhits"],
                     r["raw charge"],
+                    r["charge"],
                 )
             ),
             axis=1,
         )
         df_exploded = df.explode("combined")
 
-        df_exploded[["row", "col", "tot", "nhits", "raw charge"]] = pd.DataFrame(
-            df_exploded["combined"].tolist(), index=df_exploded.index
+        df_exploded[["row", "col", "tot", "nhits", "raw charge", "charge"]] = (
+            pd.DataFrame(df_exploded["combined"].tolist(), index=df_exploded.index)
         )
         df_exploded = df_exploded.drop(columns=["combined"])
         return df_exploded
