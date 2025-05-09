@@ -33,8 +33,15 @@ class Processor:
             columns=[
                 "AttenuationVoltage",
                 "Mean Tot",
+                "Std Tot",
+                "Mean clTot",
+                "Std clTot",
                 "Mean Charge Raw",
-                "Mean Charge",
+                "Std Charge Raw",
+                "Mean clCharge",
+                "Std clCharge",
+                "Mean Charge Calibrated",
+                "Std Charge Calibrated",
             ],
         )
         df_results = df_results.sort_values("AttenuationVoltage")
@@ -79,19 +86,37 @@ class Processor:
         self._ComputeTargetPixelStats()
 
     def _ComputeTargetPixelStats(self) -> None:
+        self.dfTargetPixel["cltot"] = self.dfTargetPixel["cltot"].astype(float)
         self.dfTargetPixel["tot"] = self.dfTargetPixel["tot"].astype(float)
-        self.dfTargetPixel["raw charge"] = self.dfTargetPixel["raw charge"].astype(float)
+        self.dfTargetPixel["raw charge"] = self.dfTargetPixel["raw charge"].astype(
+            float
+        )
         self.dfTargetPixel["clcharge"] = self.dfTargetPixel["clcharge"].astype(float)
+        self.dfTargetPixel["charge"] = self.dfTargetPixel["charge"].astype(float)
 
         mean_tot = self.dfTargetPixel["tot"].mean()
-        mean_charge_raw = self.dfTargetPixel["charge"].mean()
+        std_tot = self.dfTargetPixel["tot"].std()
+        mean_cltot = self.dfTargetPixel["cltot"].mean()
+        std_cltot = self.dfTargetPixel["cltot"].std()
+        mean_charge_raw = self.dfTargetPixel["raw charge"].mean() / 1000
+        std_charge_raw = self.dfTargetPixel["raw charge"].std() / 1000
         mean_charge = self.dfTargetPixel["clcharge"].mean() / 1000
+        std_charge = self.dfTargetPixel["clcharge"].std() / 1000
+        mean_charge_calibrated = self.dfTargetPixel["charge"].mean()
+        std_charge_calibrated = self.dfTargetPixel["charge"].std()
         self.AttenuationVoltageResults.append(
             (
                 float(self.AttenuationVoltage),
                 float(mean_tot),
+                float(std_tot),
+                float(mean_cltot),
+                float(std_cltot),
                 float(mean_charge_raw),
+                float(std_charge_raw),
                 float(mean_charge),
+                float(std_charge),
+                float(mean_charge_calibrated),
+                float(std_charge_calibrated),
             )
         )
 
@@ -120,15 +145,15 @@ class Processor:
 
     def FilterAndUnwrap(self, df: pd.DataFrame) -> pd.DataFrame:
         df_filtered = df[
-            (df["row"].apply(lambda x: x[0]) == self.ROW) &
-            (df["col"].apply(lambda x: x[0]) == self.COL)
+            (df["row"].apply(lambda x: x[0]) == self.ROW)
+            & (df["col"].apply(lambda x: x[0]) == self.COL)
             & (df["nhits"] == 1)
         ]
         return df_filtered
 
     def _FilterAndUnwrap(self, df: pd.DataFrame) -> pd.DataFrame:
 
-        for c in ["col", "row", "tot", "nhits", "raw charge", "clcharge"]:
+        for c in ["col", "row", "tot", "cltot", "nhits", "raw charge", "clcharge"]:
             df[c] = df[c].apply(self._ParseList)
         df_charge = df.copy()
 
@@ -141,7 +166,7 @@ class Processor:
             axis=1,
         )
         df_charge = df_charge[
-            ["row", "col", "tot", "nhits", "raw charge", "clcharge", "charge"]
+            ["row", "col", "tot", "cltot", "nhits", "raw charge", "clcharge", "charge"]
         ].reset_index(drop=True)
         df["combined"] = df_charge.apply(
             lambda r: list(
@@ -149,6 +174,7 @@ class Processor:
                     r["row"],
                     r["col"],
                     r["tot"],
+                    r["cltot"],
                     r["nhits"],
                     r["raw charge"],
                     r["clcharge"],
@@ -160,9 +186,10 @@ class Processor:
         df_exploded = df.explode("combined")
 
         df_exploded[
-            ["row", "col", "tot", "nhits", "raw charge", "clcharge", "charge"]
+            ["row", "col", "tot", "cltot", "nhits", "raw charge", "clcharge", "charge"]
         ] = pd.DataFrame(df_exploded["combined"].tolist(), index=df_exploded.index)
         df_exploded = df_exploded.drop(columns=["combined"])
+        # df_exploded = df_exploded[(df_exploded["nhits"] == 1)]
         return df_exploded
 
     def _LoadCorrectionFactors(self) -> dict[tuple[int, int], float]:

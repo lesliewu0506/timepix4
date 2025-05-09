@@ -5,33 +5,85 @@ import matplotlib.pyplot as plt
 
 def ToTChargePlotter(FilePath: str) -> None:
     df = pd.read_csv(FilePath)
+    df_copy = df.copy()
+    # df = df[(df["Mean Charge Raw"] < 100)]
     lookuptable = pd.read_csv("lookup_table.csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
     lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
     fig, ax = plt.subplots(figsize=(12, 8))
+    plt.errorbar(
+        df["Mean Charge Raw"],
+        df["Mean Tot"],
+        xerr=df["Std Charge Raw"],
+        fmt="o",
+        markersize=4,
+        linestyle="none",
+        # color="blue",
+        label="Test Pulse",
+    )
     plt.plot(
         df["Mean Charge Raw"],
         df["Mean Tot"],
-        marker="o",
-        linestyle="--",
-        color="b",
-        label="ToT vs Test Pulse Charge",
+        linestyle="-",
+        # color="red",
     )
-    # plt.plot(
-    #     df["Mean Charge"],
+    plt.errorbar(
+        df["Mean clCharge"],
+        df["Mean Tot"],
+        xerr=df["Std clCharge"],
+        fmt="o",
+        markersize=4,
+        linestyle="none",
+        # color="cyan",
+        label="Test Pulse clcharge",
+    )
+    plt.plot(
+        df["Mean clCharge"],
+        df["Mean Tot"],
+        linestyle="-",
+        # color="green",
+    )
+    plt.errorbar(
+        df["Mean Charge Calibrated"],
+        df["Mean Tot"],
+        xerr=df["Std Charge Calibrated"],
+        fmt="o",
+        markersize=4,
+        linestyle="none",
+        # color="yellow",
+        label="Manual calibrated",
+    )
+    plt.plot(
+        df["Mean Charge Calibrated"],
+        df["Mean Tot"],
+        linestyle="-",
+        # color="pink",
+    )
+    # plt.errorbar(
+    #     df["Mean clCharge"],
     #     df["Mean Tot"],
-    #     marker="o",
-    #     linestyle="--",
-    #     color="r",
-    #     label="ToT vs Test Pulse clCharge",
+    #     xerr=df["Std clCharge"],
+    #     fmt="o",
+    #     markersize=4,
+    #     linestyle="none",
+    #     color="green",
+    #     label="Test Pulse clcharge",
     # )
+    # plt.plot(
+    #     df["Mean clCharge"],
+    #     df["Mean Tot"],
+    #     linestyle="-",
+    #     color="orange",
+    # )
+
     plt.plot(
         lookuptable["Charge"],
-        df["Mean Tot"],
+        df_copy["Mean Tot"],
         marker="o",
-        linestyle="--",
-        color="g",
-        label="ToT vs Charge Laser Calibration",
+        markersize=4,
+        linestyle="-",
+        # color="black",
+        label="Laser Calibration",
     )
     # Set labels and title
     ax.set_xlabel("Charge [ke]")
