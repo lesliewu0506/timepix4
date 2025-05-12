@@ -19,18 +19,24 @@ def parse_list(x):
 
 
 def FilterAndUnwrap(df: pd.DataFrame) -> pd.DataFrame:
-    for c in ["col", "row", "tot"]:
+    for c in ["col", "row", "cltot"]:
         df[c] = df[c].apply(parse_list)
 
-    df["combined"] = df.apply(lambda r: list(zip(r["row"], r["col"], r["tot"])), axis=1)
+    df["combined"] = df.apply(
+        lambda r: list(zip(r["row"], r["col"], r["cltot"])), axis=1
+    )
     df_exploded = df.explode("combined")
 
-    df_exploded[["row", "col", "tot"]] = pd.DataFrame(
+    df_exploded[["row", "col", "cltot"]] = pd.DataFrame(
         df_exploded["combined"].tolist(), index=df_exploded.index
     )
     df_exploded = df_exploded.drop(columns=["combined"])
-
-    df_exploded.to_csv("Data/Focus/cluster2.csv", index=False)
+    # df_exploded = df_exploded[
+    #     (df_exploded["row"] == 230) & (df_exploded["col"] == 228)
+    #     or (df_exploded["row"] == 229) & (df_exploded["col"] == 228)
+    #     or (df_exploded["row"] == 230) & (df_exploded["col"] == 229)
+    #     or (df_exploded["row"] == 229) & (df_exploded["col"] == 229)
+    # ]
     return df_exploded
 
 
@@ -39,20 +45,20 @@ def VisualizeToT(filepath: str) -> None:
     file = uproot.open(filepath)
     tree = file["clusterTree"]
 
-    arrays_data = tree.arrays(["col", "row", "tot"], library="pd")
+    arrays_data = tree.arrays(["col", "row", "cltot"], library="pd")
     df_data = pd.DataFrame(
         {
             "col": arrays_data["col"].to_list(),
             "row": arrays_data["row"].to_list(),
-            "tot": arrays_data["tot"].to_list(),
+            "cltot": arrays_data["cltot"].to_list(),
         }
     )
 
     df_filtered = FilterAndUnwrap(df_data)
-    mean_tots = df_filtered.groupby(["row", "col"])["tot"].mean().reset_index()
+    mean_tots = df_filtered.groupby(["row", "col"])["cltot"].mean().reset_index()
 
     # Determine center pixel (highest mean ToT)
-    center = mean_tots.loc[mean_tots["tot"].idxmax()]
+    center = mean_tots.loc[mean_tots["cltot"].idxmax()]
     # center_row, center_col = int(center["row"]), int(center["col"])
     center_row, center_col = 230, 228
     # Define 5x5 neighborhood bounds
@@ -66,7 +72,7 @@ def VisualizeToT(filepath: str) -> None:
     ]
 
     # Pivot only the 5×5 region
-    heatmap_data = mean_tots.pivot(index="row", columns="col", values="tot")
+    heatmap_data = mean_tots.pivot(index="row", columns="col", values="cltot")
     # Ensure a complete 5×5 grid and fill missing pixels with zero
     rows = list(range(row_min, row_max + 1))
     cols = list(range(col_min, col_max + 1))

@@ -60,32 +60,33 @@ class Processor:
             df_results.to_csv(
                 f"{self.FolderPath}/{len(self.Pixels)}Results{pixel}.csv",
                 index=False,
-                )
-        # else:
-        #     Results = []
-        #     for RootFile in RootFilePaths:
-        #         Results.append(self._ProcessFile(RootFile))
-        #     df_results = pd.DataFrame(
-        #         Results,
-        #         columns=[
-        #             "AttenuationVoltage",
-        #             "Mean Tot",
-        #             "Std Tot",
-        #             "Mean clTot",
-        #             "Std clTot",
-        #             "Mean Charge Raw",
-        #             "Std Charge Raw",
-        #             "Mean clCharge",
-        #             "Std clCharge",
-        #             "Mean Charge Calibrated",
-        #             "Std Charge Calibrated",
-        #         ],
-        #     )
-        #     df_results = df_results.sort_values("AttenuationVoltage")
-        #     df_results.to_csv(
-        #         f"{self.FolderPath}/Results.csv",
-        #         index=False,
-        #     )
+            )
+
+        if len(self.Pixels) != 1:
+            # Flatten all results into a single DataFrame
+            flat_results = [res for file_res in All_Results for res in file_res]
+            df_all = pd.DataFrame(
+                flat_results,
+                columns=[
+                    "AttenuationVoltage",
+                    "Mean Tot",
+                    "Std Tot",
+                    "Mean clTot",
+                    "Std clTot",
+                    "Mean Charge Raw",
+                    "Std Charge Raw",
+                    "Mean clCharge",
+                    "Std clCharge",
+                    "Mean Charge Calibrated",
+                    "Std Charge Calibrated",
+                ],
+            )
+            # Group by voltage and sum numeric columns
+            df_all_sum = df_all.groupby("AttenuationVoltage", as_index=False).sum()
+            df_all_sum.to_csv(
+                f"{self.FolderPath}/AllPixels_SumResults.csv",
+                index=False,
+            )
 
     def _ProcessFile(self, FilePath: str) -> list[tuple[float, ...]]:
         self.AttenuationVoltageResults = []
