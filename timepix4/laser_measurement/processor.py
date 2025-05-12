@@ -9,6 +9,8 @@ class Processor:
         FolderPath: str,
         ROW=230,
         COL=228,
+        ROW_Next=0,
+        COL_Next=0,
     ) -> None:
         self.FolderPath: str = FolderPath
         self.ROW: int = ROW
@@ -16,7 +18,11 @@ class Processor:
         self.CorrectionFactors: dict[tuple[int, int], float] = (
             self._LoadCorrectionFactors()
         )
-
+        self.Pixels: list[tuple[int, int]] = [
+            (self.ROW + i, self.COL + j)
+            for i in range(min(0, ROW_Next), max(1, ROW_Next + 1))
+            for j in range(min(0, COL_Next), max(1, COL_Next + 1))
+        ]
         self.results: list[tuple[float, ...]] = []
 
     def ProcessFolder(self) -> None:
@@ -25,32 +31,63 @@ class Processor:
             for File in os.listdir(self.FolderPath)
             if File.endswith(".root")
         ]
+        # if self.ROW_Next != 0 or self.COL_Next != 0:
+        All_Results = []
         for RootFile in RootFilePaths:
-            self._ProcessFile(RootFile)
+            All_Results.append(self._ProcessFile(RootFile))
 
-        df_results = pd.DataFrame(
-            self.results,
-            columns=[
-                "AttenuationVoltage",
-                "Mean Tot",
-                "Std Tot",
-                "Mean clTot",
-                "Std clTot",
-                "Mean Charge Raw",
-                "Std Charge Raw",
-                "Mean clCharge",
-                "Std clCharge",
-                "Mean Charge Calibrated",
-                "Std Charge Calibrated",
-            ],
-        )
-        df_results = df_results.sort_values("AttenuationVoltage")
-        df_results.to_csv(
-            f"{self.FolderPath}/Results.csv",
-            index=False,
-        )
+        for i, pixel in enumerate(self.Pixels):
+            Results = []
+            for Result in All_Results:
+                Results.append(Result[i])
+            df_results = pd.DataFrame(
+                Results,
+                columns=[
+                    "AttenuationVoltage",
+                    "Mean Tot",
+                    "Std Tot",
+                    "Mean clTot",
+                    "Std clTot",
+                    "Mean Charge Raw",
+                    "Std Charge Raw",
+                    "Mean clCharge",
+                    "Std clCharge",
+                    "Mean Charge Calibrated",
+                    "Std Charge Calibrated",
+                ],
+            )
+            df_results = df_results.sort_values("AttenuationVoltage")
+            df_results.to_csv(
+                f"{self.FolderPath}/{len(self.Pixels)}Results{pixel}.csv",
+                index=False,
+                )
+        # else:
+        #     Results = []
+        #     for RootFile in RootFilePaths:
+        #         Results.append(self._ProcessFile(RootFile))
+        #     df_results = pd.DataFrame(
+        #         Results,
+        #         columns=[
+        #             "AttenuationVoltage",
+        #             "Mean Tot",
+        #             "Std Tot",
+        #             "Mean clTot",
+        #             "Std clTot",
+        #             "Mean Charge Raw",
+        #             "Std Charge Raw",
+        #             "Mean clCharge",
+        #             "Std clCharge",
+        #             "Mean Charge Calibrated",
+        #             "Std Charge Calibrated",
+        #         ],
+        #     )
+        #     df_results = df_results.sort_values("AttenuationVoltage")
+        #     df_results.to_csv(
+        #         f"{self.FolderPath}/Results.csv",
+        #         index=False,
+        #     )
 
-    def _ProcessFile(self, FilePath: str) -> None:
+    def _ProcessFile(self, FilePath: str) -> list[tuple[float, ...]]:
         self.AttenuationVoltageResults = []
         self.AttenuationVoltage = (
             FilePath.split("/")[-1].split(".")[0].replace("_", ".")
@@ -75,13 +112,14 @@ class Processor:
         )
         # self.FilterAndUnwrap(dfData)
         self.dfExp = self._FilterAndUnwrap(dfData)
-        self._ComputeStats()
+        for pixel in self.Pixels:
+            self._ComputeStats(pixel)
 
-        self.results.extend(self.AttenuationVoltageResults)
+        return self.AttenuationVoltageResults
 
-    def _ComputeStats(self) -> None:
+    def _ComputeStats(self, pixel: tuple[int, int]) -> None:
         self.dfTargetPixel = self.dfExp[
-            (self.dfExp["row"] == self.ROW) & (self.dfExp["col"] == self.COL)
+            (self.dfExp["row"] == pixel[0]) & (self.dfExp["col"] == pixel[1])
         ].copy()
         self._ComputeTargetPixelStats()
 
@@ -142,14 +180,6 @@ class Processor:
             pix_charges.append(tot * factor)
 
         return pix_charges
-
-    def FilterAndUnwrap(self, df: pd.DataFrame) -> pd.DataFrame:
-        df_filtered = df[
-            (df["row"].apply(lambda x: x[0]) == self.ROW)
-            & (df["col"].apply(lambda x: x[0]) == self.COL)
-            & (df["nhits"] == 1)
-        ]
-        return df_filtered
 
     def _FilterAndUnwrap(self, df: pd.DataFrame) -> pd.DataFrame:
 
