@@ -1,19 +1,26 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+def LaserToTPlotter(file1, file2) -> None:
+    fig, ax = plt.subplots(figsize = (14, 8))
+    df = pd.read_csv(file1)
+    
+
+
 
 def ToTChargePlotter(FilePaths: list[str]) -> None:
     fig, ax = plt.subplots(1, 2, figsize=(16, 8))
-
+    lookuptable = pd.read_csv(f"1lookup_table.csv")
+    lookuptable = lookuptable.sort_values("voltage", ascending=True)
+    lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
     for FilePath in FilePaths:
         pixels = FilePath.split("/")[-1].split(".")[0]
-        pixel = pixels.split("s")[-1]
         df = pd.read_csv(FilePath)
-
-        lookuptable = pd.read_csv(f"{pixels[0]}lookup_table.csv")
-        lookuptable = lookuptable.sort_values("voltage", ascending=True)
-        lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
-
+        # if pixels[0] == "1":
+        #     lookuptable = pd.read_csv(f"{pixels[0]}lookup_table.csv")
+        #     lookuptable = lookuptable.sort_values("voltage", ascending=True)
+        #     lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
+        df["Mean clTot"] = df["Mean clTot"] / int(FilePath.split("/")[-1][0])
         ax[0].errorbar(
             df["Mean clCharge"],
             df["Mean clTot"],
@@ -47,19 +54,19 @@ def ToTChargePlotter(FilePaths: list[str]) -> None:
             linestyle="-",
             label=f"{pixels[0]} Pixels",
         )
-    if len(FilePaths) == 1:
-        ax[0].errorbar(
-            df["Mean Charge Calibrated"],
-            df["Mean clTot"],
-            xerr=df["Std Charge Calibrated"],
-            fmt="o",
-            markersize=4,
-            linestyle="-",
-            label="Manual Calibration",
-        )
+    # if len(FilePaths) == 1:
+    #     ax[0].errorbar(
+    #         df["Mean Charge Calibrated"],
+    #         df["Mean clTot"],
+    #         xerr=df["Std Charge Calibrated"],
+    #         fmt="o",
+    #         markersize=4,
+    #         linestyle="-",
+    #         label="Manual Calibration",
+    #     )
 
     # Set labels and title
-    ax[0].set_xlabel("Charge [ke]")
+    ax[0].set_xlabel("Injected Charge [ke]")
     ax[0].set_ylabel("ToT [25ns]")
     ax[0].set_title("Test Pulse Calibration clToT vs clCharge")
 
@@ -73,7 +80,7 @@ def ToTChargePlotter(FilePaths: list[str]) -> None:
     ax[0].legend()
     ax[0].grid()
 
-    ax[1].set_xlabel("Charge [ke]")
+    ax[1].set_xlabel("Injected Charge [ke]")
     ax[1].set_ylabel("ToT [25ns]")
     ax[1].set_title("Laser Calibration clToT vs clCharge")
 
