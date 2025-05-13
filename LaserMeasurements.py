@@ -1,4 +1,4 @@
-from timepix4.laser_measurement import Processor, ToTChargePlotter, LaserToTPlotter
+from timepix4.laser_measurement import Processor, ToTChargePlotter, LaserPlotter
 
 
 def main():
@@ -21,7 +21,13 @@ def main():
     #     "Data/Laser Measurements/Laser Measurements 4/4AllPixels_SumResults.csv",
     # ]
     # ToTChargePlotter(folders)
-    LaserToTPlotter("Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv", "Data/Laser Measurements/Laser Measurements 2/2Results(230, 228).csv", "Data/Laser Measurements/Laser Measurements 4/4Results(230, 228).csv")
+    LaserPlotter(
+        "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 2/2Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 4/4Results(230, 228).csv",
+        value = "clTot"
+    )
+
 
 if __name__ == "__main__":
     main()

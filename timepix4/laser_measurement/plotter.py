@@ -3,29 +3,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def LaserToTPlotter(file1, file2, file3) -> None:
-    lookuptable = pd.read_csv(f"1lookup_table.csv")
+def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
+    lookuptable = pd.read_csv(f"lookup_table.csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
     _, ax = plt.subplots(figsize=(14, 8))
     df1 = pd.read_csv(file1)
     df2 = pd.read_csv(file2)
     df3 = pd.read_csv(file3)
-    referencevalue = df1[df1["AttenuationVoltage"] == 3.725]["Mean Tot"].iloc[0]
-    lookuptable["Tot"] = lookuptable["relative_factor"].apply(
-        lambda x: x * referencevalue
-    )
-    plt.plot(
-        lookuptable["voltage"],
-        lookuptable["Tot"],
-        marker="o",
-        markersize=4,
-        linestyle="-",
-        label="Laser Calibration",
-    )
+    # referencevalue = df1[df1["AttenuationVoltage"] == 3.725]["Mean Tot"].iloc[0]
+    # lookuptable["Tot"] = lookuptable["relative_factor"].apply(
+    #     lambda x: x * referencevalue
+    # )
+    # plt.plot(
+    #     lookuptable["voltage"],
+    #     lookuptable["Tot"],
+    #     marker="o",
+    #     markersize=4,
+    #     linestyle="-",
+    #     label="Laser Calibration",
+    # )
     plt.errorbar(
         df1["AttenuationVoltage"],
-        df1["Mean Tot"],
-        yerr=df1["Std Tot"],
+        df1[f"Mean {value}"],
+        yerr=df1[f"Std {value}"],
         fmt="o",
         markersize=4,
         linestyle="-",
@@ -33,8 +33,8 @@ def LaserToTPlotter(file1, file2, file3) -> None:
     )
     plt.errorbar(
         df2["AttenuationVoltage"],
-        df2["Mean Tot"],
-        yerr=df2["Std Tot"],
+        df2[f"Mean {value}"],
+        yerr=df2[f"Std {value}"],
         fmt="o",
         markersize=4,
         linestyle="-",
@@ -42,25 +42,37 @@ def LaserToTPlotter(file1, file2, file3) -> None:
     )
     plt.errorbar(
         df3["AttenuationVoltage"],
-        df3["Mean Tot"],
-        yerr=df3["Std Tot"],
+        df3[f"Mean {value}"],
+        yerr=df3[f"Std {value}"],
         fmt="o",
         markersize=4,
         linestyle="-",
         label="4 Pixels",
     )
 
-    plt.xlim(3, 4)
-    plt.ylim(0, 2000)
-    plt.xticks(np.arange(3, 4.1, 0.05))
-    plt.xlabel("Attenuation Voltage [V]")
-    plt.ylabel("ToT [25ns]")
-    plt.title("ToT vs Attenuation Voltage")
-    plt.legend()
+    if value == "Tot" or value == "clTot":
+        plt.xticks(np.arange(3, 4.1, 0.05))
+        plt.xlim(3, 4)
+        plt.ylim(0, 4000)
+        plt.xlabel("Attenuation Voltage [V]", fontsize=16)
+        plt.ylabel("ToT [25ns]", fontsize=16)
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.title(f"{value} vs Attenuation Voltage", fontsize = 18)
+    elif value == "clCharge":
+        plt.xticks(np.arange(3, 4.1, 0.05))
+        plt.xlim(3.5, 4)
+        plt.ylim(0, 50)
+        plt.xlabel("Attenuation Voltage [V]", fontsize=16)
+        plt.ylabel("Charge [ke]", fontsize=16)
+        plt.xticks(fontsize=12)
+        plt.yticks(fontsize=12)
+        plt.title("clCharge vs Attenuation Voltage", fontsize = 18)
+    plt.legend(fontsize = 16)
     plt.grid()
     plt.tight_layout()
     ax.invert_xaxis()
-    plt.savefig("ToT_vs_AttenuationVoltage.png", dpi=600)
+    plt.savefig(f"{value}_vs_AttenuationVoltage.png", dpi=600)
     plt.show()
 
 
