@@ -6,6 +6,7 @@ import numpy as np
 def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     lookuptable = pd.read_csv(f"lookup_table.csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
+    lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
     _, ax = plt.subplots(figsize=(14, 8))
     df1 = pd.read_csv(file1)
     df2 = pd.read_csv(file2)
@@ -22,57 +23,46 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     #     linestyle="-",
     #     label="Laser Calibration",
     # )
-    plt.errorbar(
-        df1["AttenuationVoltage"],
-        df1[f"Mean {value}"],
-        yerr=df1[f"Std {value}"],
-        fmt="o",
-        markersize=4,
-        linestyle="-",
-        label="1 Pixel",
-    )
-    plt.errorbar(
-        df2["AttenuationVoltage"],
-        df2[f"Mean {value}"],
-        yerr=df2[f"Std {value}"],
-        fmt="o",
-        markersize=4,
-        linestyle="-",
-        label="2 Pixels",
-    )
-    plt.errorbar(
-        df3["AttenuationVoltage"],
-        df3[f"Mean {value}"],
-        yerr=df3[f"Std {value}"],
-        fmt="o",
-        markersize=4,
-        linestyle="-",
-        label="4 Pixels",
-    )
 
     if value == "Tot" or value == "clTot":
-        plt.xticks(np.arange(3, 4.1, 0.05))
-        plt.xlim(3, 4)
-        plt.ylim(0, 4000)
-        plt.xlabel("Attenuation Voltage [V]", fontsize=16)
+        # plt.xticks(np.arange(3, 4.1, 0.05))
+        plt.xlim(0, 400)
+        plt.ylim(0, 2000)
+        plt.xlabel("Injected Charge [ke]", fontsize=16)
         plt.ylabel("ToT [25ns]", fontsize=16)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        plt.title(f"{value} vs Attenuation Voltage", fontsize = 18)
-    elif value == "clCharge":
-        plt.xticks(np.arange(3, 4.1, 0.05))
-        plt.xlim(3.5, 4)
-        plt.ylim(0, 50)
-        plt.xlabel("Attenuation Voltage [V]", fontsize=16)
+        plt.title(f"{value} vs Injected Charge", fontsize=18)
+    elif value == "clCharge" or value == "Charge Raw":
+        # plt.xticks(np.arange(3, 4.1, 0.05))
+        plt.xlim(0, 400)
+        plt.ylim(0, 150)
+        plt.xlabel("Injected Charge [ke]", fontsize=16)
         plt.ylabel("Charge [ke]", fontsize=16)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        plt.title("clCharge vs Attenuation Voltage", fontsize = 18)
-    plt.legend(fontsize = 16)
+        plt.title(f"{value} vs Injected Charge", fontsize=18)
+
+    for df, pixels in zip([df1, df2, df3], [1, 2, 4]):
+        if len(df) < len(lookuptable):
+            lut = lookuptable.iloc[: len(df)]
+        else:
+            lut = lookuptable
+
+        plt.errorbar(
+            lut["Charge"],
+            df[f"Mean {value}"],
+            yerr=df[f"Std {value}"],
+            fmt="o",
+            markersize=4,
+            linestyle="-",
+            label=f"{pixels} Pixels",
+        )
+    plt.legend(fontsize=16)
     plt.grid()
     plt.tight_layout()
-    ax.invert_xaxis()
-    plt.savefig(f"{value}_vs_AttenuationVoltage.png", dpi=600)
+    # ax.invert_xaxis()
+    plt.savefig(f"{value}_vs_InjectedCharge.png", dpi=600)
     plt.show()
 
 
