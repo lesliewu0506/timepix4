@@ -1,4 +1,4 @@
 from .processor import Processor
-from .plotter import ToTChargePlotter, LaserPlotter
+from .plotter import LaserPlotter, CompareMethodsPlotter
 
-__all__ = ["Processor", "ToTChargePlotter", "LaserToTPlotter"]
+__all__ = ["Processor", "LaserPlotter", "CompareMethodsPlotter"]
