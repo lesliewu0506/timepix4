@@ -2,14 +2,26 @@ from timepix4.utils import createdicts
 import uproot, ast
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import seaborn as sns
 import numpy as np
 
 
 def VisualizeToT(filepath: str) -> None:
     CorrectionFactors = createdicts()
-    
-    _, ax = plt.subplots(2, 3, figsize=(24, 16))
+    # Increase font sizes for readability
+    plt.rcParams.update(
+        {
+            "font.size": 16,
+            "axes.titlesize": 18,
+            "axes.labelsize": 16,
+            "xtick.labelsize": 14,
+            "ytick.labelsize": 14,
+            "figure.titlesize": 20,
+        }
+    )
+
+    fig, ax = plt.subplots(2, 3, figsize=(24, 16))
     axes = ax.flatten()
     for i, c in enumerate(["1", "2", "4"]):
         filename = filepath.replace("x", c)
@@ -39,7 +51,7 @@ def VisualizeToT(filepath: str) -> None:
 
         mean_tots["charge_manual"] = mean_tots.apply(
             lambda r: r["tot"] * CorrectionFactors.get((r["col"], r["row"]), 0.10),
-            axis=1
+            axis=1,
         )
         heatmap_tot = mean_tots.pivot(index="row", columns="col", values="tot")
         rows = list(range(row_min, row_max + 1))
@@ -55,15 +67,17 @@ def VisualizeToT(filepath: str) -> None:
             annot_kws={"size": 16},
             ax=axes[i],
         )
-        axes[i].set_title(f"{c} Pixels")
+        axes[i].set_title(f"Total ToT = {round(mean_tots["tot"].sum())} [25ns]")
         for spine in axes[i].spines.values():
             spine.set_visible(True)
             spine.set_linewidth(1)
-        
+
         heatmap_charge = mean_tots.pivot(
             index="row", columns="col", values="charge_manual"
         )
-        heatmap_charge = heatmap_charge.reindex(index=rows, columns=cols, fill_value=np.nan)
+        heatmap_charge = heatmap_charge.reindex(
+            index=rows, columns=cols, fill_value=np.nan
+        )
         sns.heatmap(
             heatmap_charge,
             cmap="viridis",
@@ -74,14 +88,21 @@ def VisualizeToT(filepath: str) -> None:
             annot_kws={"size": 16},
             ax=axes[i + 3],
         )
-        axes[i + 3].set_title(f"{c} Pixels Manual Charge Calibration")
+        axes[i + 3].set_title(
+            f"Total Charge = {round(mean_tots["charge_manual"].sum())} [ke]"
+        )
         for spine in axes[i + 3].spines.values():
             spine.set_visible(True)
             spine.set_linewidth(1)
-    
-    plt.suptitle("Average ToT/Charge Per Pixel (200ke)")
+
+    plt.suptitle("Injected Charge = 50ke", fontweight="bold")
     plt.tight_layout()
-    plt.savefig(f"Heatmap(200ke).png", dpi=600)
+
+    line = Line2D(
+        [0, 1], [0.485, 0.485], transform=fig.transFigure, color="black", linewidth=2
+    )
+    fig.add_artist(line)
+    plt.savefig(f"Heatmap(50ke).png", dpi=600)
     plt.show()
 
 
