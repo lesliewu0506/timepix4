@@ -64,40 +64,38 @@ def CompareMethodsPlotter(filepath: str) -> None:
 
     plt.errorbar(
         lut["Charge"],
-        df["Mean Tot"],
-        yerr=df["Std Tot"],
+        lut["Charge"],
         fmt="o",
         markersize=4,
         linestyle="-",
         label="Method: Laser Calibration",
     )
     plt.errorbar(
+        lut["Charge"],
         df["Mean Charge Calibrated"],
-        df["Mean Tot"],
         xerr=df["Std Charge Calibrated"],
-        yerr=df["Std Tot"],
         fmt="o",
         markersize=4,
         linestyle="-",
         label="Method: Manual Calibration",
     )
     plt.errorbar(
+        lut["Charge"],
         df["Mean clCharge"],
-        df["Mean Tot"],
         xerr=df["Std clCharge"],
-        yerr=df["Std Tot"],
         fmt="o",
         markersize=4,
         linestyle="-",
         label="Method: Test Pulse Calibration",
     )
+
     plt.xlabel("Injected Charge [ke]", fontsize=16)
-    plt.ylabel("ToT [25ns]", fontsize=16)
+    plt.ylabel("Measured Charge [ke]", fontsize=16)
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
     plt.title("Comparison of Calibration Methods", fontsize=18)
     plt.xlim(0, 400)
-    plt.ylim(0, 2000)
+    plt.ylim(0, 400)
     plt.legend(fontsize=16)
     plt.grid()
     plt.tight_layout()
