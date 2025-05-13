@@ -6,96 +6,61 @@ import numpy as np
 def LaserToTPlotter(file1, file2, file3) -> None:
     lookuptable = pd.read_csv(f"1lookup_table.csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
-    lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
-    fig, ax = plt.subplots(figsize=(12, 8))
-    df = pd.read_csv(file1)
-    # plt.errorbar(
-    #     df["Mean clCharge"],
-    #     df["Mean clTot"],
-    #     xerr=df["Std clCharge"],
-    #     fmt="o",
-    #     markersize=4,
-    #     linestyle="-",
-    #     label="Test Pulse Calibration",
-    # )
-
-    # plt.errorbar(
-    #     df["Mean Charge Calibrated"],
-    #     df["Mean clTot"],
-    #     xerr=df["Std Charge Calibrated"],
-    #     fmt="o",
-    #     markersize=4,
-    #     linestyle="-",
-    #     label="Manual Calibration",
-    # )
-
+    _, ax = plt.subplots(figsize=(14, 8))
+    df1 = pd.read_csv(file1)
+    df2 = pd.read_csv(file2)
+    df3 = pd.read_csv(file3)
+    referencevalue = df1[df1["AttenuationVoltage"] == 3.725]["Mean Tot"].iloc[0]
+    lookuptable["Tot"] = lookuptable["relative_factor"].apply(
+        lambda x: x * referencevalue
+    )
     plt.plot(
-        lookuptable["Charge"],
-        df["Mean clTot"],
+        lookuptable["voltage"],
+        lookuptable["Tot"],
         marker="o",
         markersize=4,
         linestyle="-",
         label="Laser Calibration",
     )
+    plt.errorbar(
+        df1["AttenuationVoltage"],
+        df1["Mean Tot"],
+        yerr=df1["Std Tot"],
+        fmt="o",
+        markersize=4,
+        linestyle="-",
+        label="1 Pixel",
+    )
+    plt.errorbar(
+        df2["AttenuationVoltage"],
+        df2["Mean Tot"],
+        yerr=df2["Std Tot"],
+        fmt="o",
+        markersize=4,
+        linestyle="-",
+        label="2 Pixels",
+    )
+    plt.errorbar(
+        df3["AttenuationVoltage"],
+        df3["Mean Tot"],
+        yerr=df3["Std Tot"],
+        fmt="o",
+        markersize=4,
+        linestyle="-",
+        label="4 Pixels",
+    )
 
-    df2 = pd.read_csv(file2)
-    df3 = pd.read_csv(file3)
-
-    lut = []
-    ori = []
-    div2 = []
-    div4 = []
-
-    for V in np.arange(3.05, 4.01, 0.025):
-        V = V.round(3)
-        lutfiltered = lookuptable[lookuptable["voltage"] == V]
-        df1_filtered = df[df["AttenuationVoltage"] == V]
-        df2_filtered = df2[df2["AttenuationVoltage"] == V]
-        df3_filtered = df3[df3["AttenuationVoltage"] == V]
-        if lutfiltered.empty or df1_filtered.empty or df2_filtered.empty or df3_filtered.empty:
-            continue
-        lut.append(lutfiltered["Charge"].iloc[0])
-        ori.append(df1_filtered["Mean clTot"].iloc[0])
-        div2.append(df2_filtered["Mean clTot"].iloc[0])
-        div4.append(df3_filtered["Mean clTot"].iloc[0])
-    plt.plot(
-        lut, ori, "o", markersize=4, label="Original Charge Calibration"
-        )
-    plt.plot(
-        np.array(lut) / 2, np.array(div2) / 2, "o", markersize=4, label="Laser Calibration / 2"
-        )
-    plt.plot(
-        np.array(lut) / 4, np.array(div4) / 4, "o", markersize=4, label="Laser Calibration / 4"
-        )
-
-    # V = 3.3
-    # lutfiltered = lookuptable[lookuptable["voltage"] == V]
-    # df1 = df[df["AttenuationVoltage"] == V]
-    # df2 = pd.read_csv(file2)
-    # df2 = df2[df2["AttenuationVoltage"] == V]
-    # df3 = pd.read_csv(file3)
-    # df3 = df3[df3["AttenuationVoltage"] == V]
-    # plt.plot(
-    #     lutfiltered["Charge"] / 1, df1["Mean clTot"], "o", markersize=4, label="Point 1"
-    # )
-
-    # plt.plot(
-    #     lutfiltered["Charge"] / 2, df2["Mean clTot"] / 2, "o", markersize=4, label="Point 2"
-    # )
-
-    # plt.plot(
-    #     lutfiltered["Charge"] / 4, df3["Mean clTot"] / 4, "o", markersize=4, label="Point 4"
-    # )
-
-    plt.xlabel("Injected Charge [ke]")
-    plt.ylabel("ToT [25ns]")
-    plt.xlim(0, 200)
+    plt.xlim(3, 4)
     plt.ylim(0, 2000)
-    plt.title("ToT vs Charge")
+    plt.xticks(np.arange(3, 4.1, 0.05))
+    plt.xlabel("Attenuation Voltage [V]")
+    plt.ylabel("ToT [25ns]")
+    plt.title("ToT vs Attenuation Voltage")
     plt.legend()
     plt.grid()
     plt.tight_layout()
-    plt.savefig("ToT_Charge_2.png", dpi=600)
+    ax.invert_xaxis()
+    plt.savefig("ToT_vs_AttenuationVoltage.png", dpi=600)
     plt.show()
 
 

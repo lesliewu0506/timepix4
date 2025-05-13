@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from .plot_relative_power import PlotRelativePower
 
 
 def CreateLookupTable(filepath: str, V_ref: float) -> None:
@@ -14,17 +15,31 @@ def fit_func(V, A, k, C):
 
 
 def fit_curve(df: pd.DataFrame, V_ref: float):
+    df_copy = df.copy()
+    df = df[((df["V"] >= 3.2) & (df["V"] <= 4.0))]
     P = df["power"].to_numpy()
     V = df["V"].to_numpy()
-    popt, pcov = curve_fit(fit_func, V, P, p0=[P.max(), 1.0 / (np.ptp(V)), P.min()])
+
+    # w = 1 / np.sqrt(P)
+
+    popt, pcov = curve_fit(
+        fit_func,
+        V,
+        P,
+        # sigma=w,
+        # absolute_sigma=True,
+        p0=[50, 1.0 / (np.ptp(V)), 0.01],
+    )
 
     # plot
     Vfine = np.linspace(2.8, 4.6, 200)
     plt.figure(figsize=(12, 8))
-    plt.scatter(V, P, marker="o", color="b", label="Data")
+    plt.scatter(df_copy["V"].to_numpy(), df_copy["power"].to_numpy(), marker="o", color="b", label="Data")
     plt.plot(Vfine, fit_func(Vfine, *popt), linestyle="-", color="orange", label="fit")
     plt.xlabel("Voltage [V]")
     plt.ylabel("Power [uW]")
+    # plt.xlim(3.10, 4)
+    # plt.ylim(0, 5)
     plt.legend()
     plt.title("Power vs Voltage")
     plt.grid()
@@ -39,3 +54,5 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
     factors = fit_func(Vs, *popt) / P_ref
     lut = pd.DataFrame({"voltage": Vs, "relative_factor": factors})
     lut.to_csv("lookup_table.csv", index=False)
+
+    # PlotRelativePower("lookup_table.csv")
