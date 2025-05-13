@@ -7,19 +7,19 @@ def main():
     # processor.ProcessFolder()
 
     folders = [
-        # "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
         # "Data/Laser Measurements/Laser Measurements 2/2Results(229, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 2/2Results(230, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 4/4Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 2/2Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 4/4Results(230, 228).csv",
         # "Data/Laser Measurements/Laser Measurements 4/4Results(229, 228).csv",
         # "Data/Laser Measurements/Laser Measurements 4/4Results(230, 229).csv",
         # "Data/Laser Measurements/Laser Measurements 4/4Results(229, 229).csv",
     ]
-    folders = [
-        "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
-        "Data/Laser Measurements/Laser Measurements 2/2AllPixels_SumResults.csv",
-        "Data/Laser Measurements/Laser Measurements 4/4AllPixels_SumResults.csv",
-    ]
+    # folders = [
+    #     "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
+    #     "Data/Laser Measurements/Laser Measurements 2/2AllPixels_SumResults.csv",
+    #     "Data/Laser Measurements/Laser Measurements 4/4AllPixels_SumResults.csv",
+    # ]
     # ToTChargePlotter(folders)
     LaserToTPlotter("Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv", "Data/Laser Measurements/Laser Measurements 2/2Results(230, 228).csv", "Data/Laser Measurements/Laser Measurements 4/4Results(230, 228).csv")
 
