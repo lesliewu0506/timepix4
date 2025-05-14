@@ -59,7 +59,7 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     plt.show()
 
 
-def LaserPlotterMultiple(file1, file2: list[str], file3: list[str], value: str = "Tot") -> None:
+def LaserPlotterMultiple(file1, file2: list[str], file3: list[str], value: str) -> None:
     lookuptable = pd.read_csv(f"lookup_table.csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
     lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
@@ -68,40 +68,26 @@ def LaserPlotterMultiple(file1, file2: list[str], file3: list[str], value: str =
     df2 = pd.read_csv(file2)
     df3 = pd.read_csv(file3)
 
-    if value == "Tot" or value == "clTot":
-        ax1.set_xlim(0, 400)
-        ax1.set_ylim(0, 5000)
-        ax1.set_xlabel("Injected Charge [ke]", fontsize=16)
-        ax1.set_ylabel("ToT [25ns]", fontsize=16)
-        ax1.set_xticks(ax1.get_xticks())
-        ax1.tick_params(labelsize=12)
-        ax1.set_yticks(ax1.get_yticks())
-        ax1.tick_params(labelsize=12)
-        ax1.set_title(f"Total {value} vs Injected Charge ", fontsize=18)
-    elif value == "clCharge" or value == "Charge Raw" or value == "clCharge Calibrated":
-        ax1.set_xlim(0, 400)
-        ax1.set_ylim(0, 400)
-        ax1.set_xlabel("Injected Charge [ke]", fontsize=16)
-        ax1.set_ylabel("Measured Charge [ke]", fontsize=16)
-        ax1.set_xticks(ax1.get_xticks())
-        ax1.tick_params(labelsize=12)
-        ax1.set_yticks(ax1.get_yticks())
-        ax1.tick_params(labelsize=12)
-        ax1.set_title(f"{value} vs Injected Charge", fontsize=18)
+    ax1.set_xlim(0, 400)
+    ax1.set_ylim(0, 400)
+    ax1.set_xlabel("Injected Charge [ke]", fontsize=18)
+    ax1.set_ylabel("Measured Charge [ke]", fontsize=18)
+    ax1.set_xticks(ax1.get_xticks())
+    ax1.tick_params(labelsize=14)
+    ax1.set_yticks(ax1.get_yticks())
+    ax1.tick_params(labelsize=14)
+    ax1.set_title(f"clCharge vs Injected Charge", fontsize=20)
 
     # Zoomed-in view on ax2 (adjust limits as needed)
     ax2.set_xlim(0, 20)
     ax2.set_ylim(0, 20)
-    ax2.set_xlabel("Injected Charge [ke]", fontsize=16)
-    ax2.set_ylabel(
-        "Measured Charge [ke]" if value not in ["Tot", "clTot"] else "ToT [25ns]",
-        fontsize=16,
-    )
+    ax2.set_xlabel("Injected Charge [ke]", fontsize=18)
+    ax2.set_ylabel("Measured Charge [ke]", fontsize=18)
     ax2.set_xticks(ax2.get_xticks())
-    ax2.tick_params(labelsize=12)
+    ax2.tick_params(labelsize=14)
     ax2.set_yticks(ax2.get_yticks())
-    ax2.tick_params(labelsize=12)
-    ax2.set_title(f"Zoomed {value} vs Injected Charge", fontsize=18)
+    ax2.tick_params(labelsize=14)
+    ax2.set_title(f"Zoomed clCharge vs Injected Charge", fontsize=20)
 
     for df, pixels in zip([df1, df2, df3], [1, 2, 4]):
         if len(df) < len(lookuptable):
@@ -139,7 +125,7 @@ def LaserPlotterMultiple(file1, file2: list[str], file3: list[str], value: str =
         ax.plot(
             np.arange(0, 400, 1),
             np.arange(0, 400, 1),
-            linestyle="--",
+            linestyle="dashdot",
             color="black",
             label="Ideal Response",
         )

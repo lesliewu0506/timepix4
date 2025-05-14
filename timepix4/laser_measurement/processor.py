@@ -127,6 +127,9 @@ class Processor:
             (self.dfExp["row"] == pixel[0]) & (self.dfExp["col"] == pixel[1])
         ].copy()
         self._ComputeTargetPixelStats()
+        if self.AttenuationVoltage == "4.000" and pixel[0] == 230 and pixel[1] == 228:
+            print(self.dfTargetPixel["clCharge Calibrated"].describe())
+            print(self.dfTargetPixel[self.dfTargetPixel["clCharge Calibrated"] > 10])
 
     def _ComputeTargetPixelStats(self) -> None:
         self.dfTargetPixel["cltot"] = self.dfTargetPixel["cltot"].astype(float)
@@ -252,6 +255,7 @@ class Processor:
             ]
         ] = pd.DataFrame(df_exploded["combined"].tolist(), index=df_exploded.index)
         df_exploded = df_exploded.drop(columns=["combined"])
+        df_exploded = df_exploded[(df_exploded["tot"] > 0)]
         return df_exploded
 
     def _LoadCorrectionFactors(self) -> dict[tuple[int, int], float]:

@@ -3,7 +3,7 @@ from timepix4.laser_measurement import *
 
 def main():
     # FolderPath = "Data/Laser Measurements/Laser Measurements 2"
-    # processor = Processor(FolderPath, COL_Next=0, ROW_Next=-1)
+    # processor = Processor(FolderPath, COL_Next=1, ROW_Next=-1)
     # processor.ProcessFolder()
 
     folders = [
@@ -21,11 +21,11 @@ def main():
     #     "Data/Laser Measurements/Laser Measurements 4/4AllPixels_SumResults.csv",
     # ]
     # ToTChargePlotter(folders)
-    LaserPlotter(
+    LaserPlotterMultiple(
         "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
         "Data/Laser Measurements/Laser Measurements 2/2Results(230, 228).csv",
         "Data/Laser Measurements/Laser Measurements 4/4Results(230, 228).csv",
-        value="clCharge",
+        value="clCharge Calibrated",
     )
     # CompareMethodsPlotter(
     #     "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv"
