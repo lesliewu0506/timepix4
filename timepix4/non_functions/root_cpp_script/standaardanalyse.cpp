@@ -65,8 +65,8 @@ int standaardanalyse()
 
     // Make Histograms
     // MakeChargeAndToTHistograms(histcharge4, tot_plot4);
-    MakeSinglePixelToTHistogram(SingleToTPlot4);
-    // MakeChargeAndToTHistograms(histcharge4, tot_plot4);
+    // MakeSinglePixelToTHistogram(SingleToTPlot4);
+    MakeChargeAndToTHistograms(histcharge4, tot_plot4);
     // makehist4(HistogramArray3, hitmap3);
     // MakeChargeAndToTHistograms(histcharge3, tot_plot3);
     // MakeSinglePixelHistogram(singlepixelplot);
@@ -274,7 +274,7 @@ void MakeChargeAndToTHistograms(TH1D* histcharge, TH1D* tot_plot)
     tot_plot->Draw();
 
     // Save the combined image
-    ChargeToTCanvas->SaveAs("N113 Charge and ToT Histograms.png");
+    ChargeToTCanvas->SaveAs("N116 Charge and ToT Histograms.png");
 
     // Clear the canvas and close it
     ChargeToTCanvas-> Clear();

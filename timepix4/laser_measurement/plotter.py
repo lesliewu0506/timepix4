@@ -14,12 +14,12 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
 
     if value == "Tot" or value == "clTot":
         plt.xlim(0, 400)
-        plt.ylim(0, 2000)
+        plt.ylim(0, 1000)
         plt.xlabel("Injected Charge [ke]", fontsize=16)
         plt.ylabel("ToT [25ns]", fontsize=16)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        plt.title(f"{value} vs Injected Charge", fontsize=18)
+        plt.title(f"{value} vs Injected Charge Divided To 1 Pixel", fontsize=18)
     elif value == "clCharge" or value == "Charge Raw":
         plt.xlim(0, 400)
         plt.ylim(0, 150)
@@ -34,16 +34,24 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
             lut = lookuptable.iloc[: len(df)]
         else:
             lut = lookuptable
-
+        
+        if pixels == 1:
+            x = 4
+        elif pixels == 2:
+            x = 2
+        elif pixels == 4:
+            x = 1
+        
         plt.errorbar(
             lut["Charge"],
-            df[f"Mean {value}"],
+            df[f"Mean {value}"] / x,
             yerr=df[f"Std {value}"],
             fmt="o",
             markersize=4,
             linestyle="-",
             label=f"{pixels} Pixels",
         )
+    
     plt.legend(fontsize=16)
     plt.grid()
     plt.tight_layout()
