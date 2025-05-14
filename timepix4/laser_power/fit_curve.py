@@ -51,12 +51,12 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
     plt.savefig("PowerVsVoltage.png", dpi=600)
     plt.show()
 
-    # P_ref = fit_func(V_ref, *popt)
-    # # voltages from 4.000 down to 3.050 in steps of 0.025
-    # Vs = np.linspace(4.0, 3.05, int(round((4.0 - 3.05) / 0.025)) + 1)
-    # Vs = np.round(Vs, 3)
-    # factors = fit_func(Vs, *popt) / P_ref
-    # lut = pd.DataFrame({"voltage": Vs, "relative_factor": factors})
-    # lut.to_csv("lookup_table.csv", index=False)
+    P_ref = fit_func(V_ref, *popt)
+    # voltages from 4.000 down to 3.050 in steps of 0.025
+    Vs = np.linspace(4.0, 3.05, int(round((4.0 - 3.05) / 0.025)) + 1)
+    Vs = np.round(Vs, 3)
+    factors = fit_func(Vs, *popt) / P_ref
+    lut = pd.DataFrame({"voltage": Vs, "relative_factor": factors})
+    lut.to_csv("lookup_table.csv", index=False)
 
     # PlotRelativePower("lookup_table.csv")
