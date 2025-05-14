@@ -12,7 +12,7 @@ def main():
     # filepath = "Data/Laser Power/laser_power_933nm.csv"
     # CreateLookupTable(filepath, 3.725)
     # PlotRelativePower("lookup_table.csv")
-    PlotLaserStability("N116-Charge-Data.csv")
+    PlotLaserStability("Data/Laser Power/Laser Stability/Laser_over_time.csv")
 
 
 if __name__ == "__main__":
