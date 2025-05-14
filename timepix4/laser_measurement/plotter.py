@@ -14,20 +14,20 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
 
     if value == "Tot" or value == "clTot":
         plt.xlim(0, 400)
-        plt.ylim(0, 5000)
+        plt.ylim(0, 2000)
         plt.xlabel("Injected Charge [ke]", fontsize=16)
-        plt.ylabel("ToT [25ns]", fontsize=16)
+        plt.ylabel("ToT [25 ns]", fontsize=16)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        plt.title(f"{value} vs Injected Charge ", fontsize=18)
+        plt.title(f"{value} vs Injected Charge (Pixel (228, 230))", fontsize=18)
     elif value == "clCharge" or value == "Charge Raw" or value == "clCharge Calibrated":
-        plt.xlim(0, 400)
-        plt.ylim(0, 400)
+        plt.xlim(0, 25)
+        plt.ylim(0, 25)
         plt.xlabel("Injected Charge [ke]", fontsize=16)
         plt.ylabel("Measured Charge [ke]", fontsize=16)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        plt.title(f"clCharge Test Pulse Calibrated vs Injected Charge", fontsize=18)
+        plt.title(f"clCharge Manually Calibrated vs Injected Charge", fontsize=18)
 
     for df, pixels in zip([df1, df2, df3], [1, 2, 4]):
         if len(df) < len(lookuptable):
@@ -48,7 +48,7 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     plt.plot(
         np.arange(0, 400, 1),
         np.arange(0, 400, 1),
-        linestyle="--",
+        linestyle="dashdot",
         color="black",
         label="Ideal Response",
     )
@@ -79,8 +79,8 @@ def LaserPlotterMultiple(file1, file2: list[str], file3: list[str], value: str) 
     ax1.set_title(f"clCharge vs Injected Charge", fontsize=20)
 
     # Zoomed-in view on ax2 (adjust limits as needed)
-    ax2.set_xlim(0, 20)
-    ax2.set_ylim(0, 20)
+    ax2.set_xlim(0, 150)
+    ax2.set_ylim(0, 150)
     ax2.set_xlabel("Injected Charge [ke]", fontsize=18)
     ax2.set_ylabel("Measured Charge [ke]", fontsize=18)
     ax2.set_xticks(ax2.get_xticks())
