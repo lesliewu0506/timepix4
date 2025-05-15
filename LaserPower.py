@@ -10,7 +10,7 @@ def main():
     filepath = "Data/Laser Power/Power.csv"
     # PowerVoltagePlot(filepath)
     # filepath = "Data/Laser Power/laser_power_933nm.csv"
-    CreateLookupTable(filepath, 3.700)
+    CreateLookupTable(filepath, 3.750)
     # PlotRelativePower("lookup_table.csv")
     # PlotLaserStability("Data/Laser Power/Laser Stability/Laser_over_time_20ke.csv")
 

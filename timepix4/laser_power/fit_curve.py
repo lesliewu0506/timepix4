@@ -48,7 +48,7 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
     plt.title("Power vs Voltage")
     plt.grid()
     plt.tight_layout()
-    plt.savefig("PowerVsVoltage.png", dpi=600)
+    # plt.savefig("PowerVsVoltage.png", dpi=600)
     plt.show()
 
     P_ref = fit_func(V_ref, *popt)

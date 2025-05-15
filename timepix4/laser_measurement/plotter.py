@@ -22,13 +22,13 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
         plt.yticks(fontsize=12)
         plt.title(f"{value} vs Injected Charge (Pixel (228, 230))", fontsize=18)
     elif value == "clCharge" or value == "Charge Raw" or value == "clCharge Calibrated":
-        plt.xlim(0, 25)
-        plt.ylim(0, 25)
+        plt.xlim(0, 400)
+        plt.ylim(0, 400)
         plt.xlabel("Injected Charge [ke]", fontsize=16)
         plt.ylabel("Measured Charge [ke]", fontsize=16)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        plt.title(f"clCharge Manually Calibrated vs Injected Charge", fontsize=18)
+        plt.title(f"clCharge Manually Calibrated vs Injected Charge (Pixel ({pixel}))", fontsize=18)
 
     for df, pixels in zip([df1, df2, df3], [1, 2, 4]):
         if len(df) < len(lookuptable):
@@ -60,7 +60,7 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     plt.show()
 
 
-def LaserPlotterMultiple(file1, file2: list[str], file3: list[str], value: str) -> None:
+def LaserPlotterMultiple(file1, file2: str, file3: str, value: str) -> None:
     lookuptable = pd.read_csv(f"lookup_table.csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
     lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
