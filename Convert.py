@@ -27,7 +27,7 @@ def convert_cluster_data() -> None:
     import os
 
     ConvertClusterData(
-        "Data/Laser Power/Laser Stability/N116-250514-111718.root",
+        "Data/Am-241 Runs/N116-250408-123554.root",
     )
     # RootFilePath = "Data/Am-241 Runs/N116-250408-105332.root"
     # folder = "Data/Laser Measurements"

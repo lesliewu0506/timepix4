@@ -2,14 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-folders = [
-    "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
-    "Data/Laser Measurements/Laser Measurements 2/2AllPixels_SumResults.csv",
-    "Data/Laser Measurements/Laser Measurements 4/4AllPixels_SumResults.csv",
-]
 
-
-def Plotter(filepaths: list[str]) -> None:
+def AttenuationPlotter(filepaths: list[str]) -> None:
     plt.figure(figsize=(12, 8))
     for filepath in filepaths:
         df = pd.read_csv(filepath)
@@ -44,7 +38,3 @@ def Plotter(filepaths: list[str]) -> None:
     plt.tight_layout()
     plt.savefig("MeanToTvsAttenuationVoltage.png", dpi=600)
     plt.show()
-
-
-if __name__ == "__main__":
-    Plotter(folders)

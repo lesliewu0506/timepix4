@@ -1,4 +1,10 @@
-from .processor import Processor
-from .plotter import LaserPlotter, CompareMethodsPlotter, LaserPlotterMultiple
+from .processor import *
+from .plotter import *
 
-__all__ = ["Processor", "LaserPlotter", "CompareMethodsPlotter", "LaserPlotterMultiple"]
+__all__ = [
+    "Processor",
+    "LaserPlotter",
+    "CompareMethodsPlotter",
+    "LaserPlotterMultiple",
+    "AttenuationPlotter",
+]
