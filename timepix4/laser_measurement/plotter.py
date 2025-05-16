@@ -5,7 +5,8 @@ import numpy as np
 
 def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     pixel = file1.split("/")[-1].split(".")[0].split("s")[-1]
-    lookuptable = pd.read_csv(f"lookup_table{pixel}.csv")
+    # lookuptable = pd.read_csv(f"lookup_table{pixel}.csv")
+    lookuptable = pd.read_csv(f"lookup_table(230, 228).csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
     lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
     plt.subplots(figsize=(14, 8))
