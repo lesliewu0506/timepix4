@@ -64,34 +64,6 @@ class Processor:
                 index=False,
             )
 
-        # if len(self.Pixels) != 1:
-        #     # Flatten all results into a single DataFrame
-        #     flat_results = [res for file_res in All_Results for res in file_res]
-        #     df_all = pd.DataFrame(
-        #         flat_results,
-        #         columns=[
-        #             "AttenuationVoltage",
-        #             "Mean Tot",
-        #             "Std Tot",
-        #             "Mean clTot",
-        #             "Std clTot",
-        #             "Mean Charge Raw",
-        #             "Std Charge Raw",
-        #             "Mean clCharge",
-        #             "Std clCharge",
-        #             "Mean Charge Calibrated",
-        #             "Std Charge Calibrated",
-        #             "Mean clCharge Calibrated",
-        #             "Std clCharge Calibrated",
-        #         ],
-        #     )
-        #     # Group by voltage and sum numeric columns
-        #     df_all_sum = df_all.groupby("AttenuationVoltage", as_index=False).sum()
-        #     df_all_sum.to_csv(
-        #         f"{self.FolderPath}/AllPixels_SumResults.csv",
-        #         index=False,
-        #     )
-
     def _ProcessFile(self, FilePath: str) -> list[tuple[float, ...]]:
         self.AttenuationVoltageResults = []
         self.AttenuationVoltage = (
