@@ -21,15 +21,15 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
         plt.ylabel("ToT [25 ns]", fontsize=16)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        plt.title(f"{value} vs Injected Charge (Pixel (228, 230))", fontsize=18)
+        # plt.title(f"{value} vs Injected Charge (Pixel (228, 230))", fontsize=18)
     elif value == "clCharge" or value == "Charge Raw" or value == "clCharge Calibrated":
-        plt.xlim(0, 400)
-        plt.ylim(0, 400)
+        plt.xlim(0, 25)
+        plt.ylim(0, 25)
         plt.xlabel("Injected Charge [ke]", fontsize=16)
         plt.ylabel("Measured Charge [ke]", fontsize=16)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        plt.title(f"clCharge Manually Calibrated vs Injected Charge (Pixel ({pixel}))", fontsize=18)
+        # plt.title(f"clCharge Manually Calibrated vs Injected Charge (Pixel ({pixel}))", fontsize=18)
 
     for df, pixels in zip([df1, df2, df3], [1, 2, 4]):
         if len(df) < len(lookuptable):
@@ -45,6 +45,7 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
             markersize=4,
             linestyle="-",
             label=f"{pixels} Pixels",
+            capsize=3,
         )
 
     plt.plot(
@@ -57,7 +58,7 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     plt.legend(fontsize=16)
     plt.grid()
     plt.tight_layout()
-    plt.savefig(f"{value}_vs_InjectedCharge.png", dpi=600)
+    plt.savefig(f"Zoomed2{value}_vs_InjectedCharge.png", dpi=600)
     plt.show()
 
 

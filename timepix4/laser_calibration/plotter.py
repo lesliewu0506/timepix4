@@ -55,7 +55,7 @@ def Plotter(FolderPath: str) -> None:
     plt.bar(voltages, counts.values, width=width)
     plt.xlabel("Attenuation Voltage [V]", fontsize=18)
     plt.ylabel("Number of Pixels", fontsize=18)
-    plt.xticks(np.arange(3.650, 3.750, 0.025),fontsize=16)
+    plt.xticks(np.arange(3.650, 3.750, 0.025), fontsize=16)
     plt.yticks(fontsize=16)
     plt.title(
         "Pixels with Minimal ToT Difference from Reference vs Attenuation Voltage",
@@ -88,7 +88,7 @@ def _PlotSinglePixel(df: pd.DataFrame) -> None:
     ax.set_ylabel("ToT [25 ns]", fontsize=18)
     plt.xlim(3.640, 3.760)
     plt.ylim(120, 260)
-    plt.xticks(np.arange(3.650, 3.750, 0.025),fontsize=16)
+    plt.xticks(np.arange(3.650, 3.750, 0.025), fontsize=16)
     plt.yticks(fontsize=16)
     plt.title(
         "Mean ToT vs Attenuation Voltage for Pixel (228, 230)",
