@@ -12,14 +12,15 @@ def VisualizeToT(filepath: str) -> None:
     # Increase font sizes for readability
     plt.rcParams.update(
         {
-            "font.size": 16,
-            "axes.titlesize": 18,
-            "axes.labelsize": 16,
-            "xtick.labelsize": 14,
-            "ytick.labelsize": 14,
-            "figure.titlesize": 20,
+            "font.size": 20,
+            "axes.titlesize": 22,
+            "axes.labelsize": 20,
+            "xtick.labelsize": 18,
+            "ytick.labelsize": 18,
+            "figure.titlesize": 22,
         }
     )
+    letters = ["a", "b", "c", "d", "e", "f"]
 
     fig, ax = plt.subplots(2, 3, figsize=(24, 16))
     axes = ax.flatten()
@@ -60,14 +61,18 @@ def VisualizeToT(filepath: str) -> None:
         sns.heatmap(
             heatmap_tot,
             cmap="viridis",
-            cbar_kws={"label": "ToT [25 ns]"},
+            cbar_kws={"label": "ToT [25 ns]", "shrink": 0.85, "pad": 0.02},
             square=True,
             annot=True,
             fmt=".0f",
-            annot_kws={"size": 16},
+            annot_kws={"size": 20},
             ax=axes[i],
+            vmax=600,
+            vmin=0,
         )
-        axes[i].set_title(f"Total ToT = {round(mean_tots["tot"].sum())} [25ns]")
+        axes[i].set_title(
+            f"({letters[i]}) Total ToT = {round(mean_tots["tot"].sum())} [25 ns]"
+        )
         for spine in axes[i].spines.values():
             spine.set_visible(True)
             spine.set_linewidth(1)
@@ -81,82 +86,92 @@ def VisualizeToT(filepath: str) -> None:
         sns.heatmap(
             heatmap_charge,
             cmap="viridis",
-            cbar_kws={"label": "Charge [ke]"},
+            cbar_kws={"label": "Charge [ke]", "shrink": 0.85, "pad": 0.02},
             square=True,
             annot=True,
             fmt=".0f",
-            annot_kws={"size": 16},
+            annot_kws={"size": 20},
             ax=axes[i + 3],
+            vmax=60,
+            vmin=0,
         )
         axes[i + 3].set_title(
-            f"Total Charge = {round(mean_tots["charge_manual"].sum())} [ke]"
+            f"({letters[i + 3]}) Total Charge = {round(mean_tots["charge_manual"].sum())} [ke]"
         )
         for spine in axes[i + 3].spines.values():
             spine.set_visible(True)
             spine.set_linewidth(1)
 
-    plt.suptitle("Injected Charge = 50ke", fontweight="bold")
+    # plt.suptitle("Injected Charge = 50ke", fontweight="bold")
     plt.tight_layout()
 
-    line = Line2D(
-        [0, 1], [0.485, 0.485], transform=fig.transFigure, color="black", linewidth=2
+    # line = Line2D(
+    #     [0, 1], [0.485, 0.485], transform=fig.transFigure, color="black", linewidth=2
+    # )
+    # fig.add_artist(line)
+    plt.subplots_adjust(
+        left=0.03,
+        right=0.97,
+        top=0.93,
+        bottom=0.03,
+        hspace=0.15,
+        wspace=0.15,
     )
-    fig.add_artist(line)
-    plt.savefig(f"Heatmap(50ke).png", dpi=600)
+    plt.savefig(f"Heatmap6.png", dpi=600)
     plt.show()
 
 
 def VisualizeToT_single(filepath: str) -> None:
     plt.rcParams.update(
         {
-            'font.size': 16,
-            'axes.titlesize': 18,
-            'axes.labelsize': 16,
-            'xtick.labelsize': 14,
-            'ytick.labelsize': 14,
-            'figure.titlesize': 20,
+            "font.size": 16,
+            "axes.titlesize": 18,
+            "axes.labelsize": 16,
+            "xtick.labelsize": 14,
+            "ytick.labelsize": 14,
+            "figure.titlesize": 20,
         }
     )
 
     fig, ax = plt.subplots(figsize=(10, 8))
 
     file = uproot.open(filepath)
-    tree = file['clusterTree']
+    tree = file["clusterTree"]
 
-    arrays_data = tree.arrays(['col', 'row', 'tot'], library='pd')
+    arrays_data = tree.arrays(["col", "row", "tot"], library="pd")
     df_data = pd.DataFrame(
         {
-            'col': arrays_data['col'].to_list(),
-            'row': arrays_data['row'].to_list(),
-            'tot': arrays_data['tot'].to_list(),
+            "col": arrays_data["col"].to_list(),
+            "row": arrays_data["row"].to_list(),
+            "tot": arrays_data["tot"].to_list(),
         }
     )
 
     df_filtered = FilterAndUnwrap(df_data)
-    mean_tots = df_filtered.groupby(['row', 'col'])['tot'].mean().reset_index()
+    mean_tots = df_filtered.groupby(["row", "col"])["tot"].mean().reset_index()
 
     center_row, center_col = 230, 228
     row_min, row_max = center_row - 3, center_row + 3
     col_min, col_max = center_col - 3, center_col + 3
 
     mean_tots = mean_tots[
-        mean_tots['row'].between(row_min, row_max)
-        & mean_tots['col'].between(col_min, col_max)
+        mean_tots["row"].between(row_min, row_max)
+        & mean_tots["col"].between(col_min, col_max)
     ]
 
     rows = list(range(row_min, row_max + 1))
     cols = list(range(col_min, col_max + 1))
 
-    heatmap_tot = mean_tots.pivot(index='row', columns='col', values='tot')
+    heatmap_tot = mean_tots.pivot(index="row", columns="col", values="tot")
     heatmap_tot = heatmap_tot.reindex(index=rows, columns=cols, fill_value=np.nan)
     sns.heatmap(
         heatmap_tot,
-        cmap='viridis',
-        cbar_kws={'label': 'ToT [25 ns]'},
+        cmap="viridis",
+        cbar_kws={"label": "ToT [25 ns]"},
         square=True,
         annot=True,
-        fmt='.0f',
-        annot_kws={'size': 16},
+        fmt=".0f",
+        annot_kws={"size": 16},
     )
     ax.set_title(f"Total ToT = {round(mean_tots['tot'].sum())} [25 ns]")
     for spine in ax.spines.values():
@@ -164,7 +179,7 @@ def VisualizeToT_single(filepath: str) -> None:
         spine.set_linewidth(1)
 
     plt.tight_layout()
-    plt.savefig('Heatmap_single.png', dpi=600)
+    plt.savefig("Heatmap_four.png", dpi=600)
     plt.show()
 
 

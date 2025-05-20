@@ -6,8 +6,8 @@ def main():
     # # PlotAvgToTHeatmap(filepath)
     # filefit = "Data/Test Pulse Data/N116-TestPulseResults.csv"
     # PlotAvgToTAndFitHeatmaps(filepath, filefit)
-    # VisualizeToT("Data/Laser Measurements/Laser Measurements x/3_550.root")
-    VisualizeToT_single("Data/Laser Measurements/Laser Measurements 1/3_500.root")
+    VisualizeToT("Data/Laser Measurements/Laser Measurements x/3_500.root")
+    # VisualizeToT_single("Data/Laser Measurements/Laser Measurements 4/3_500.root")
 
 
 if __name__ == "__main__":
