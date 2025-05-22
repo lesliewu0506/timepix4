@@ -34,5 +34,5 @@ def PlotRelativePower(FilePath: str) -> None:
     plt.grid()
     plt.legend()
     plt.tight_layout()
-    plt.savefig("RelativePower.png", dpi=600)
+    plt.savefig("RelativePower.png", dpi=300)
     plt.show()

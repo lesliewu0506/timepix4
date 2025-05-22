@@ -117,7 +117,7 @@ def VisualizeToT(filepath: str) -> None:
         hspace=0.15,
         wspace=0.15,
     )
-    plt.savefig(f"Heatmap6.png", dpi=600)
+    plt.savefig(f"Heatmap6.png", dpi=300)
     plt.show()
 
 

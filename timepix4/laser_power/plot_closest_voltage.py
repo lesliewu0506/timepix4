@@ -30,5 +30,5 @@ def PlotClosestVoltage(filepath: str, tot_ref: float) -> None:
     plt.legend()
     plt.grid()
     plt.tight_layout()
-    plt.savefig("ClosestVoltage.png", dpi=600)
+    plt.savefig("ClosestVoltage.png", dpi=300)
     plt.show()
