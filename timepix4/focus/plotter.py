@@ -57,18 +57,18 @@ class ScanPlotter:
             markersize=4,
         )
 
-        # # Plot ToT
-        # ax.errorbar(
-        #     self.df["Position"],
-        #     self.df["mean_tot"],
-        #     yerr=self.df["std_tot"],
-        #     marker="o",
-        #     # linestyle="None",
-        #     linestyle="-",
-        #     capsize=3,
-        #     label=f"Mean ToT ({self.COL}, {self.ROW})",
-        #     markersize=4,
-        # )
+        # Plot ToT
+        ax.errorbar(
+            self.df["Position"],
+            self.df["mean_tot"],
+            yerr=self.df["std_tot"],
+            marker="o",
+            # linestyle="None",
+            linestyle="-",
+            capsize=3,
+            label=f"Mean ToT ({self.COL}, {self.ROW})",
+            markersize=4,
+        )
 
         if self.direction != "z":
             if self.direction == "x":
@@ -140,18 +140,18 @@ class ScanPlotter:
         ax.set_xlabel(f"{self.direction.capitalize()} Position Stage [mm]")
         ax.set_ylabel("ToT [25 ns]")
         ax2.set_ylabel("Cluster size [pixels]")
-        plt.xlim(42.275, 42.50)
+        plt.xlim(38.5, 41)
         # ax.set_title(
         #     f"{self.direction.capitalize()} Scan ToT: Pixel ({self.COL}, {self.ROW})"
         # )
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines + lines2, labels + labels2, loc="center right", fontsize=14)
+        ax.legend(lines + lines2, labels + labels2, loc="best", fontsize=14)
         ax.grid(True)
         plt.tight_layout()
         plt.savefig(
             f"{self.direction.capitalize()}ScanPlot{self.AttenuationVoltage}.png",
-            dpi=600,
+            dpi=300,
         )
         plt.show()
 
