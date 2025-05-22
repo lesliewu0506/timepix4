@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+from scipy.special import erf
 
 
 class ScanPlotter:
@@ -16,7 +18,17 @@ class ScanPlotter:
         )
 
     def Plot_ToT(self) -> None:
-        _, ax = plt.subplots(figsize=(12, 8))
+        plt.rcParams.update(
+            {
+                "font.size": 20,
+                "axes.titlesize": 22,
+                "axes.labelsize": 18,
+                "xtick.labelsize": 16,
+                "ytick.labelsize": 16,
+                "figure.titlesize": 22,
+            }
+        )
+        _, ax = plt.subplots(figsize=(14, 8))
         ax2 = ax.twinx()
 
         # Plot Cluster ToT
@@ -25,9 +37,11 @@ class ScanPlotter:
             self.df["mean_cltot"],
             yerr=self.df["std_cltot"],
             marker="o",
-            linestyle="-",
-            capsize=5,
+            # linestyle="-",
+            linestyle="None",
+            capsize=3,
             label="Mean clToT",
+            markersize=4,
         )
 
         # Plot Cluster Size
@@ -37,21 +51,24 @@ class ScanPlotter:
             yerr=self.df["std_clustersize"],
             marker="s",
             linestyle="None",
-            capsize=5,
+            capsize=3,
             color="green",
             label="Mean cluster size",
+            markersize=4,
         )
 
-        # Plot ToT
-        ax.errorbar(
-            self.df["Position"],
-            self.df["mean_tot"],
-            yerr=self.df["std_tot"],
-            marker="o",
-            linestyle="-",
-            capsize=5,
-            label=f"Mean ToT ({self.COL}, {self.ROW})",
-        )
+        # # Plot ToT
+        # ax.errorbar(
+        #     self.df["Position"],
+        #     self.df["mean_tot"],
+        #     yerr=self.df["std_tot"],
+        #     marker="o",
+        #     # linestyle="None",
+        #     linestyle="-",
+        #     capsize=3,
+        #     label=f"Mean ToT ({self.COL}, {self.ROW})",
+        #     markersize=4,
+        # )
 
         if self.direction != "z":
             if self.direction == "x":
@@ -68,18 +85,31 @@ class ScanPlotter:
                 yerr=self.df["std_tot_prev"],
                 marker="o",
                 linestyle="-",
-                capsize=5,
+                capsize=3,
                 label=label_prev,
+                markersize=4,
             )
-
+                    # Plot ToT
+            ax.errorbar(
+                self.df["Position"],
+                self.df["mean_tot"],
+                yerr=self.df["std_tot"],
+                marker="o",
+                # linestyle="None",
+                linestyle="-",
+                capsize=3,
+                label=f"Mean ToT ({self.COL}, {self.ROW})",
+                markersize=4,
+            )
             ax.errorbar(
                 self.df["Position"],
                 self.df["mean_tot_next"],
                 yerr=self.df["std_tot_next"],
                 marker="o",
                 linestyle="-",
-                capsize=5,
+                capsize=3,
                 label=label_next,
+                markersize=4,
             )
 
         # Plot Attributes
@@ -108,15 +138,15 @@ class ScanPlotter:
         ax2.set_yticks(np.linspace(0, max_cs, num_ticks))
 
         ax.set_xlabel(f"{self.direction.capitalize()} Position Stage [mm]")
-        ax.set_ylabel("ToT [25ns]")
-        ax2.set_ylabel("Mean cluster size [pixels]")
-
-        ax.set_title(
-            f"{self.direction.capitalize()} Scan ToT: Pixel ({self.COL}, {self.ROW})"
-        )
+        ax.set_ylabel("ToT [25 ns]")
+        ax2.set_ylabel("Cluster size [pixels]")
+        plt.xlim(42.275, 42.50)
+        # ax.set_title(
+        #     f"{self.direction.capitalize()} Scan ToT: Pixel ({self.COL}, {self.ROW})"
+        # )
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines + lines2, labels + labels2, loc="best")
+        ax.legend(lines + lines2, labels + labels2, loc="center right", fontsize=14)
         ax.grid(True)
         plt.tight_layout()
         plt.savefig(
