@@ -2,13 +2,13 @@ from timepix4.laser_measurement import *
 
 
 def Process():
-    FolderPath = "Data/Laser Measurements/Laser Measurements 4 (228, 230)"
+    FolderPath = "Data/Laser Measurements/Laser Measurements 1 (228, 230)1"
     processor = Processor(
         FolderPath,
         ROW=230,
         COL=228,
-        COL_Next=1,
-        ROW_Next=-1
+        # COL_Next=1,
+        # ROW_Next=-1
         )
     processor.ProcessFolder()
 
@@ -41,9 +41,9 @@ def Plotter():
         # "Data/Laser Measurements/Laser Measurements 1 (228, 240)/1Results(240, 228).csv",
         # "Data/Laser Measurements/Laser Measurements 2 (228, 240)/2Results(240, 228).csv",
         # "Data/Laser Measurements/Laser Measurements 4 (228, 240)/4Results(240, 228).csv",
-        "Data/Laser Measurements/Laser Measurements 1 (228, 230)/1Results(230, 228).csv",
-        "Data/Laser Measurements/Laser Measurements 2 (228, 230)/2Results(230, 228).csv",
-        "Data/Laser Measurements/Laser Measurements 4 (228, 230)/4Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 1 (228, 230)1/1Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 2 (228, 230)1/2Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 4 (228, 230)1/4Results(230, 228).csv",
         value="clCharge Calibrated",
     )
     # CompareMethodsPlotter(
@@ -52,8 +52,8 @@ def Plotter():
 
 
 def main():
-    Process()
-    # Plotter()
+    # Process()
+    Plotter()
 
 
 if __name__ == "__main__":

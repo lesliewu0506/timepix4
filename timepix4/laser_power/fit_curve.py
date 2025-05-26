@@ -24,7 +24,7 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
         'figure.titlesize': 20
     })
     df_copy = df.copy()
-    df = df[((df["V"] >= 2.9) & (df["V"] <= 4.0))]
+    df = df[((df["V"] >= 3.0) & (df["V"] <= 4.0))]
     P = df["power"].to_numpy()
     V = df["V"].to_numpy()
 
@@ -48,7 +48,7 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
     # plt.title("Power vs Voltage")
     plt.grid()
     plt.tight_layout()
-    plt.savefig("PowerVsVoltage.png", dpi=300)
+    # plt.savefig("PowerVsVoltage.png", dpi=300)
     plt.show()
 
     P_ref = fit_func(V_ref, *popt)
@@ -58,4 +58,4 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
     lut = pd.DataFrame({"voltage": Vs, "relative_factor": factors})
     lut.to_csv("lookup_table.csv", index=False)
 
-    PlotRelativePower("lookup_table.csv")
+    # PlotRelativePower("lookup_table.csv")

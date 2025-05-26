@@ -25,8 +25,8 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     elif value == "clCharge" or value == "Charge Raw" or value == "clCharge Calibrated":
         # plt.xlim(0, 100)
         # plt.ylim(0, 100)
-        # plt.xlim(0, 800)
-        # plt.ylim(0, 800)
+        plt.xlim(0, 1300)
+        plt.ylim(0, 1300)
         plt.xlabel("Injected Charge [ke]", fontsize=16)
         plt.ylabel("Measured Charge [ke]", fontsize=16)
         plt.xticks(fontsize=12)
@@ -60,7 +60,7 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     plt.legend(fontsize=16)
     plt.grid()
     plt.tight_layout()
-    plt.savefig(f"Zoomed{value}_vs_InjectedCharge.png", dpi=300)
+    plt.savefig(f"{value}_vs_InjectedCharge.png", dpi=300)
     plt.show()
 
 
