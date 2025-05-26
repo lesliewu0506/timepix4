@@ -24,7 +24,7 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
         'figure.titlesize': 20
     })
     df_copy = df.copy()
-    df = df[((df["V"] >= 2.8) & (df["V"] <= 4.0))]
+    df = df[((df["V"] >= 2.9) & (df["V"] <= 4.0))]
     P = df["power"].to_numpy()
     V = df["V"].to_numpy()
 
@@ -51,12 +51,11 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
     plt.savefig("PowerVsVoltage.png", dpi=300)
     plt.show()
 
-    # P_ref = fit_func(V_ref, *popt)
-    # # voltages from 4.000 down to 3.050 in steps of 0.025
-    # Vs = np.linspace(4.0, 3.05, int(round((4.0 - 3.05) / 0.025)) + 1)
-    # Vs = np.round(Vs, 3)
-    # factors = fit_func(Vs, *popt) / P_ref
-    # lut = pd.DataFrame({"voltage": Vs, "relative_factor": factors})
-    # lut.to_csv("lookup_table.csv", index=False)
+    P_ref = fit_func(V_ref, *popt)
+    Vs = np.linspace(4.0, 2.9, int(round((4.0 - 2.9) / 0.025)) + 1)
+    Vs = np.round(Vs, 3)
+    factors = fit_func(Vs, *popt) / P_ref
+    lut = pd.DataFrame({"voltage": Vs, "relative_factor": factors})
+    lut.to_csv("lookup_table.csv", index=False)
 
-    # PlotRelativePower("lookup_table.csv")
+    PlotRelativePower("lookup_table.csv")

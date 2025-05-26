@@ -5,8 +5,8 @@ import numpy as np
 
 def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     pixel = file1.split("/")[-1].split(".")[0].split("s")[-1]
-    # lookuptable = pd.read_csv(f"lookup_table{pixel}.csv")
-    lookuptable = pd.read_csv(f"lookup_table(230, 228).csv")
+    lookuptable = pd.read_csv("lookup_table.csv")
+    # lookuptable = pd.read_csv(f"lookup_table(230, 228).csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
     lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
     plt.subplots(figsize=(14, 8))
@@ -25,8 +25,8 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
     elif value == "clCharge" or value == "Charge Raw" or value == "clCharge Calibrated":
         plt.xlim(0, 100)
         plt.ylim(0, 100)
-        # plt.xlim(0, 400)
-        # plt.ylim(0, 400)
+        # plt.xlim(0, 800)
+        # plt.ylim(0, 800)
         plt.xlabel("Injected Charge [ke]", fontsize=16)
         plt.ylabel("Measured Charge [ke]", fontsize=16)
         plt.xticks(fontsize=12)
@@ -51,11 +51,11 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
         )
 
     plt.plot(
-        np.arange(0, 400, 1),
-        np.arange(0, 400, 1),
+        np.arange(0, 1600, 1),
+        np.arange(0, 1600, 1),
         linestyle="dashdot",
         color="black",
-        label="Ideal Response",
+        label="Expected Response",
     )
     plt.legend(fontsize=16)
     plt.grid()
