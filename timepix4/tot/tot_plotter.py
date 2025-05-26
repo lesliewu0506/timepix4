@@ -15,26 +15,29 @@ def ToTPlotter(filepath: str, COL: int = 228, ROW: int = 230) -> None:
     )
     df = pd.read_csv(filepath)
     df = df[(df["col"] == COL) & (df["row"] == ROW)]
-    df = df[((df["Charge"] < 18) & (df["Charge"] > 0))]
+    df = df[df["tot"] > 0]
+    # df = df[((df["Charge"] < 18) & (df["Charge"] > 0))]
     # mean = df[df["tot"] > 150]["tot"].mean()
     # mean = df["Charge"].mean()
     plt.figure(figsize=(12, 8))
     plt.hist(
-        # df["tot"] * 0.10437223461349657,
-        df["Charge"],
-        bins=120,
+        # df["tot"],
+        df["tot"] * 0.10437223461349657,
+        # df["Charge"],
+        bins=180,
         color="blue",
         alpha=0.7,
         # label=f"Pixel ({COL}, {ROW}); Mean above threshold: {mean:.2f} [25 ns]",
     )
-    # plt.axvline(150, color="red", linestyle="--", label="Threshold")
     # plt.xlabel("ToT [25 ns]")
-    plt.xlabel("Test Pulse Calibrated Charge [ke]")
+    plt.xlabel("Charge [ke]")
     plt.ylabel("Counts")
     # plt.title(f"ToT Histogram for Pixel ({COL}, {ROW})")
     # plt.xlim(0, 200)
+    # plt.ylim(0, 70)
     # plt.xticks(range(0, 201, 20))
     plt.xlim(0, 18)
+    plt.ylim(0, 40)
     plt.xticks(range(0, 19, 2))
     vlines = [
         {"x": 2.225, "color": "red", "label": "8.01 keV"},
