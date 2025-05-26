@@ -32,17 +32,17 @@ class ScanPlotter:
         ax2 = ax.twinx()
 
         # Plot Cluster ToT
-        # ax.errorbar(
-        #     self.df["Position"],
-        #     self.df["mean_cltot"],
-        #     yerr=self.df["std_cltot"],
-        #     marker="o",
-        #     # linestyle="-",
-        #     linestyle="None",
-        #     capsize=3,
-        #     label="Mean clToT",
-        #     markersize=4,
-        # )
+        ax.errorbar(
+            self.df["Position"],
+            self.df["mean_cltot"],
+            yerr=self.df["std_cltot"],
+            marker="o",
+            # linestyle="-",
+            linestyle="None",
+            capsize=3,
+            label="Mean clToT",
+            markersize=4,
+        )
 
         # Plot Cluster Size
         ax2.errorbar(
@@ -57,18 +57,18 @@ class ScanPlotter:
             markersize=4,
         )
 
-        # # Plot ToT
-        # ax.errorbar(
-        #     self.df["Position"],
-        #     self.df["mean_tot"],
-        #     yerr=self.df["std_tot"],
-        #     marker="o",
-        #     # linestyle="None",
-        #     linestyle="-",
-        #     capsize=3,
-        #     label=f"Mean ToT ({self.COL}, {self.ROW})",
-        #     markersize=4,
-        # )
+        # Plot ToT
+        ax.errorbar(
+            self.df["Position"],
+            self.df["mean_tot"],
+            yerr=self.df["std_tot"],
+            marker="o",
+            # linestyle="None",
+            linestyle="-",
+            capsize=3,
+            label=f"Mean ToT ({self.COL}, {self.ROW})",
+            markersize=4,
+        )
 
         if self.direction != "z":
             if self.direction == "x":
@@ -89,7 +89,7 @@ class ScanPlotter:
                 label=label_prev,
                 markersize=4,
             )
-                    # Plot ToT
+            # Plot ToT
             ax.errorbar(
                 self.df["Position"],
                 self.df["mean_tot"],
@@ -137,12 +137,12 @@ class ScanPlotter:
         ax.set_yticks(left_ticks)
         ax2.set_yticks(np.linspace(0, max_cs, num_ticks))
 
-        ax.set_xlabel(f"{self.direction.capitalize()} Position Stage [mm]")
+        ax.set_xlabel(f"{self.direction.capitalize()} position [mm]")
         ax.set_ylabel("ToT [25 ns]")
         ax2.set_ylabel("Cluster size [pixels]")
-        # plt.xlim(38.5, 41)
+        plt.xlim(38.5, 41)
         # plt.xlim(18.125, 18.325)
-        plt.xlim(42.275, 42.50)
+        # plt.xlim(42.275, 42.50)
         # ax.set_title(
         #     f"{self.direction.capitalize()} Scan ToT: Pixel ({self.COL}, {self.ROW})"
         # )
@@ -158,7 +158,17 @@ class ScanPlotter:
         plt.show()
 
     def Plot_Charge(self) -> None:
-        _, ax = plt.subplots(figsize=(12, 8))
+        plt.rcParams.update(
+            {
+                "font.size": 20,
+                "axes.titlesize": 22,
+                "axes.labelsize": 18,
+                "xtick.labelsize": 16,
+                "ytick.labelsize": 16,
+                "figure.titlesize": 22,
+            }
+        )
+        _, ax = plt.subplots(figsize=(14, 8))
         ax2 = ax.twinx()
 
         # Plot Cluster Charge
@@ -167,9 +177,10 @@ class ScanPlotter:
             self.df["mean_clcharge"],
             yerr=self.df["std_clcharge"],
             marker="o",
-            linestyle="-",
-            capsize=5,
+            linestyle="None",
+            capsize=3,
             label=f"Mean clCharge",
+            markersize=4,
         )
 
         # Plot Cluster Size
@@ -179,9 +190,10 @@ class ScanPlotter:
             yerr=self.df["std_clustersize"],
             marker="s",
             linestyle="None",
-            capsize=5,
+            capsize=3,
             color="green",
             label="Mean cluster size",
+            markersize=4,
         )
 
         # Plot Charge
@@ -190,9 +202,10 @@ class ScanPlotter:
             self.df["mean_charge"],
             yerr=self.df["std_charge"],
             marker="o",
-            linestyle="-",
-            capsize=5,
+            linestyle="None",
+            capsize=3,
             label=f"Mean Charge ({self.COL}, {self.ROW})",
+            markersize=4,
         )
         if self.direction != "z":
             if self.direction == "x":
@@ -209,18 +222,30 @@ class ScanPlotter:
                 yerr=self.df["std_charge_prev"],
                 marker="o",
                 linestyle="-",
-                capsize=5,
+                capsize=3,
                 label=label_prev,
+                markersize=4,
             )
-
+            # Plot Charge
+            ax.errorbar(
+                self.df["Position"],
+                self.df["mean_charge"],
+                yerr=self.df["std_charge"],
+                marker="o",
+                linestyle="-",
+                capsize=3,
+                label=f"Mean Charge ({self.COL}, {self.ROW})",
+                markersize=4,
+            )
             ax.errorbar(
                 self.df["Position"],
                 self.df["mean_charge_next"],
                 yerr=self.df["std_charge_next"],
                 marker="o",
                 linestyle="-",
-                capsize=5,
+                capsize=3,
                 label=label_next,
+                markersize=4,
             )
 
         # Plot Attributes
@@ -248,18 +273,23 @@ class ScanPlotter:
         ax.set_yticks(left_ticks)
         ax2.set_yticks(np.linspace(0, max_cs, num_ticks))
 
-        ax.set_xlabel(f"{self.direction.capitalize()} Position Stage [mm]")
+        ax.set_xlabel(f"{self.direction.capitalize()} position [mm]")
         ax.set_ylabel("Charge [ke]")
-        ax.set_title(
-            f"{self.direction.capitalize()} Scan Charge: Pixel ({self.COL}, {self.ROW})"
-        )
+        ax2.set_ylabel("Cluster size [pixels]")
+        # ax.set_title(
+        #     f"{self.direction.capitalize()} Scan Charge: Pixel ({self.COL}, {self.ROW})"
+        # )
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines + lines2, labels + labels2, loc="best")
+        ax.legend(lines + lines2, labels + labels2, loc="center right", fontsize=14)
         ax.grid(True)
+        # plt.xlim(42.275, 42.50)
+        # plt.xlim(18.125, 18.325)
+        plt.xlim(38.5, 41)
         plt.tight_layout()
+
         plt.savefig(
             f"{self.direction.capitalize()}ScanPlotCharge{self.AttenuationVoltage}.png",
-            dpi=600,
+            dpi=300,
         )
         plt.show()

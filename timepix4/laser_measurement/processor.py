@@ -99,9 +99,9 @@ class Processor:
             (self.dfExp["row"] == pixel[0]) & (self.dfExp["col"] == pixel[1])
         ].copy()
         self._ComputeTargetPixelStats()
-        if self.AttenuationVoltage == "4.000" and pixel[0] == 230 and pixel[1] == 228:
-            print(self.dfTargetPixel["clCharge Calibrated"].describe())
-            print(self.dfTargetPixel[self.dfTargetPixel["clCharge Calibrated"] > 10])
+        # if self.AttenuationVoltage == "4.000" and pixel[0] == 230 and pixel[1] == 228:
+            # print(self.dfTargetPixel["clCharge Calibrated"].describe())
+            # print(self.dfTargetPixel[self.dfTargetPixel["clCharge Calibrated"] > 10])
 
     def _ComputeTargetPixelStats(self) -> None:
         self.dfTargetPixel["cltot"] = self.dfTargetPixel["cltot"].astype(float)

@@ -23,8 +23,8 @@ def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
         plt.yticks(fontsize=12)
         # plt.title(f"{value} vs Injected Charge (Pixel (228, 230))", fontsize=18)
     elif value == "clCharge" or value == "Charge Raw" or value == "clCharge Calibrated":
-        plt.xlim(0, 100)
-        plt.ylim(0, 100)
+        # plt.xlim(0, 100)
+        # plt.ylim(0, 100)
         # plt.xlim(0, 800)
         # plt.ylim(0, 800)
         plt.xlabel("Injected Charge [ke]", fontsize=16)
