@@ -32,17 +32,17 @@ class ScanPlotter:
         ax2 = ax.twinx()
 
         # Plot Cluster ToT
-        ax.errorbar(
-            self.df["Position"],
-            self.df["mean_cltot"],
-            yerr=self.df["std_cltot"],
-            marker="o",
-            # linestyle="-",
-            linestyle="None",
-            capsize=3,
-            label="Mean clToT",
-            markersize=4,
-        )
+        # ax.errorbar(
+        #     self.df["Position"],
+        #     self.df["mean_cltot"],
+        #     yerr=self.df["std_cltot"],
+        #     marker="o",
+        #     # linestyle="-",
+        #     linestyle="None",
+        #     capsize=3,
+        #     label="Mean clToT",
+        #     markersize=4,
+        # )
 
         # Plot Cluster Size
         ax2.errorbar(
@@ -57,18 +57,18 @@ class ScanPlotter:
             markersize=4,
         )
 
-        # Plot ToT
-        ax.errorbar(
-            self.df["Position"],
-            self.df["mean_tot"],
-            yerr=self.df["std_tot"],
-            marker="o",
-            # linestyle="None",
-            linestyle="-",
-            capsize=3,
-            label=f"Mean ToT ({self.COL}, {self.ROW})",
-            markersize=4,
-        )
+        # # Plot ToT
+        # ax.errorbar(
+        #     self.df["Position"],
+        #     self.df["mean_tot"],
+        #     yerr=self.df["std_tot"],
+        #     marker="o",
+        #     # linestyle="None",
+        #     linestyle="-",
+        #     capsize=3,
+        #     label=f"Mean ToT ({self.COL}, {self.ROW})",
+        #     markersize=4,
+        # )
 
         if self.direction != "z":
             if self.direction == "x":
@@ -140,7 +140,9 @@ class ScanPlotter:
         ax.set_xlabel(f"{self.direction.capitalize()} Position Stage [mm]")
         ax.set_ylabel("ToT [25 ns]")
         ax2.set_ylabel("Cluster size [pixels]")
-        plt.xlim(38.5, 41)
+        # plt.xlim(38.5, 41)
+        # plt.xlim(18.125, 18.325)
+        plt.xlim(42.275, 42.50)
         # ax.set_title(
         #     f"{self.direction.capitalize()} Scan ToT: Pixel ({self.COL}, {self.ROW})"
         # )

@@ -580,13 +580,13 @@ def MultipleErrorFit(filepaths: list[str]) -> None:
 
 if __name__ == "__main__":
     # N116 = "Data/Threshold Test Data/N116/FinalHits.csv"
-    N112 = "Data/Threshold Test Data/N112/FinalHits.csv"
-    N10 = "Data/Threshold Test Data/N10/FinalHits.csv"
-    N113 = "Data/Threshold Test Data/N113/FinalHits.csv"
+    # N112 = "Data/Threshold Test Data/N112/FinalHits.csv"
+    # N10 = "Data/Threshold Test Data/N10/FinalHits.csv"
+    # N113 = "Data/Threshold Test Data/N113/FinalHits.csv"
     N116 = "Data/Threshold Test Data/N116_2/FinalHits.csv"
     # filepaths = [N10, N112, N113, N116]
     # filepaths = [N116]
-    filepaths = [N10, N116]
+    filepaths = [N116]
 
     # PlotAveragePixels(filepaths)
     # PlotSectorAverages(filepaths)
