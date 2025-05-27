@@ -2,7 +2,6 @@ from timepix4.utils import createdicts
 import uproot, ast
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 import seaborn as sns
 import numpy as np
 
@@ -40,6 +39,7 @@ def VisualizeToT(filepath: str) -> None:
 
         df_filtered = FilterAndUnwrap(df_data)
         mean_tots = df_filtered.groupby(["row", "col"])["tot"].mean().reset_index()
+        std_tots = df_filtered.groupby(["row", "col"])["tot"].std().reset_index()
 
         center_row, center_col = 230, 228
         row_min, row_max = center_row - 3, center_row + 3
@@ -49,29 +49,54 @@ def VisualizeToT(filepath: str) -> None:
             mean_tots["row"].between(row_min, row_max)
             & mean_tots["col"].between(col_min, col_max)
         ]
-
+        std_tots = std_tots[
+            std_tots["row"].between(row_min, row_max)
+            & std_tots["col"].between(col_min, col_max)
+        ]
         mean_tots["charge_manual"] = mean_tots.apply(
             lambda r: r["tot"] * CorrectionFactors.get((r["col"], r["row"]), 0.10),
             axis=1,
         )
+
+        std_tots["charge_manual"] = std_tots.apply(
+            lambda r: r["tot"] * CorrectionFactors.get((r["col"], r["row"]), 0.10),
+            axis=1,
+        )
+
         heatmap_tot = mean_tots.pivot(index="row", columns="col", values="tot")
         rows = list(range(row_min, row_max + 1))
         cols = list(range(col_min, col_max + 1))
+        heatmap_tot = heatmap_tot.reindex(index=rows, columns=cols, fill_value=np.nan)
+
+        std_heatmap_tot = std_tots.pivot(
+            index="row", columns="col", values="tot"
+        ).reindex(index=rows, columns=cols, fill_value=np.nan)
+        annot_tot = heatmap_tot.combine(
+            std_heatmap_tot,
+            lambda m_col, s_col: (
+                m_col.map(lambda v: f"{v:.3g}")
+                + "\n±"
+                + s_col.map(lambda v: f"{v:.3g}")
+            ),
+        )
+
+        total_mean_tot = mean_tots["tot"].sum()
+        total_std_tot = np.sqrt((std_tots["tot"] ** 2).sum())
         heatmap_tot = heatmap_tot.reindex(index=rows, columns=cols, fill_value=np.nan)
         sns.heatmap(
             heatmap_tot,
             cmap="viridis",
             cbar_kws={"label": "ToT [25 ns]", "shrink": 0.85, "pad": 0.02},
             square=True,
-            annot=True,
-            fmt=".0f",
-            annot_kws={"size": 20},
+            annot=annot_tot,
+            fmt="",
+            annot_kws={"size": 16},
             ax=axes[i],
             vmax=600,
             vmin=0,
         )
         axes[i].set_title(
-            f"({letters[i]}) Total ToT = {round(mean_tots["tot"].sum())} [25 ns]"
+            f"({letters[i]}) Total ToT = {total_mean_tot:.3g} ± {total_std_tot:.3g} [25 ns]"
         )
         for spine in axes[i].spines.values():
             spine.set_visible(True)
@@ -83,32 +108,42 @@ def VisualizeToT(filepath: str) -> None:
         heatmap_charge = heatmap_charge.reindex(
             index=rows, columns=cols, fill_value=np.nan
         )
+        # Pivot std charge and prepare annotation DataFrame
+        std_heatmap_charge = std_tots.pivot(
+            index="row", columns="col", values="charge_manual"
+        ).reindex(index=rows, columns=cols, fill_value=np.nan)
+
+        annot_charge = heatmap_charge.combine(
+            std_heatmap_charge,
+            lambda m_col, s_col: (
+                m_col.map(lambda v: f"{v:.2g}")
+                + "\n±"
+                + s_col.map(lambda v: f"{v:.2g}")
+            ),
+        )
+        # Compute total charge mean and std
+        total_mean_charge = mean_tots["charge_manual"].sum()
+        total_std_charge = np.sqrt((std_tots["charge_manual"] ** 2).sum())
         sns.heatmap(
             heatmap_charge,
             cmap="viridis",
             cbar_kws={"label": "Charge [ke]", "shrink": 0.85, "pad": 0.02},
             square=True,
-            annot=True,
-            fmt=".0f",
-            annot_kws={"size": 20},
+            annot=annot_charge,
+            fmt="",
+            annot_kws={"size": 16},
             ax=axes[i + 3],
             vmax=60,
             vmin=0,
         )
         axes[i + 3].set_title(
-            f"({letters[i + 3]}) Total Charge = {round(mean_tots["charge_manual"].sum())} [ke]"
+            f"({letters[i + 3]}) Total Charge = {total_mean_charge:.2g} ± {total_std_charge:.2g} [ke]"
         )
         for spine in axes[i + 3].spines.values():
             spine.set_visible(True)
             spine.set_linewidth(1)
 
-    # plt.suptitle("Injected Charge = 50ke", fontweight="bold")
     plt.tight_layout()
-
-    # line = Line2D(
-    #     [0, 1], [0.485, 0.485], transform=fig.transFigure, color="black", linewidth=2
-    # )
-    # fig.add_artist(line)
     plt.subplots_adjust(
         left=0.03,
         right=0.97,
@@ -170,7 +205,7 @@ def VisualizeToT_single(filepath: str) -> None:
         cbar_kws={"label": "ToT [25 ns]"},
         square=True,
         annot=True,
-        fmt=".0f",
+        fmt=".3g",
         annot_kws={"size": 16},
     )
     ax.set_title(f"Total ToT = {round(mean_tots['tot'].sum())} [25 ns]")
