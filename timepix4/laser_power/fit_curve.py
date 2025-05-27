@@ -39,7 +39,7 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
     Vfine = np.linspace(2.8, 4.0, 200)
     plt.figure(figsize=(12, 8))
     plt.scatter(df_copy["V"].to_numpy(), df_copy["power"].to_numpy(), marker="o", color="b")
-    plt.plot(Vfine, fit_func(Vfine, *popt), linestyle="-", color="orange", label=f"Fit parameters: A = {popt[0]:.0f}, k = {popt[1]:.2f}, C ={popt[2]:.2f}")
+    plt.plot(Vfine, fit_func(Vfine, *popt), linestyle="-", color="orange", label=f"Fit parameters: A = {popt[0]:.3g}, k = {popt[1]:.3g}, C ={popt[2]:.3g}")
     plt.xlabel("Attenuation Voltage [V]")
     plt.ylabel("Power [$\mu$W]")
     plt.xlim(2.8, 4)
@@ -48,14 +48,14 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
     # plt.title("Power vs Voltage")
     plt.grid()
     plt.tight_layout()
-    # plt.savefig("PowerVsVoltage.png", dpi=300)
+    plt.savefig("PowerVsVoltage.png", dpi=300)
     plt.show()
 
-    P_ref = fit_func(V_ref, *popt)
-    Vs = np.linspace(4.0, 2.9, int(round((4.0 - 2.9) / 0.025)) + 1)
-    Vs = np.round(Vs, 3)
-    factors = fit_func(Vs, *popt) / P_ref
-    lut = pd.DataFrame({"voltage": Vs, "relative_factor": factors})
-    lut.to_csv("lookup_table.csv", index=False)
+    # P_ref = fit_func(V_ref, *popt)
+    # Vs = np.linspace(4.0, 2.9, int(round((4.0 - 2.9) / 0.025)) + 1)
+    # Vs = np.round(Vs, 3)
+    # factors = fit_func(Vs, *popt) / P_ref
+    # lut = pd.DataFrame({"voltage": Vs, "relative_factor": factors})
+    # lut.to_csv("lookup_table.csv", index=False)
 
     # PlotRelativePower("lookup_table.csv")
