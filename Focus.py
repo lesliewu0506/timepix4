@@ -2,7 +2,7 @@ from timepix4.focus import FocusProcessor, ScanPlotter, HitmapVisualizer
 
 
 def main():
-    # focus = FocusProcessor(AttenuationVoltage=3.5, direction="y")
+    # focus = FocusProcessor(AttenuationVoltage=3.5, direction="z")
     # focus.ProcessAll()
     plotter = ScanPlotter(direction="z", AttenuationVoltage=3.5, ROW=230, COL=228)
     plotter.Plot_ToT()

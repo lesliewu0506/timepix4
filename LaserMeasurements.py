@@ -2,53 +2,71 @@ from timepix4.laser_measurement import *
 
 
 def Process():
-    FolderPath = "Data/Laser Measurements/Laser Measurements 1 (228, 230)1"
+    # processall()
+
+    FolderPath = (
+        f"Data/Laser Measurements/Laser Measurements 1 (238, 240)"
+    )
     processor = Processor(
         FolderPath,
-        ROW=230,
-        COL=228,
-        # COL_Next=1,
-        # ROW_Next=-1
-        )
+        ROW=240,
+        COL=238,
+        COL_Next=1,
+        ROW_Next=-1,
+    )
     processor.ProcessFolder()
 
 
-def Plotter():
+def processall():
+    for col in [228, 238]:
+        for row in [230, 240]:
+            for x in ["1", "2", "4"]:
+                cnext = 0
+                rnext = 0
+                if x == "2":
+                    cnext = 1
+                    rnext = 0
+                elif x == "4":
+                    cnext = 1
+                    rnext = -1
+                FolderPath = (
+                    f"Data/Laser Measurements/Laser Measurements {x} ({col}, {row})"
+                )
+                processor = Processor(
+                    FolderPath,
+                    ROW=row,
+                    COL=col,
+                    COL_Next=cnext,
+                    ROW_Next=rnext,
+                )
+                processor.ProcessFolder()
 
-    folders = [
-        "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 2/2Results(229, 228).csv",
-        "Data/Laser Measurements/Laser Measurements 2/2Results(230, 228).csv",
-        "Data/Laser Measurements/Laser Measurements 4/4Results(230, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 4/4Results(229, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 4/4Results(230, 229).csv",
-        # "Data/Laser Measurements/Laser Measurements 4/4Results(229, 229).csv",
+
+def Plotter():
+    folder_228_230 = [
+        "Data/Laser Measurements/Laser Measurements 1 (228, 230)/1Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 2 (228, 230)/2Results(230, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 4 (228, 230)/4Results(230, 228).csv",
     ]
-    # folders = [
-    #     "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
-    #     "Data/Laser Measurements/Laser Measurements 2/2AllPixels_SumResults.csv",
-    #     "Data/Laser Measurements/Laser Measurements 4/4AllPixels_SumResults.csv",
-    # ]
-    # ToTChargePlotter(folders)
-    # LaserPlotterMultiple(
+    folder_228_240 = [
+        "Data/Laser Measurements/Laser Measurements 1 (228, 240)/1Results(240, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 2 (228, 240)/2Results(240, 228).csv",
+        "Data/Laser Measurements/Laser Measurements 4 (228, 240)/4Results(240, 228).csv",
+    ]
+    folder_238_230 = [
+        "Data/Laser Measurements/Laser Measurements 1 (238, 230)/1Results(230, 238).csv",
+        "Data/Laser Measurements/Laser Measurements 2 (238, 230)/2Results(230, 238).csv",
+        "Data/Laser Measurements/Laser Measurements 4 (238, 230)/4Results(230, 238).csv",
+    ]
+    folder_238_240 = [
+        "Data/Laser Measurements/Laser Measurements 1 (238, 240)/1Results(240, 238).csv",
+        "Data/Laser Measurements/Laser Measurements 2 (238, 240)/2Results(240, 238).csv",
+        "Data/Laser Measurements/Laser Measurements 4 (238, 240)/4Results(240, 238).csv",
+    ]
     LaserPlotter(
-        # "Data/Laser Measurements/Laser Measurements 1 V3/1Results(240, 238).csv",
-        # "Data/Laser Measurements/Laser Measurements 2 V3/2Results(240, 238).csv",
-        # "Data/Laser Measurements/Laser Measurements 4 V3/4Results(240, 238).csv",
-        # "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 2/2Results(230, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 4/4Results(230, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 1 (228, 240)/1Results(240, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 2 (228, 240)/2Results(240, 228).csv",
-        # "Data/Laser Measurements/Laser Measurements 4 (228, 240)/4Results(240, 228).csv",
-        "Data/Laser Measurements/Laser Measurements 1 (228, 230)1/1Results(230, 228).csv",
-        "Data/Laser Measurements/Laser Measurements 2 (228, 230)1/2Results(230, 228).csv",
-        "Data/Laser Measurements/Laser Measurements 4 (228, 230)1/4Results(230, 228).csv",
+        [folder_228_230, folder_228_240, folder_238_230, folder_238_240],
         value="clCharge Calibrated",
     )
-    # CompareMethodsPlotter(
-    #     "Data/Laser Measurements/Laser Measurements 1/1Results(230, 228).csv"
-    # )
 
 
 def main():

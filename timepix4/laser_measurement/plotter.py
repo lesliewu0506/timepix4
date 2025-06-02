@@ -1,67 +1,77 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 
 
-def LaserPlotter(file1, file2, file3, value: str = "Tot") -> None:
-    pixel = file1.split("/")[-1].split(".")[0].split("s")[-1]
+def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
     lookuptable = pd.read_csv("lookup_table.csv")
-    # lookuptable = pd.read_csv(f"lookup_table(230, 228).csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
     lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
-    plt.subplots(figsize=(14, 8))
-    df1 = pd.read_csv(file1)
-    df2 = pd.read_csv(file2)
-    df3 = pd.read_csv(file3)
 
-    if value == "Tot" or value == "clTot":
-        plt.xlim(0, 400)
-        plt.ylim(0, 2000)
-        plt.xlabel("Injected Charge [ke]", fontsize=16)
-        plt.ylabel("ToT [25 ns]", fontsize=16)
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
-        # plt.title(f"{value} vs Injected Charge (Pixel (228, 230))", fontsize=18)
-    elif value == "clCharge" or value == "Charge Raw" or value == "clCharge Calibrated":
-        # plt.xlim(0, 100)
-        # plt.ylim(0, 100)
-        plt.xlim(0, 1300)
-        plt.ylim(0, 1300)
-        plt.xlabel("Injected Charge [ke]", fontsize=16)
-        plt.ylabel("Measured Charge [ke]", fontsize=16)
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
-        # plt.title(f"clCharge Manually Calibrated vs Injected Charge (Pixel ({pixel}))", fontsize=18)
+    for pixel in folder:
+        file1 = pixel[0]
+        file2 = pixel[1]
+        file3 = pixel[2]
+        Pixel = file1.split("/")[-2].split("1")[-1].split(" ", 1)[-1]
+        fig, ax = plt.subplots(figsize=(12, 10))
+        df1 = pd.read_csv(file1)
+        df2 = pd.read_csv(file2)
+        df3 = pd.read_csv(file3)
 
-    for df, pixels in zip([df1, df2, df3], [1, 2, 4]):
-        if len(df) < len(lookuptable):
-            lut = lookuptable.iloc[: len(df)]
-        else:
-            lut = lookuptable
+        if value == "Tot" or value == "clTot":
+            plt.xlim(0, 400)
+            plt.ylim(0, 2000)
+            plt.xlabel("Injected Charge [ke]", fontsize=16)
+            plt.ylabel("ToT [25 ns]", fontsize=16)
+            plt.xticks(fontsize=12)
+            plt.yticks(fontsize=12)
+        elif value == "clCharge" or value == "Charge Raw" or value == "clCharge Calibrated":
+            # plt.xlim(0, 100)
+            # plt.ylim(0, 100)
+            plt.xlim(0, 600)
+            plt.ylim(0, 600)
+            plt.xlabel("Injected Charge [ke]", fontsize=16)
+            plt.ylabel("Measured Charge [ke]", fontsize=16)
+            plt.xticks(fontsize=12)
+            plt.yticks(fontsize=12)
 
-        plt.errorbar(
-            lut["Charge"],
-            df[f"Mean {value}"],
-            yerr=df[f"Std {value}"],
-            fmt="o",
-            markersize=4,
-            linestyle="-",
-            label=f"{pixels} Pixels",
-            capsize=3,
+        for df, pixels in zip([df1, df2, df3], [1, 2, 4]):
+            if len(df) < len(lookuptable):
+                lut = lookuptable.iloc[: len(df)]
+            else:
+                lut = lookuptable
+
+            plt.errorbar(
+                lut["Charge"],
+                df[f"Mean {value}"],
+                yerr=df[f"Std {value}"],
+                fmt="o",
+                markersize=4,
+                linestyle="-",
+                label=f"{pixels} Pixels",
+                capsize=3,
+            )
+
+        plt.plot(
+            np.arange(0, 600, 1),
+            np.arange(0, 600, 1),
+            linestyle="dashdot",
+            color="black",
+            label="Expected Response",
         )
+        # ax.xaxis.set_minor_locator(ticker.MultipleLocator(50))
+        # ax.yaxis.set_minor_locator(ticker.MultipleLocator(50))
+        ax.xaxis.set_minor_locator(ticker.MultipleLocator(50))
+        ax.yaxis.set_minor_locator(ticker.MultipleLocator(50))
+        ax.tick_params(axis="both", which="minor", length=5)
+        ax.tick_params(axis="both", which="minor", direction="in", labelbottom=False)
 
-    plt.plot(
-        np.arange(0, 1600, 1),
-        np.arange(0, 1600, 1),
-        linestyle="dashdot",
-        color="black",
-        label="Expected Response",
-    )
-    plt.legend(fontsize=16)
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig(f"{value}_vs_InjectedCharge.png", dpi=300)
-    plt.show()
+        plt.legend(fontsize=16)
+        plt.grid()
+        plt.tight_layout()
+        plt.savefig(f"{Pixel}{value}_vs_InjectedCharge.png", dpi=300)
+        plt.show()
 
 
 def LaserPlotterMultiple(file1, file2: str, file3: str, value: str) -> None:

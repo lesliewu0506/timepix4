@@ -281,7 +281,7 @@ class ScanPlotter:
         # )
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines + lines2, labels + labels2, loc="center right", fontsize=14)
+        ax.legend(lines + lines2, labels + labels2, loc="best", fontsize=14)
         ax.grid(True)
         # plt.xlim(42.275, 42.50)
         # plt.xlim(18.125, 18.325)
