@@ -3,5 +3,5 @@ data/
 test.dSYM/
 .DS_Store
 __pycache__/
-"01-Important Graphs"/
-"02-Graphs"/
+01-Important_Graphs/
+02-Graphs/
