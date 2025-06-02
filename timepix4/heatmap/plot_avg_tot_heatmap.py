@@ -76,7 +76,7 @@ def VisualizeToT(filepath: str) -> None:
             lambda m_col, s_col: (
                 m_col.map(lambda v: f"{v:.3g}")
                 + "\n±"
-                + s_col.map(lambda v: f"{v:.3g}")
+                + s_col.map(lambda v: f"{v:.1g}")
             ),
         )
 
@@ -90,13 +90,13 @@ def VisualizeToT(filepath: str) -> None:
             square=True,
             annot=annot_tot,
             fmt="",
-            annot_kws={"size": 16},
+            annot_kws={"size": 20},
             ax=axes[i],
             vmax=600,
             vmin=0,
         )
         axes[i].set_title(
-            f"({letters[i]}) Total ToT = {total_mean_tot:.3g} ± {total_std_tot:.3g} [25 ns]"
+            f"({letters[i]}) Total ToT = {total_mean_tot:.3g} ± {round(total_std_tot)} [25 ns]"
         )
         for spine in axes[i].spines.values():
             spine.set_visible(True)
@@ -118,7 +118,7 @@ def VisualizeToT(filepath: str) -> None:
             lambda m_col, s_col: (
                 m_col.map(lambda v: f"{v:.2g}")
                 + "\n±"
-                + s_col.map(lambda v: f"{v:.2g}")
+                + s_col.map(lambda v: f"{v:.1g}")
             ),
         )
         # Compute total charge mean and std
@@ -131,13 +131,13 @@ def VisualizeToT(filepath: str) -> None:
             square=True,
             annot=annot_charge,
             fmt="",
-            annot_kws={"size": 16},
+            annot_kws={"size": 20},
             ax=axes[i + 3],
             vmax=60,
             vmin=0,
         )
         axes[i + 3].set_title(
-            f"({letters[i + 3]}) Total Charge = {total_mean_charge:.2g} ± {total_std_charge:.2g} [ke]"
+            f"({letters[i + 3]}) Total Charge = {total_mean_charge:.2g} ± {round(total_std_charge)} [ke]"
         )
         for spine in axes[i + 3].spines.values():
             spine.set_visible(True)
