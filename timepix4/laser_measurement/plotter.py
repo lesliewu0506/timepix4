@@ -10,14 +10,22 @@ def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
     lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
 
     for pixel in folder:
-        file1 = pixel[0]
-        file2 = pixel[1]
-        file3 = pixel[2]
-        Pixel = file1.split("/")[-2].split("1")[-1].split(" ", 1)[-1]
+        High1 = pixel[0].replace("x", "High")
+        High2 = pixel[1].replace("x", "High")
+        High3 = pixel[2].replace("x", "High")
+        Low1 = pixel[0].replace("x", "Low")
+        Low2 = pixel[1].replace("x", "Low")
+        Low3 = pixel[2].replace("x", "Low")
+    
+        Pixel = High1.split("/")[-2].split("1")[-1].split(" ", 1)[-1]
         fig, ax = plt.subplots(figsize=(12, 10))
-        df1 = pd.read_csv(file1)
-        df2 = pd.read_csv(file2)
-        df3 = pd.read_csv(file3)
+        dfH1 = pd.read_csv(High1)
+        dfH2 = pd.read_csv(High2)
+        dfH3 = pd.read_csv(High3)
+        dfL1 = pd.read_csv(Low1)
+        dfL2 = pd.read_csv(Low2)
+        dfL3 = pd.read_csv(Low3)
+
 
         if value == "Tot" or value == "clTot":
             plt.xlim(0, 400)
@@ -36,22 +44,27 @@ def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
             plt.xticks(fontsize=12)
             plt.yticks(fontsize=12)
 
-        for df, pixels in zip([df1, df2, df3], [1, 2, 4]):
-            if len(df) < len(lookuptable):
-                lut = lookuptable.iloc[: len(df)]
-            else:
-                lut = lookuptable
+        for High, Low, pixels in zip([dfH1, dfH2, dfH3], [dfL1, dfL2, dfL3], [1, 2, 4]):
+            for i, df in enumerate([High, Low]):
+                if len(df) < len(lookuptable):
+                    lut = lookuptable.iloc[: len(df)]
+                else:
+                    lut = lookuptable
 
-            plt.errorbar(
-                lut["Charge"],
-                df[f"Mean {value}"],
-                yerr=df[f"Std {value}"],
-                fmt="o",
-                markersize=4,
-                linestyle="-",
-                label=f"{pixels} Pixels",
-                capsize=3,
-            )
+                if i == 0:
+                    label = f"{pixels} Pixels (High)"
+                else:
+                    label = f"{pixels} Pixels (Low)"
+                plt.errorbar(
+                    lut["Charge"],
+                    df[f"Mean {value}"],
+                    yerr=df[f"Std {value}"],
+                    fmt="o",
+                    markersize=4,
+                    linestyle="-",
+                    label=label,
+                    capsize=3,
+                )
 
         plt.plot(
             np.arange(0, 600, 1),

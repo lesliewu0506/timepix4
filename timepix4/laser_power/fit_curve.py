@@ -58,7 +58,6 @@ def fit_curve(df: pd.DataFrame, V_ref: float):
     plt.ylim(-1, 15)
     plt.yticks(np.arange(0, 16, 3))
     plt.legend()
-    # plt.title("Power vs Voltage")
     plt.grid()
     plt.tight_layout()
     plt.savefig("PowerVsVoltage.png", dpi=300)
