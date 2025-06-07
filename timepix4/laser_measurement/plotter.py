@@ -8,6 +8,14 @@ def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
     lookuptable = pd.read_csv("lookup_table.csv")
     lookuptable = lookuptable.sort_values("voltage", ascending=True)
     lookuptable["Charge"] = lookuptable["relative_factor"].apply(lambda x: x * 16.5)
+    plt.rcParams.update({
+        "font.size": 20,
+        "axes.titlesize": 20,
+        "axes.labelsize": 20,
+        "xtick.labelsize": 20,
+        "ytick.labelsize": 20,
+        "figure.titlesize": 20,
+    })
 
     for pixel in folder:
         High1 = pixel[0].replace("x", "High")
@@ -39,22 +47,22 @@ def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
             # plt.ylim(0, 100)
             plt.xlim(0, 600)
             plt.ylim(0, 600)
-            plt.xlabel("Injected Charge [ke]", fontsize=16)
-            plt.ylabel("Measured Charge [ke]", fontsize=16)
-            plt.xticks(fontsize=12)
-            plt.yticks(fontsize=12)
+            plt.xlabel("Injected Charge [ke]")
+            plt.ylabel("Measured Charge [ke]")
+            # plt.xticks(fontsize=12)
+            # plt.yticks(fontsize=12)
 
         for High, Low, pixels in zip([dfH1, dfH2, dfH3], [dfL1, dfL2, dfL3], [1, 2, 4]):
-            for i, df in enumerate([High, Low]):
+            for i, df in enumerate([High]):
                 if len(df) < len(lookuptable):
                     lut = lookuptable.iloc[: len(df)]
                 else:
                     lut = lookuptable
 
-                if i == 0:
-                    label = f"{pixels} Pixels (High)"
-                else:
-                    label = f"{pixels} Pixels (Low)"
+                # if i == 0:
+                #     label = f"{pixels} Pixels (High)"
+                # else:
+                #     label = f"{pixels} Pixels (Low)"
                 plt.errorbar(
                     lut["Charge"],
                     df[f"Mean {value}"],
@@ -62,7 +70,8 @@ def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
                     fmt="o",
                     markersize=4,
                     linestyle="-",
-                    label=label,
+                    label = f"{pixels} Pixel Injection",
+                    # label = f"{pixels} Pixels (Low)"
                     capsize=3,
                 )
 
@@ -80,7 +89,7 @@ def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
         ax.tick_params(axis="both", which="minor", length=5)
         ax.tick_params(axis="both", which="minor", direction="in", labelbottom=False)
 
-        plt.legend(fontsize=16)
+        plt.legend(fontsize=18)
         plt.grid()
         plt.tight_layout()
         plt.savefig(f"{Pixel}{value}_vs_InjectedCharge.png", dpi=300)

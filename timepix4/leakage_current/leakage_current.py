@@ -22,16 +22,24 @@ def _ProcessData(filepath: str) -> None:
 def _PlotData(
     df: pd.DataFrame, sensor: str, max_voltage: int, max_current: int
 ) -> None:
-    plt.figure(figsize=(14, 8))
+    plt.rcParams.update({
+        'font.size': 18,
+        'axes.titlesize': 18,
+        'axes.labelsize': 18,
+        'xtick.labelsize': 18,
+        'ytick.labelsize': 18,
+        'figure.titlesize': 20
+    })
+    plt.figure(figsize=(12, 8))
     plt.plot(df["Voltage"], df["Current"], marker="o", markersize=5)
     plt.xlim(0, max_voltage)
     plt.ylim(0, max_current)
 
-    plt.xlabel("Absolute Voltage [V]")
+    plt.xlabel("Voltage [V]")
     plt.ylabel("Leakage Current [$\mu$A]")
     plt.grid(True)
-    plt.title(f"IV-Curve {sensor}")
+    # plt.title(f"IV-Curve {sensor}")
     plt.tight_layout()
 
-    plt.savefig(f"IV_curve_{sensor}.png", dpi=600)
+    plt.savefig(f"IV_curve_{sensor}.png", dpi=300)
     plt.show()
