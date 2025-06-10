@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 def PlotClosestVoltage(filepath: str, tot_ref: float) -> None:
     df = pd.read_csv(filepath)
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(10, 8))
     plt.rcParams.update(
         {
             "font.size": 20,

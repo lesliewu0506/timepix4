@@ -28,7 +28,7 @@ class ScanPlotter:
                 "figure.titlesize": 22,
             }
         )
-        _, ax = plt.subplots(figsize=(14, 8))
+        _, ax = plt.subplots(figsize=(10, 8))
         ax2 = ax.twinx()
 
         # Plot Cluster ToT
@@ -58,17 +58,17 @@ class ScanPlotter:
         )
 
         # Plot ToT
-        ax.errorbar(
-            self.df["Position"],
-            self.df["mean_tot"],
-            yerr=self.df["std_tot"],
-            marker="o",
-            # linestyle="None",
-            linestyle="-",
-            capsize=3,
-            label=f"Mean ToT ({self.COL}, {self.ROW})",
-            markersize=4,
-        )
+        # ax.errorbar(
+        #     self.df["Position"],
+        #     self.df["mean_tot"],
+        #     yerr=self.df["std_tot"],
+        #     marker="o",
+        #     # linestyle="None",
+        #     linestyle="-",
+        #     capsize=3,
+        #     label=f"Mean ToT ({self.COL}, {self.ROW})",
+        #     markersize=4,
+        # )
 
         if self.direction != "z":
             if self.direction == "x":
@@ -133,22 +133,24 @@ class ScanPlotter:
         max_lim = np.ceil(all_tot.max() / 100) * 100
 
         left_ticks = np.linspace(min_lim, max_lim, num_ticks)
+        ax.set_xticks(np.arange(42.275, 42.50, 0.050))
         ax.set_ylim(min_lim, max_lim)
-        ax.set_yticks(left_ticks)
+        # ax.set_yticks(left_ticks)
+        ax.set_yticks(np.arange(0, 751, 150))
         ax2.set_yticks(np.linspace(0, max_cs, num_ticks))
 
         ax.set_xlabel(f"{self.direction.capitalize()} position [mm]")
         ax.set_ylabel("ToT [25 ns]")
         ax2.set_ylabel("Cluster size [pixels]")
-        plt.xlim(38.5, 41)
+        # plt.xlim(38.5, 41)
         # plt.xlim(18.125, 18.325)
-        # plt.xlim(42.275, 42.50)
+        plt.xlim(42.275, 42.475)
         # ax.set_title(
         #     f"{self.direction.capitalize()} Scan ToT: Pixel ({self.COL}, {self.ROW})"
         # )
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines + lines2, labels + labels2, loc="best", fontsize=14)
+        ax.legend(lines + lines2, labels + labels2, loc="center right", fontsize=14)
         ax.grid(True)
         plt.tight_layout()
         plt.savefig(
@@ -168,7 +170,7 @@ class ScanPlotter:
                 "figure.titlesize": 22,
             }
         )
-        _, ax = plt.subplots(figsize=(14, 8))
+        _, ax = plt.subplots(figsize=(10, 8))
         ax2 = ax.twinx()
 
         # Plot Cluster Charge
@@ -197,16 +199,16 @@ class ScanPlotter:
         )
 
         # Plot Charge
-        ax.errorbar(
-            self.df["Position"],
-            self.df["mean_charge"],
-            yerr=self.df["std_charge"],
-            marker="o",
-            linestyle="None",
-            capsize=3,
-            label=f"Mean Charge ({self.COL}, {self.ROW})",
-            markersize=4,
-        )
+        # ax.errorbar(
+        #     self.df["Position"],
+        #     self.df["mean_charge"],
+        #     yerr=self.df["std_charge"],
+        #     marker="o",
+        #     linestyle="None",
+        #     capsize=3,
+        #     label=f"Mean Charge ({self.COL}, {self.ROW})",
+        #     markersize=4,
+        # )
         if self.direction != "z":
             if self.direction == "x":
                 label_prev = f"Mean Charge ({self.COL}, {self.ROW - 1})"
@@ -271,8 +273,9 @@ class ScanPlotter:
         left_ticks = np.linspace(min_lim, max_lim, num_ticks)
         ax.set_ylim(min_lim, max_lim)
         ax.set_yticks(left_ticks)
+        ax.set_yticks(np.arange(0, 76, 15))
         ax2.set_yticks(np.linspace(0, max_cs, num_ticks))
-
+        ax.set_xticks(np.arange(42.275, 42.501, 0.050))
         ax.set_xlabel(f"{self.direction.capitalize()} position [mm]")
         ax.set_ylabel("Charge [ke]")
         ax2.set_ylabel("Cluster size [pixels]")
@@ -281,11 +284,11 @@ class ScanPlotter:
         # )
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines + lines2, labels + labels2, loc="best", fontsize=14)
+        ax.legend(lines + lines2, labels + labels2, loc="center right", fontsize=12)
         ax.grid(True)
-        # plt.xlim(42.275, 42.50)
+        plt.xlim(42.275, 42.475)
         # plt.xlim(18.125, 18.325)
-        plt.xlim(38.5, 41)
+        # plt.xlim(38.5, 41)
         plt.tight_layout()
 
         plt.savefig(

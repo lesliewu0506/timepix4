@@ -15,7 +15,7 @@ def PlotRelativePower(FilePath: str) -> None:
         }
     )
     df = pd.read_csv(FilePath)
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(10, 8))
     plt.plot(
         df["voltage"],
         df["relative_factor"],
