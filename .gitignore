@@ -1,5 +1,4 @@
 data/
-.vscode
 test.dSYM/
 .DS_Store
 __pycache__/
