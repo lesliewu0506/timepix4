@@ -71,14 +71,24 @@ def VisualizeToT(filepath: str) -> None:
         std_heatmap_tot = std_tots.pivot(
             index="row", columns="col", values="tot"
         ).reindex(index=rows, columns=cols, fill_value=np.nan)
-        annot_tot = heatmap_tot.combine(
-            std_heatmap_tot,
-            lambda m_col, s_col: (
-                m_col.map(lambda v: f"{v:.3g}")
-                + "\n±"
-                + s_col.map(lambda v: f"{v:.1g}")
-            ),
-        )
+        if i == 0:
+            annot_tot = heatmap_tot.combine(
+                std_heatmap_tot,
+                lambda m_col, s_col: (
+                    m_col.map(lambda v: f"{v:.0f}")
+                    + "\n±"
+                    + s_col.map(lambda v: f"{v:.1g}")
+                ),
+            )
+        else:
+            annot_tot = heatmap_tot.combine(
+                std_heatmap_tot,
+                lambda m_col, s_col: (
+                    m_col.map(lambda v: f"{v:.3g}")
+                    + "\n±"
+                    + s_col.map(lambda v: f"{v:.1g}")
+                ),
+            )
 
         total_mean_tot = mean_tots["tot"].sum()
         total_std_tot = np.sqrt((std_tots["tot"] ** 2).sum())
@@ -116,7 +126,7 @@ def VisualizeToT(filepath: str) -> None:
         annot_charge = heatmap_charge.combine(
             std_heatmap_charge,
             lambda m_col, s_col: (
-                m_col.map(lambda v: f"{v:.2g}")
+                m_col.map(lambda v: f"{v:.1f}")
                 + "\n±"
                 + s_col.map(lambda v: f"{v:.1g}")
             ),
