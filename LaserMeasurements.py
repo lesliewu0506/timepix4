@@ -67,9 +67,9 @@ def Plotter():
     LaserPlotter(
         [
             folder_228_230,
-            folder_228_240,
-            folder_238_230,
-            folder_238_240
+            # folder_228_240,
+            # folder_238_230,
+            # folder_238_240
         ],
         value="clCharge Calibrated",
     )
