@@ -5,7 +5,5 @@ from .attenuation_tot import *
 __all__ = [
     "Processor",
     "LaserPlotter",
-    "CompareMethodsPlotter",
-    "LaserPlotterMultiple",
     "AttenuationPlotter",
 ]

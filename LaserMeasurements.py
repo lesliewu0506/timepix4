@@ -2,19 +2,17 @@ from timepix4.laser_measurement import *
 
 
 def Process():
-#     processall()
+    processall()
 
-    FolderPath = (
-        f"Data/Laser Measurements/Laser Measurements 1 (238, 240)"
-    )
-    processor = Processor(
-        FolderPath,
-        ROW=240,
-        COL=238,
-        COL_Next=1,
-        ROW_Next=-1,
-    )
-    processor.ProcessFolder()
+    # FolderPath = f"Data/Laser Measurements/High/Laser Measurements 1 (228, 230)"
+    # processor = Processor(
+    #     FolderPath,
+    #     ROW=230,
+    #     COL=228,
+    #     # COL_Next=1,
+    #     # ROW_Next=-1,
+    # )
+    # processor.ProcessFolder()
 
 
 def processall():
@@ -71,6 +69,7 @@ def Plotter():
             # folder_238_230,
             # folder_238_240
         ],
+        
         value="clCharge Calibrated",
     )
 
