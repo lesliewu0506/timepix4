@@ -264,26 +264,11 @@ class FocusProcessor:
             ["row", "col", "tot", "cltot", "nhits", "charge", "clcharge"]
         ].reset_index(drop=True)
 
-        df["combined"] = df_charge.apply(
-            lambda r: list(
-                zip(
-                    r["row"],
-                    r["col"],
-                    r["tot"],
-                    r["cltot"],
-                    r["nhits"],
-                    r["charge"],
-                    r["clcharge"],
-                )
-            ),
-            axis=1,
+        df_exploded = df_charge.explode(["row", "col", "tot", "charge"]).reset_index(
+            drop=True
         )
-        df_exploded = df.explode("combined")
-
-        df_exploded[["row", "col", "tot", "cltot", "nhits", "charge", "clcharge"]] = (
-            pd.DataFrame(df_exploded["combined"].tolist(), index=df_exploded.index)
-        )
-        df_exploded = df_exploded.drop(columns=["combined"])
+        for c in ["col", "row", "tot", "charge", "cltot", "nhits", "clcharge"]:
+            df_exploded[c] = df_exploded[c].apply(self._ParsefromList)
 
         df_exploded = df_exploded[
             (df_exploded["tot"] < self.ToTLimit) & (df_exploded["tot"] >= 0)
@@ -292,3 +277,12 @@ class FocusProcessor:
             (df_exploded["cltot"] < self.ToTLimit) & (df_exploded["cltot"] >= 0)
         ]
         return df_exploded
+
+    def _ParsefromList(self, x: list | float | int) -> float:
+        if isinstance(x, list):
+            return float(x[0])
+        elif isinstance(x, (int, float)):
+            return float(x)
+        else:
+            print(x)
+            raise ValueError(f"Expected a list with at least one element, got {x}")
