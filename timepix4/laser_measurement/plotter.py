@@ -48,12 +48,18 @@ def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
                 alpha=0.7,
                 linestyle="none",
             )
+            witdh = 2
 
             plt.xlabel("Injected Charge [ke]")
             plt.ylabel("Number of Hits")
-            plt.xlim(0, 700)
-            plt.ylim(1000, 100000)
+            plt.xlim(-20, 720)
+            plt.ylim(900.05, 120000)
+            ax.tick_params(axis="both", which="major", length=12, width=witdh, direction="in")
+            ax.tick_params(axis="both", which="minor", length=6, width=witdh, direction="in")
+            ax.set_xticks(np.arange(0, 701, 100))
+            ax.set_xticks(np.arange(0, 701, 20), minor=True)
             plt.grid()
+            ax.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.5)
             plt.tight_layout()
             if i == 0:
                 plt.savefig(f"HighAttenuationVoltage_vs_nhits.png", dpi=300)
