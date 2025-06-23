@@ -9,9 +9,9 @@ def PlotLaserStability(filepath: str) -> None:
         {
             "font.size": 20,
             "axes.titlesize": 22,
-            "axes.labelsize": 18,
-            "xtick.labelsize": 16,
-            "ytick.labelsize": 16,
+            "axes.labelsize": 20,
+            "xtick.labelsize": 20,
+            "ytick.labelsize": 20,
             "figure.titlesize": 22,
         }
     )
@@ -26,31 +26,37 @@ def PlotLaserStability(filepath: str) -> None:
         # means.append(filtered["Charge"].mean())
         # std.append(filtered["Charge"].std())
 
-    plt.figure(figsize=(10, 8))
+    fig, ax = plt.subplots(figsize=(12, 10))
     plt.errorbar(
         range(0, 61),
         means,
         yerr=std,
         fmt="o",
         markersize=4,
-        capsize=4,
+        capsize=3,
         linestyle="none",
+        color="b",
     )
     plt.xlabel("Time [min]")
     plt.ylabel("ToT [25 ns]")
-    # plt.ylabel("Charge [ke]")
-    # plt.title("Laser Stability")
-    plt.xlim(0, 60)
-    plt.ylim(240, 260)
-    # plt.ylim(15, 20)
+    plt.xlim(-3, 63)
+    plt.ylim(239, 261)
+
+    ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
+    ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
+
+    ax.set_xticks(np.arange(0, 61, 15))
+    ax.set_xticks(np.arange(0, 61, 3), minor=True)
+    ax.set_yticks(np.arange(240, 261, 5))
+    ax.set_yticks(np.arange(240, 260.5, 1), minor=True)
+
     plt.grid()
+    ax.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.5)
     plt.tight_layout()
     plt.savefig("LaserStabilityToT.png", dpi=300)
-    # plt.savefig("LaserStabilityCharge.png", dpi=300)
     plt.show()
 
-    plt.figure(figsize=(10, 8))
-    # plt.hist(df_filtered["tot"], bins=100)
+    fig, ax = plt.subplots(figsize=(12, 10))
 
     data = df_filtered["tot"]
     # Compute histogram
@@ -64,6 +70,7 @@ def PlotLaserStability(filepath: str) -> None:
         color="blue",
         alpha=0.7,
         label="Data",
+        zorder = 2
     )
 
     # Define Gaussian function
@@ -75,20 +82,43 @@ def PlotLaserStability(filepath: str) -> None:
     # Fit Gaussian
     popt, pcov = curve_fit(gaussian, bin_centers, counts, p0=p0)
     # Plot fitted Gaussian
-    x_fit = np.linspace(bin_centers.min(), bin_centers.max(), 500)
+    x_fit = np.linspace(225, 275, 1000)
     plt.plot(
         x_fit,
         gaussian(x_fit, *popt),
         color="red",
         linestyle="-",
         label=f"Fit: μ={popt[1]:.2f}, σ={popt[2]:.2f}",
+        zorder = 2
     )
-    plt.xlim(230, 270)
-    plt.ylim(0, 160000)
+    plt.xlim(227.5, 272.5)
+    plt.ylim(0, 170000)
+    ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
+    ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
+
+    ax.set_xticks(np.arange(230, 271, 10))
+    ax.set_xticks(np.arange(230, 271, 2.5), minor=True)
+    ax.set_yticks(np.arange(0, 160001, 40000))
+    ax.set_yticks(np.arange(0, 160001, 10000), minor=True)
+
     plt.xlabel("ToT [25 ns]")
     plt.ylabel("Counts")
-    # plt.grid()
-    plt.legend(loc="best", fontsize=18)
+    # plt.grid(zorder = 3)  
+    # ax.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.5, zorder = 3)
+    ax.legend(
+        loc="upper right",  # or whatever corner you like
+        bbox_to_anchor=(0.98, 0.98),  # move it just outside the axes
+        borderaxespad=0.5,  # padding between axes and legend
+        frameon=True,  # draw a frame
+        fancybox=False,  # straight corners (disable rounded box)
+        edgecolor="black",  # color of the border
+        framealpha=1.0,  # fully opaque
+        labelspacing=0.3,  # vertical space between entries
+        handlelength=2.5,  # length of the legend lines
+        handletextpad=0.5,  # space between line and label
+        borderpad=0.4,  # padding inside the legend box
+        fontsize=20,
+    )
     plt.tight_layout()
     plt.savefig("LaserStabilityToTHistogram.png", dpi=300)
     plt.show()
