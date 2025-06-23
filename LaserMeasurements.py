@@ -28,7 +28,7 @@ def processall():
                     cnext = 1
                     rnext = -1
                 FolderPath = (
-                    f"Data/Laser Measurements/Low/Laser Measurements {x} ({col}, {row})"
+                    f"Data/Laser Measurements/High/Laser Measurements {x} ({col}, {row})"
                 )
                 processor = Processor(
                     FolderPath,
@@ -65,9 +65,9 @@ def Plotter():
     LaserPlotter(
         [
             folder_228_230,
-            # folder_228_240,
-            # folder_238_230,
-            # folder_238_240
+            folder_228_240,
+            folder_238_230,
+            folder_238_240
         ],
         
         value="clCharge Calibrated",

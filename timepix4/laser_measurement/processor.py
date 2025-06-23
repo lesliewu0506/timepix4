@@ -230,15 +230,13 @@ class Processor:
         ] = pd.DataFrame(df_exploded["combined"].tolist(), index=df_exploded.index)
         df_exploded = df_exploded.drop(columns=["combined"])
         df_exploded = df_exploded[(df_exploded["tot"] > 0)]
-        # if float(self.AttenuationVoltage) <= 3.050:
-        #     df_exploded = df_exploded[df_exploded["tot"] > 500]
-        #     lower = df_exploded["tot"].quantile(0.005)
-        #     upper = df_exploded["tot"].quantile(0.995)
-        #     df_exploded = df_exploded[
-        #         (df_exploded["tot"] > lower) & (df_exploded["tot"] < upper)
-        #     ]
-            # print(self.AttenuationVoltage)
-            # print(df_exploded["tot"].describe())
+        if float(self.AttenuationVoltage) <= 3.050:
+            df_exploded = df_exploded[df_exploded["tot"] > 500]
+            lower = df_exploded["tot"].quantile(0.005)
+            upper = df_exploded["tot"].quantile(0.995)
+            df_exploded = df_exploded[
+                (df_exploded["tot"] > lower) & (df_exploded["tot"] < upper)
+            ]
         return df_exploded
 
     def _LoadCorrectionFactors(self) -> dict[tuple[int, int], float]:
