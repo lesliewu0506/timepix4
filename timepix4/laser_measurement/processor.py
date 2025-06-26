@@ -232,8 +232,9 @@ class Processor:
         df_exploded = df_exploded[(df_exploded["tot"] > 0)]
         if float(self.AttenuationVoltage) <= 3.050:
             df_exploded = df_exploded[df_exploded["tot"] > 500]
-            lower = df_exploded["tot"].quantile(0.005)
-            upper = df_exploded["tot"].quantile(0.995)
+            # df_exploded = df_exploded[df_exploded["tot"] < 2000]
+            lower = df_exploded["tot"].quantile(0.15)
+            upper = df_exploded["tot"].quantile(0.85)
             df_exploded = df_exploded[
                 (df_exploded["tot"] > lower) & (df_exploded["tot"] < upper)
             ]

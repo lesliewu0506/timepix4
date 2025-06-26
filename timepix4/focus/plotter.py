@@ -40,9 +40,9 @@ class ScanPlotter:
             marker="o",
             # linestyle="-",
             linestyle="None",
-            capsize=3,
+            # capsize=3,
             label="Mean clToT",
-            markersize=4,
+            markersize=5,
         )
 
         # Plot Cluster Size
@@ -52,24 +52,24 @@ class ScanPlotter:
             yerr=self.df["std_clustersize"],
             marker="s",
             linestyle="None",
-            capsize=3,
+            # capsize=3,
             color="green",
             label="Mean cluster size",
-            markersize=4,
+            markersize=5,
         )
 
         # Plot ToT
-        ax.errorbar(
-            self.df["Position"],
-            self.df["mean_tot"],
-            yerr=self.df["std_tot"],
-            marker="o",
-            linestyle="None",
-            # linestyle="-",
-            capsize=3,
-            label=f"Mean ToT ({self.COL}, {self.ROW})",
-            markersize=4,
-        )
+        # ax.errorbar(
+        #     self.df["Position"],
+        #     self.df["mean_tot"],
+        #     yerr=self.df["std_tot"],
+        #     marker="o",
+        #     linestyle="None",
+        #     # linestyle="-",
+        #     # capsize=3,
+        #     label=f"Mean ToT ({self.COL}, {self.ROW})",
+        #     markersize=5,
+        # )
 
         if self.direction != "z":
             if self.direction == "x":
@@ -87,9 +87,9 @@ class ScanPlotter:
                 marker="o",
                 linestyle="-",
                 # linestyle="None",
-                capsize=3,
+                # capsize=3,
                 label=label_prev,
-                markersize=4,
+                markersize=5,
             )
             # Plot ToT
             ax.errorbar(
@@ -99,9 +99,9 @@ class ScanPlotter:
                 marker="o",
                 # linestyle="None",
                 linestyle="-",
-                capsize=3,
+                # capsize=3,
                 label=f"Mean ToT ({self.COL}, {self.ROW})",
-                markersize=4,
+                markersize=5,
             )
             ax.errorbar(
                 self.df["Position"],
@@ -110,29 +110,21 @@ class ScanPlotter:
                 marker="o",
                 linestyle="-",
                 # linestyle="None",
-                capsize=3,
+                # capsize=3,
                 label=label_next,
-                markersize=4,
+                markersize=5,
             )
 
-        # Plot Attributes
-        max_cs = np.ceil(self.df["mean_clustersize"].max() / 5) * 5
-        if max_cs < 10:
-            max_cs = 10
+        # ax.set_xlim(38.5, 41)
+        # ax.set_ylim(0, 600)
+        # ax2.set_ylim(0, 20)
 
-        all_tot = np.hstack(
-            [
-                self.df["mean_cltot"].values,
-                self.df["mean_tot"].values,
-                self.df["mean_tot_prev"].values,
-                self.df["mean_tot_next"].values,
-            ]
-        )
-        all_tot = all_tot[~np.isnan(all_tot)]
+        # ax.set_xlim(18.125, 18.325)
+        ax.set_xlim(42.275, 42.475)
 
-        ax.set_xlim(38.4, 41.1)
-        ax.set_ylim(-30, 630)
-        ax2.set_ylim(-1, 21)
+        ax.set_ylim(0, 750)
+        ax2.set_ylim(0, 10)
+        
 
         witdh = 2
         ax.tick_params(axis="y", which="major", length=12, width=witdh, direction="in")
@@ -142,29 +134,66 @@ class ScanPlotter:
         ax.tick_params(axis="x", which="major", length=12, width=witdh, direction="in")
         ax.tick_params(axis="x", which="minor", length=6, width=witdh, direction="in")
 
-        ax.set_xticks(np.arange(38.5, 41.1, 0.5))
-        ax.set_xticks(np.arange(38.5, 41, 0.1), minor=True)
-        ax.set_yticks(np.arange(0, 601, 150))
-        ax.set_yticks(np.arange(0, 601, 30), minor=True)
-        ax2.set_yticks(np.arange(0, 21, 5))
-        ax2.set_yticks(np.arange(0, 21, 1), minor=True)
+        # ax.set_xticks(np.arange(38.5, 41.1, 0.5))
+        # ax.set_xticks(np.arange(38.5, 41, 0.1), minor=True)
+        # ax.set_yticks(np.arange(0, 601, 150))
+        # ax.set_yticks(np.arange(0, 601, 30), minor=True)
+        # ax2.set_yticks(np.arange(0, 21, 5))
+        # ax2.set_yticks(np.arange(0, 21, 1), minor=True)
+
+        # ax.set_xticks(np.arange(18.125, 18.326, 0.05))
+        # ax.set_xticks(np.arange(18.125, 18.326, 0.01), minor=True)
+
+        ax.set_xticks(np.arange(42.275, 42.476, 0.05))
+        ax.set_xticks(np.arange(42.275, 42.476, 0.01), minor=True)
+
+        ax.set_yticks(np.arange(0, 751, 150))
+        ax.set_yticks(np.arange(0, 751, 30), minor=True)
+        ax2.set_yticks(np.arange(0, 10.1, 2))
+        ax2.set_yticks(np.arange(0, 10.1, 0.4), minor=True)
 
         ax.set_xlabel(f"{self.direction}-position [mm]")
         ax.set_ylabel("ToT [25 ns]")
         ax2.set_ylabel("Cluster size [pixels]")
-        # plt.xlim(38.5, 41)
-        # plt.xlim(18.125, 18.325)
-        # ax.set_title(
-        #     f"{self.direction.capitalize()} Scan ToT: Pixel ({self.COL}, {self.ROW})"
-        # )
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        # ax.legend(lines + lines2, labels + labels2, loc="best", fontsize=14)
+        # ax.legend(
+        #     lines + lines2,
+        #     labels + labels2,
+        #     loc="lower right",  # or whatever corner you like
+        #     bbox_to_anchor=(0.87, 0.02),  # move it just outside the axes
+        #     borderaxespad=0.5,  # padding between axes and legend
+        #     frameon=True,  # draw a frame
+        #     fancybox=False,  # straight corners (disable rounded box)
+        #     edgecolor="black",  # color of the border
+        #     framealpha=1.0,  # fully opaque
+        #     labelspacing=0.3,  # vertical space between entries
+        #     handlelength=2.5,  # length of the legend lines
+        #     handletextpad=0.5,  # space between line and label
+        #     borderpad=0.4,  # padding inside the legend box
+        #     fontsize=17,
+        # )
+        # ax.legend(
+        #     lines + lines2,
+        #     labels + labels2,
+        #     loc="upper left",  # or whatever corner you like
+        #     bbox_to_anchor=(0.02, 0.98),  # move it just outside the axes
+        #     borderaxespad=0.5,  # padding between axes and legend
+        #     frameon=True,  # draw a frame
+        #     fancybox=False,  # straight corners (disable rounded box)
+        #     edgecolor="black",  # color of the border
+        #     framealpha=1.0,  # fully opaque
+        #     labelspacing=0.3,  # vertical space between entries
+        #     handlelength=2.5,  # length of the legend lines
+        #     handletextpad=0.5,  # space between line and label
+        #     borderpad=0.4,  # padding inside the legend box
+        #     fontsize=17,
+        # )
         ax.legend(
             lines + lines2,
             labels + labels2,
-            loc="lower right",  # or whatever corner you like
-            bbox_to_anchor=(0.87, 0.02),  # move it just outside the axes
+            loc="upper right",  # or whatever corner you like
+            bbox_to_anchor=(0.98, 0.98),  # move it just outside the axes
             borderaxespad=0.5,  # padding between axes and legend
             frameon=True,  # draw a frame
             fancybox=False,  # straight corners (disable rounded box)
@@ -177,7 +206,7 @@ class ScanPlotter:
             fontsize=17,
         )
         ax.grid(True)
-        ax.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.5)
+        ax.grid(True, which="minor", linestyle=":", linewidth=0.5, alpha=0.5)
         plt.tight_layout()
         plt.savefig(
             f"{self.direction.capitalize()}ScanPlot{self.AttenuationVoltage}.png",
@@ -206,9 +235,9 @@ class ScanPlotter:
             yerr=self.df["std_clcharge"],
             marker="o",
             linestyle="None",
-            capsize=3,
+            # capsize=3,
             label=f"Mean clCharge",
-            markersize=4,
+            markersize=5,
         )
 
         # Plot Cluster Size
@@ -218,10 +247,10 @@ class ScanPlotter:
             yerr=self.df["std_clustersize"],
             marker="s",
             linestyle="None",
-            capsize=3,
+            # capsize=3,
             color="green",
             label="Mean cluster size",
-            markersize=4,
+            markersize=5,
         )
 
         # Plot Charge
@@ -250,9 +279,9 @@ class ScanPlotter:
                 yerr=self.df["std_charge_prev"],
                 marker="o",
                 linestyle="-",
-                capsize=3,
+                # capsize=3,
                 label=label_prev,
-                markersize=4,
+                markersize=5,
             )
             # Plot Charge
             ax.errorbar(
@@ -261,9 +290,9 @@ class ScanPlotter:
                 yerr=self.df["std_charge"],
                 marker="o",
                 linestyle="-",
-                capsize=3,
+                # capsize=3,
                 label=f"Mean Charge ({self.COL}, {self.ROW})",
-                markersize=4,
+                markersize=5,
             )
             ax.errorbar(
                 self.df["Position"],
@@ -271,29 +300,15 @@ class ScanPlotter:
                 yerr=self.df["std_charge_next"],
                 marker="o",
                 linestyle="-",
-                capsize=3,
+                # capsize=3,
                 label=label_next,
-                markersize=4,
+                markersize=5,
             )
 
-        # Plot Attributes
-        max_cs = np.ceil(self.df["mean_clustersize"].max() / 5) * 5
-        if max_cs < 10:
-            max_cs = 10
-
-        all_charge = np.hstack(
-            [
-                self.df["mean_clcharge"].values,
-                self.df["mean_charge"].values,
-                self.df["mean_charge_prev"].values,
-                self.df["mean_charge_next"].values,
-            ]
-        )
-        all_charge = all_charge[~np.isnan(all_charge)]
-    
-        ax.set_xlim(18.120,  18.330)
-        ax.set_ylim(-3, 78)
-        ax2.set_ylim(-0.40, max_cs + 0.40)
+        # ax.set_xlim(18.125, 18.325)
+        # ax.set_xlim(42.275, 42.475)
+        ax.set_ylim(0, 75)
+        ax2.set_ylim(0, 10)
 
         witdh = 2
         ax.tick_params(axis="y", which="major", length=12, width=witdh, direction="in")
@@ -303,8 +318,11 @@ class ScanPlotter:
         ax.tick_params(axis="x", which="major", length=12, width=witdh, direction="in")
         ax.tick_params(axis="x", which="minor", length=6, width=witdh, direction="in")
 
-        ax.set_xticks(np.arange(18.125,  18.326, 0.050))
-        ax.set_xticks(np.arange(18.125,  18.330, 0.010), minor=True)
+        # ax.set_xticks(np.arange(18.125, 18.326, 0.050))
+        # ax.set_xticks(np.arange(18.125, 18.330, 0.010), minor=True)
+        ax.set_xticks(np.arange(42.275, 42.476, 0.050))
+        ax.set_xticks(np.arange(42.275, 42.476, 0.010), minor=True)
+
         ax.set_yticks(np.arange(0, 76, 15))
         ax.set_yticks(np.arange(0, 76, 3), minor=True)
         ax2.set_yticks(np.arange(0, 11, 2))
@@ -323,13 +341,13 @@ class ScanPlotter:
 
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        
+
         # ax.legend(lines + lines2, labels + labels2, loc="center right", fontsize=12)
         ax.legend(
             lines + lines2,
             labels + labels2,
-            loc="upper left",  # or whatever corner you like
-            bbox_to_anchor=(0.05, 0.98),  # move it just outside the axes
+            loc="upper right",  # or whatever corner you like
+            bbox_to_anchor=(0.99, 0.99),  # move it just outside the axes
             borderaxespad=0.5,  # padding between axes and legend
             frameon=True,  # draw a frame
             fancybox=False,  # straight corners (disable rounded box)
@@ -342,7 +360,7 @@ class ScanPlotter:
             fontsize=17,
         )
         ax.grid(True)
-        ax.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.5)
+        ax.grid(True, which="minor", linestyle=":", linewidth=0.5, alpha=0.5)
         # plt.xlim(42.275, 42.475)
         # plt.xlim(18.125, 18.325)
         # plt.xlim(38.5, 41)

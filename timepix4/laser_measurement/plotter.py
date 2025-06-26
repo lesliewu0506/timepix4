@@ -35,9 +35,9 @@ def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
         dfL2 = pd.read_csv(Low2)
         dfL3 = pd.read_csv(Low3)
 
-        PlotZoomedLinearity(lookuptable, [dfH1, dfH2, dfH3], Pixel)
-        # PlotLinearity(lookuptable, [dfH1, dfH2, dfH3], Pixel, "High")
-        # PlotLinearity(lookuptable, [dfL1, dfL2, dfL3], Pixel, "Low")
+        # PlotZoomedLinearity(lookuptable, [dfH1, dfH2, dfH3], Pixel)
+        PlotLinearity(lookuptable, [dfH1, dfH2, dfH3], Pixel, "High")
+        PlotLinearity(lookuptable, [dfL1, dfL2, dfL3], Pixel, "Low")
         # GainComparison(lookuptable, dfH1, dfL1, Pixel)
         # PlotHits(dfH1, dfL1, lookuptable)
 
@@ -58,8 +58,8 @@ def PlotZoomedLinearity(
     )
     plt.xlabel("Injected Charge [ke]")
     plt.ylabel("Measured Charge [ke]")
-    plt.xlim(-5, 105)
-    plt.ylim(-5, 105)
+    plt.xlim(0, 105)
+    plt.ylim(0, 105)
     ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
     ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
 
@@ -89,10 +89,10 @@ def PlotZoomedLinearity(
             df["Mean clCharge Calibrated"],
             yerr=df["Std clCharge Calibrated"],
             fmt="o",
-            markersize=4,
+            markersize=8,
             linestyle="none",
             # label=label,
-            capsize=3,
+            # capsize=3,
             color=color,
         )
         # Remove any NaN or infinite values and restrict charge range to [10, 400]
@@ -150,8 +150,8 @@ def PlotLinearity(
     )
     plt.xlabel("Injected Charge [ke]")
     plt.ylabel("Measured Charge [ke]")
-    plt.xlim(-30, 690)
-    plt.ylim(-30, 690)
+    plt.xlim(0, 690)
+    plt.ylim(0, 690)
     ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
     ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
     ax.set_xticks(np.arange(0, 601, 150))
@@ -179,10 +179,10 @@ def PlotLinearity(
             df["Mean clCharge Calibrated"],
             yerr=df["Std clCharge Calibrated"],
             fmt="o",
-            markersize=4,
+            markersize=8,
             linestyle="none",
             # label=label,
-            capsize=3,
+            # capsize=3,
             color=color,
         )
         # Remove any NaN or infinite values and restrict charge range to [10, 400]
@@ -224,7 +224,6 @@ def PlotLinearity(
     )
     plt.tight_layout()
     plt.savefig(f"{Gain}{Pixel}clCharge Calibrated_vs_InjectedCharge.png", dpi=300)
-    # plt.savefig(f"Low{Pixel}clChargeCalibrated_vs_InjectedCharge.png", dpi=300)
     plt.show()
 
 
@@ -232,8 +231,8 @@ def GainComparison(lookuptable: pd.DataFrame, dfH1, dfL1, Pixel: str) -> None:
     fig, ax = plt.subplots(figsize=(12, 10))
     plt.xlabel("Injected Charge [ke]")
     plt.ylabel("ToT [25 ns]")
-    plt.xlim(-30, 690)
-    plt.ylim(-100, 2100)
+    plt.xlim(0, 690)
+    plt.ylim(0, 2100)
     ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
     ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
 
@@ -301,8 +300,8 @@ def PlotHits(dfH1, dfL1, lookuptable) -> None:
 
         plt.xlabel("Injected Charge [ke]")
         plt.ylabel("Number of Hits")
-        plt.xlim(-20, 720)
-        plt.ylim(900.05, 120000)
+        plt.xlim(0, 690)
+        plt.ylim(1000, 100000)
 
         ax.tick_params(
             axis="both", which="major", length=12, width=witdh, direction="in"
@@ -310,8 +309,8 @@ def PlotHits(dfH1, dfL1, lookuptable) -> None:
         ax.tick_params(
             axis="both", which="minor", length=6, width=witdh, direction="in"
         )
-        ax.set_xticks(np.arange(0, 701, 100))
-        ax.set_xticks(np.arange(0, 701, 20), minor=True)
+        ax.set_xticks(np.arange(0, 690, 150))
+        ax.set_xticks(np.arange(0, 690, 30), minor=True)
 
         plt.grid()
         ax.grid(True, which="minor", linestyle=":", linewidth=0.5, alpha=0.5)

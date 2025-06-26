@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 def ToTPlotter(filepath: str, COL: int = 228, ROW: int = 230) -> None:
     plt.rcParams.update(
@@ -14,91 +14,63 @@ def ToTPlotter(filepath: str, COL: int = 228, ROW: int = 230) -> None:
         }
     )
     df = pd.read_csv(filepath)
-    df = df[(df["col"] == COL) & (df["row"] == ROW)]
+    # df = df[(df["col"] == COL) & (df["row"] == ROW)]
     df = df[df["tot"] > 0]
-    df = df[df["tot"] < 200]
+    df = df[df["tot"] < 210]
     # df = df[((df["Charge"] < 20) & (df["Charge"] > 0))]
-    fig, ax = plt.subplots(figsize=(12,10))
+    fig, ax = plt.subplots(figsize=(12, 10))
     plt.hist(
-        df["Charge"],
-        bins=120,
+        df["tot"],
+        # df["charge"], 
+        bins=200,
         color="blue",
         alpha=0.7,
     )
-    plt.xlabel("Charge [ke]")
-    plt.ylabel("Counts")
-    plt.xlim(0, 18)
-    plt.ylim(0, 60)
-    plt.xticks(range(0, 19, 2))
-    vlines = [
-        {"x": 2.225, "color": "red", "label": "8.01 keV"},
-        {"x": 3.861, "color": "green", "label": "13.9 keV"},
-        {"x": 4.917, "color": "blue", "label": "17.7 keV"},
-        {"x": 5.75, "color": "magenta", "label": "20.7 keV"},
-        {"x": 7.306, "color": "cyan", "label": "26.3 keV"},
-        {"x": 16.5, "color": "orange", "label": "59.5 keV"},
-    ]
-    for line in vlines:
-        plt.axvline(
-            x=line["x"], color=line["color"], linestyle="--", label=line["label"]
-        )
-    plt.legend(loc = "best", fontsize = 18)
-    plt.tight_layout()
-    plt.savefig("TestPulseHistogram(228,230).png", dpi=300)
-    plt.show()
+    plt.xlim(0, 210)
+    plt.ylim(0, 2500000)
+    # plt.ylim(0, 40)
+    ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
+    ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
 
-    # def ToTPlotter(filepath: str, COL: int = 228, ROW: int = 230) -> None:
-    # plt.rcParams.update(
-    #     {
-    #         "font.size": 20,
-    #         "axes.titlesize": 22,
-    #         "axes.labelsize": 20,
-    #         "xtick.labelsize": 20,
-    #         "ytick.labelsize": 20,
-    #         "figure.titlesize": 22,
-    #     }
+    ax.set_xticks(np.arange(0, 201, 40))
+    ax.set_xticks(np.arange(0, 211, 10), minor=True)
+    ax.set_yticks(np.arange(0, 2500001, 500000))
+    ax.set_yticks(np.arange(0, 2500001, 125000), minor=True)
+
+    # vlines = [
+    #     {"x": 2.225, "color": "red", "label": "8.01 keV"},
+    #     {"x": 3.861, "color": "green", "label": "13.9 keV"},
+    #     {"x": 4.917, "color": "blue", "label": "17.7 keV"},
+    #     {"x": 5.75, "color": "magenta", "label": "20.7 keV"},
+    #     {"x": 7.306, "color": "cyan", "label": "26.3 keV"},
+    #     {"x": 16.5, "color": "orange", "label": "59.5 keV"},
+    # ]
+    # for line in vlines:
+    #     plt.axvline(
+    #         x=line["x"], color=line["color"], linestyle="--", label=line["label"]
+    #     )
+
+    # plt.xlabel("Charge [ke]")
+    plt.xlabel("ToT [25 ns]")
+    plt.ylabel("Counts")
+    # ax.legend(
+    #     loc="upper center",  # or whatever corner you like
+    #     bbox_to_anchor=(0.58, 0.98),  # move it just outside the axes
+    #     borderaxespad=0.5,  # padding between axes and legend
+    #     frameon=True,  # draw a frame
+    #     fancybox=False,  # straight corners (disable rounded box)
+    #     edgecolor="black",  # color of the border
+    #     framealpha=1.0,  # fully opaque
+    #     labelspacing=0.3,  # vertical space between entries
+    #     handlelength=2.5,  # length of the legend lines
+    #     handletextpad=0.5,  # space between line and label
+    #     borderpad=0.4,  # padding inside the legend box
+    #     fontsize=20,
     # )
-    # df = pd.read_csv(filepath)
-    # df = df[(df["col"] == COL) & (df["row"] == ROW)]
-    # df = df[df["tot"] > 500]
-    # print(df.describe())
-    # # df = df[df["tot"] < 240]
-    # # df = df[((df["Charge"] < 18) & (df["Charge"] > 0))]
-    # # mean = df[df["tot"] > 150]["tot"].mean()
-    # # mean = df["Charge"].mean()
-    # plt.figure(figsize=(12, 10))
-    # plt.hist(
-    #     df["tot"],
-    #     # df["tot"] * 0.10437223461349657,
-    #     # df["Charge"],
-    #     bins=180,
-    #     color="blue",
-    #     alpha=0.7,
-    #     # label=f"Pixel ({COL}, {ROW}); Mean above threshold: {mean:.2f} [25 ns]",
-    # )
-    # plt.xlabel("ToT [25 ns]")
-    # # plt.xlabel("Charge [ke]")
-    # plt.ylabel("Counts")
-    # # plt.title(f"ToT Histogram for Pixel ({COL}, {ROW})")
-    # # plt.xlim(0, 200)
-    # # plt.ylim(0, 40)
-    # # plt.xticks(range(0, 201, 20))
-    # # plt.xlim(0, 18)
-    # # plt.ylim(0, 2500000)
-    # # plt.xticks(range(0, 19, 2))
-    # # vlines = [
-    # #     {"x": 2.225, "color": "red", "label": "8.01 keV"},
-    # #     {"x": 3.861, "color": "green", "label": "13.9 keV"},
-    # #     {"x": 4.917, "color": "blue", "label": "17.7 keV"},
-    # #     {"x": 5.75, "color": "magenta", "label": "20.7 keV"},
-    # #     {"x": 7.306, "color": "cyan", "label": "26.3 keV"},
-    # #     {"x": 16.5, "color": "orange", "label": "59.5 keV"},
-    # # ]
-    # # for line in vlines:
-    # #     plt.axvline(
-    # #         x=line["x"], color=line["color"], linestyle="--", label=line["label"]
-    # #     )
-    # # plt.legend(loc="upper center", fontsize=18)
-    # plt.tight_layout()
-    # plt.savefig("ToTHistogram.png", dpi=300)
-    # plt.show()
+    plt.tight_layout()
+    # plt.savefig("TestPulseHistogram(228,230).png", dpi=300)
+    plt.savefig("RawToTHistogram.png", dpi=300)
+    # plt.savefig("ChargeHistogram.png", dpi=300)
+    # plt.savefig("ToTHistogram(228, 230).png", dpi=300)
+    # plt.savefig("TestCalibratedChargeHistogram.png", dpi=300)
+    plt.show()

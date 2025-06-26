@@ -20,12 +20,12 @@ def SourceHitMap(file: str) -> None:
     counts = df.groupby(["row", "col"]).size().reset_index(name="count")
     heatmap_data = counts.pivot(index="row", columns="col", values="count").fillna(0)
 
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(11, 10))
     ax = sns.heatmap(
         heatmap_data,
         cmap="viridis",
         cbar_kws={"label": "counts/pixel"},
-        vmax=900,
+        vmax=800,
         vmin=0,
     )
     ax.invert_yaxis()

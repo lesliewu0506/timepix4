@@ -26,8 +26,8 @@ def DirectRelativePower(filepath: str, V_ref: float) -> None:
     plt.axhline(y=1, color="r", linestyle="--", label="Relative Power = 1")
     plt.xlabel("Attenuation Voltage [V]")
     plt.ylabel("Relative Power [a.u.]")
-    plt.xlim(2.85, 4.05)
-    plt.ylim(-2.5, 42.5)
+    plt.xlim(2.9, 4.00)
+    plt.ylim(0, 40)
 
     ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
     ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")

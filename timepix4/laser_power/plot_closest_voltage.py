@@ -37,8 +37,8 @@ def PlotClosestVoltage(filepath: str, tot_ref: float) -> None:
     plt.xlabel("Attenuation Voltage [V]")
     plt.ylabel("ToT [25 ns]")
 
-    plt.xlim(3.575, 4.025)
-    plt.ylim(-25, 425)
+    plt.xlim(3.6, 4)
+    plt.ylim(0, 400)
 
     ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
     ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")

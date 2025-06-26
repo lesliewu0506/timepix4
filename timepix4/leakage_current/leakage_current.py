@@ -33,13 +33,22 @@ def _PlotData(
             "figure.titlesize": 20,
         }
     )
+    df2 = _ProcessData("Data/Voltage Scans/N116_voltage_scan.txt")
     fig, ax = plt.subplots(figsize=(12, 10))
-    plt.plot(df["Voltage"], df["Current"], marker="o", markersize=5)
-    # Automatically invert axes and set limits for negative-valued data
-    x_min, x_max = df["Voltage"].min(), df["Voltage"].max()
-    y_min, y_max = df["Current"].min(), df["Current"].max()
-    ax.set_xlim(10, -210)
-    ax.set_ylim(0.1, -2.1)
+    plt.plot(
+        df["Voltage"], df["Current"], marker="o", 
+        markersize=5,
+        # label="Dark Environment",
+    )
+    # plt.plot(
+    #     df2["Voltage"],
+    #     df2["Current"],
+    #     marker="o",
+    #     markersize=5,
+    #     label="Sensor Cap",
+    # )
+    ax.set_xlim(0, -200)
+    ax.set_ylim(0, -2)
 
     ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
     ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
@@ -49,11 +58,24 @@ def _PlotData(
     ax.set_yticks(np.arange(-2.0, 0.1, 0.5))
     ax.set_yticks(np.arange(-2.0, 0.01, 0.1), minor=True)
 
-
     plt.xlabel("Voltage [V]")
     plt.ylabel("Leakage Current [$\mu$A]")
     plt.grid(True)
-    ax.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.5, zorder = 3)
+    ax.grid(True, which="minor", linestyle=":", linewidth=0.5, alpha=0.5, zorder=3)
+    # ax.legend(
+    #     loc="upper left",  # or whatever corner you like
+    #     bbox_to_anchor=(0.05, 0.98),  # move it just outside the axes
+    #     borderaxespad=0.5,  # padding between axes and legend
+    #     frameon=True,  # draw a frame
+    #     fancybox=False,  # straight corners (disable rounded box)
+    #     edgecolor="black",  # color of the border
+    #     framealpha=1.0,  # fully opaque
+    #     labelspacing=0.3,  # vertical space between entries
+    #     handlelength=2.5,  # length of the legend lines
+    #     handletextpad=0.5,  # space between line and label
+    #     borderpad=0.4,  # padding inside the legend box
+    #     fontsize=20,
+    # )
     plt.tight_layout()
     plt.savefig(f"IV_curve_{sensor}.png", dpi=300)
     plt.show()

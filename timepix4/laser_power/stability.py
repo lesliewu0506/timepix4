@@ -23,9 +23,6 @@ def PlotLaserStability(filepath: str) -> None:
         filtered = df_filtered.iloc[i * 60000 : i * 60000 + 60000]
         means.append(filtered["tot"].mean())
         std.append(filtered["tot"].std() / np.sqrt(60000))
-        # means.append(filtered["Charge"].mean())
-        # std.append(filtered["Charge"].std())
-
     fig, ax = plt.subplots(figsize=(12, 10))
     plt.errorbar(
         range(0, 61),
@@ -39,8 +36,8 @@ def PlotLaserStability(filepath: str) -> None:
     )
     plt.xlabel("Time [min]")
     plt.ylabel("ToT [25 ns]")
-    plt.xlim(-3, 63)
-    plt.ylim(239, 261)
+    plt.xlim(0, 60)
+    plt.ylim(240, 260)
 
     ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
     ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
@@ -91,8 +88,8 @@ def PlotLaserStability(filepath: str) -> None:
         label=f"Fit: μ={popt[1]:.2f}, σ={popt[2]:.2f}",
         zorder = 2
     )
-    plt.xlim(227.5, 272.5)
-    plt.ylim(0, 170000)
+    plt.xlim(230, 270)
+    plt.ylim(0, 160000)
     ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
     ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
 
