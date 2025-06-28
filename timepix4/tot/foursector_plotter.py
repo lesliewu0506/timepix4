@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-def ToTPlotter(filepath: str, COL: int = 228, ROW: int = 230) -> None:
+def FourToTPlotter(filepath: str) -> None:
     plt.rcParams.update(
         {
             "font.size": 20,
@@ -14,30 +14,28 @@ def ToTPlotter(filepath: str, COL: int = 228, ROW: int = 230) -> None:
         }
     )
     df = pd.read_csv(filepath)
-    # df = df[(df["col"] == COL) & (df["row"] == ROW)]
-    # df = df[df["tot"] > 0]
-    # df = df[df["tot"] < 210]
+    df = df[(df["col"] >= 224) & (df["row"] >= 256)]
     df = df[((df["Charge"] < 20) & (df["Charge"] > 0))]
     fig, ax = plt.subplots(figsize=(12, 10))
     plt.hist(
         # df["tot"],
         df["Charge"], 
-        bins=200,
+        bins=150,
         color="blue",
         alpha=0.7,
     )
     plt.xlim(0, 18)
-    # plt.ylim(0, 2500000)
-    plt.ylim(0, 4000000)
+    plt.ylim(0, 2500000)
+    # plt.ylim(0, 4000000)
     ax.tick_params(axis="both", which="major", length=12, width=2, direction="in")
     ax.tick_params(axis="both", which="minor", length=6, width=2, direction="in")
 
     ax.set_xticks(np.arange(0, 18, 4))
     ax.set_xticks(np.arange(0, 18.1, 1), minor=True)
-    # ax.set_yticks(np.arange(0, 2500001, 500000))
-    # ax.set_yticks(np.arange(0, 2500001, 125000), minor=True)
-    ax.set_yticks(np.arange(0, 4100000, 1000000))
-    ax.set_yticks(np.arange(0, 4100000, 200000), minor=True)
+    ax.set_yticks(np.arange(0, 2500001, 500000))
+    ax.set_yticks(np.arange(0, 2500001, 125000), minor=True)
+    # ax.set_yticks(np.arange(0, 4100000, 1000000))
+    # ax.set_yticks(np.arange(0, 4100000, 200000), minor=True)
 
     vlines = [
         {"x": 2.225, "color": "red", "label": "8.01 keV"},
@@ -53,7 +51,6 @@ def ToTPlotter(filepath: str, COL: int = 228, ROW: int = 230) -> None:
         )
 
     plt.xlabel("Charge [ke]")
-    # plt.xlabel("ToT [25 ns]")
     plt.ylabel("Counts")
     ax.legend(
         loc="upper center",  # or whatever corner you like
@@ -75,6 +72,7 @@ def ToTPlotter(filepath: str, COL: int = 228, ROW: int = 230) -> None:
     # plt.savefig("ChargeHistogram.png", dpi=300)
     # plt.savefig("ToTHistogram(228, 230).png", dpi=300)
     # plt.savefig("TestCalibratedChargeHistogram.png", dpi=300)
-    plt.savefig("TestPulseRefactored2.png", dpi=300)
+    # plt.savefig("TestPulseRefactored2.png", dpi=300)
     # plt.savefig("TestPulseRefactoredChargeHistogramOne.png", dpi=300)
+    plt.savefig("TR", dpi= 300)
     plt.show()
