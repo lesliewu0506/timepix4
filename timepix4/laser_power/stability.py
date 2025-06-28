@@ -29,8 +29,8 @@ def PlotLaserStability(filepath: str) -> None:
         means,
         yerr=std,
         fmt="o",
-        markersize=4,
-        capsize=3,
+        markersize=9,
+        # capsize=3,
         linestyle="none",
         color="b",
     )

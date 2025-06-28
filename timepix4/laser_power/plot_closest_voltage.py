@@ -22,9 +22,9 @@ def PlotClosestVoltage(filepath: str, tot_ref: float) -> None:
         df["Mean Tot"],
         yerr=df["Std Tot"],
         fmt="o",
-        markersize=3,
+        markersize=8,
         linestyle="None",
-        capsize=3,
+        # capsize=3,
         color="b",
         label="Mean ToT",
     )

@@ -36,9 +36,9 @@ def LaserPlotter(folder: list[list[str]], value: str = "Tot") -> None:
         dfL3 = pd.read_csv(Low3)
 
         # PlotZoomedLinearity(lookuptable, [dfH1, dfH2, dfH3], Pixel)
-        PlotLinearity(lookuptable, [dfH1, dfH2, dfH3], Pixel, "High")
-        PlotLinearity(lookuptable, [dfL1, dfL2, dfL3], Pixel, "Low")
-        # GainComparison(lookuptable, dfH1, dfL1, Pixel)
+        # PlotLinearity(lookuptable, [dfH1, dfH2, dfH3], Pixel, "High")
+        # PlotLinearity(lookuptable, [dfL1, dfL2, dfL3], Pixel, "Low")
+        GainComparison(lookuptable, dfH1, dfL1, Pixel)
         # PlotHits(dfH1, dfL1, lookuptable)
 
 def fit_function(x, a, b):
@@ -257,10 +257,10 @@ def GainComparison(lookuptable: pd.DataFrame, dfH1, dfL1, Pixel: str) -> None:
             df["Mean Tot"],
             yerr=df["Std Tot"],
             fmt="o",
-            markersize=4,
+            markersize=8,
             linestyle="none",
             label=label,
-            capsize=3,
+            # capsize=3,
         )
     plt.grid()
     ax.grid(True, which="minor", linestyle=":", linewidth=0.5, alpha=0.5)

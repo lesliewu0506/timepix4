@@ -22,7 +22,9 @@ def DirectRelativePower(filepath: str, V_ref: float) -> None:
     dataframe = pd.DataFrame({"voltage": V, "relative_factor": relative_power})
     dataframe.to_csv("lookup_table.csv", index=False)
     fig, ax = plt.subplots(figsize=(12, 10))
-    plt.scatter(V, relative_power, marker="o", color="b", label="Pixel (228, 230)")
+    plt.scatter(
+        V, relative_power, marker="o", s=60, color="b", label="Pixel (228, 230)"
+    )
     plt.axhline(y=1, color="r", linestyle="--", label="Relative Power = 1")
     plt.xlabel("Attenuation Voltage [V]")
     plt.ylabel("Relative Power [a.u.]")
@@ -38,7 +40,7 @@ def DirectRelativePower(filepath: str, V_ref: float) -> None:
     ax.set_yticks(np.arange(0, 41, 2.5), minor=True)
     plt.yticks(np.arange(0, 41, 10))
     plt.grid()
-    ax.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.5)
+    ax.grid(True, which="minor", linestyle=":", linewidth=0.5, alpha=0.5)
     ax.legend(
         loc="upper right",  # or whatever corner you like
         bbox_to_anchor=(0.98, 0.98),  # move it just outside the axes
